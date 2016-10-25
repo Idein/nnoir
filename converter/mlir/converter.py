@@ -101,7 +101,7 @@ def patch_for_links():
 def patch_for_functions():
     # patch for Functions
     target_functions = []
-    for k,v in (F.__dict__.items() + M.__dict__.items()):
+    for k,v in (list(F.__dict__.items()) + list(M.__dict__.items())):
         if inspect.isclass(v):
             target_functions.append(v)
     orig_function_calls = {f.__name__: f.__call__ for f in target_functions}
@@ -137,7 +137,7 @@ class Chainer(object):
         n2N = {}
         created_order = [0]
         def create_node(node):
-            if n2N.has_key(node):
+            if node in n2N:
                 return n2N[node]
             else:
                 n2N[node] = Node(node, created_order[0])
@@ -159,7 +159,7 @@ class Chainer(object):
             _, candidate = heapq.heappop(candidates)
             if isinstance(candidate, variable.Variable):
                 creator = None
-                if out2link.has_key(id(candidate)):
+                if id(candidate) in out2link:
                     creator = out2link[id(candidate)]
                 else:
                     creator = candidate.creator
@@ -200,8 +200,8 @@ class Chainer(object):
             node.no = no
 
     def to_hs(self):
-        iargs = ' '.join(map(lambda (i,node): 'input%d' % i, enumerate(self.input_variables)))
-        oargs = ', '.join(map(lambda (i,node): 'output%d' % i, enumerate(self.output_variables)))
+        iargs = ' '.join(map(lambda t: 'input%d' % t[0], enumerate(self.input_variables)))
+        oargs = ', '.join(map(lambda t: 'output%d' % t[0], enumerate(self.output_variables)))
         ret = "forward %s = (%s) where\n" % (iargs, oargs)
         for node in sorted(self.nodes, key=lambda n: n.no):
             if isinstance(node.node, variable.Variable):
@@ -221,21 +221,21 @@ class Chainer(object):
         return "v%s%d %s" % ('' if node.node.name is None else node.node.name, node.no, node.node.shape)
 
     def _lvalue_name(self, node):
-        ix = reduce(lambda e, (i, n): i if e is None and node is n else e, enumerate(self.output_variables), None)
+        ix = reduce(lambda e, t: t[0] if e is None and node is t[1] else e, enumerate(self.output_variables), None)
         if ix is None:
             return self._variable_name(node)
         else:
             return "output%d" % ix
 
     def _rvalue_name(self, node):
-        ix = reduce(lambda e, (i, n): i if e is None and node is n else e, enumerate(self.input_variables), None)
+        ix = reduce(lambda e, t: t[0] if e is None and node is t[1] else e, enumerate(self.input_variables), None)
         if ix is None:
             return "[abbrev.]" # '"%s"'
         else:
             return "input%d" % ix
 
     def _function_name(self, node):
-        aps = self.additional_params[node.node.label] if self.additional_params.has_key(node.node.label) else None
+        aps = self.additional_params[node.node.label] if node.node.label in self.additional_params else None
         if aps is None:
             return node.node.label
         else:
@@ -325,7 +325,7 @@ class Chainer(object):
                      b'dtype': node.node.dtype.str, # TODO: エンディアンとかが入り込むのでfloatとかでいい
                      b'shape': node.node.shape }
         def _function(node):
-            aps = self.additional_params[node.node.label] if self.additional_params.has_key(node.node.label) else None
+            aps = self.additional_params[node.node.label] if node.node.label in self.additional_params else None
             params = []
             if aps is not None:
                 def find_params(n, ps):
@@ -342,8 +342,8 @@ class Chainer(object):
                 for param in find_params(node.node, aps):
                     params.append(param)
             return { b'name': node.node.label,
-                     b'inputs': map(self._variable_elem_name, node.in_edges),
-                     b'outputs': map(self._variable_elem_name, node.out_edges),
+                     b'inputs': list(map(self._variable_elem_name, node.in_edges)),
+                     b'outputs': list(map(self._variable_elem_name, node.out_edges)),
                      b'params': params }
         nodes = map(_node, filter(lambda node: isinstance(node.node, variable.Variable), self.nodes))
         edges = map(_function, filter(lambda node: not isinstance(node.node, variable.Variable), self.nodes))
@@ -354,6 +354,6 @@ class Chainer(object):
                      b'generator':
                      { b'name' : 'chainer',
                        b'version': chainer.__version__ },
-                     b'nodes': nodes,
-                     b'edges': edges } } }
-        print (msgpack.packb(mlir))
+                     b'nodes': list(nodes),
+                     b'edges': list(edges) } } }
+        return msgpack.packb(mlir)
