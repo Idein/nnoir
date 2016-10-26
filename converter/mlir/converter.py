@@ -326,7 +326,7 @@ class Chainer(object):
                      b'shape': node.node.shape }
         def _function(node):
             aps = self.additional_params[node.node.label] if node.node.label in self.additional_params else None
-            params = []
+            params = {}
             if aps is not None:
                 def find_params(n, ps):
                     for p in ps:
@@ -339,8 +339,8 @@ class Chainer(object):
                             for k,vs in p.items():
                                 for (name, param) in find_params(n.__dict__[k], vs):
                                     yield ("%s.%s" % (k, name), param)
-                for param in find_params(node.node, aps):
-                    params.append(param)
+                for name, param in find_params(node.node, aps):
+                    params[name] = param
             return { b'name': node.node.label,
                      b'inputs': list(map(self._variable_elem_name, node.in_edges)),
                      b'outputs': list(map(self._variable_elem_name, node.out_edges)),
