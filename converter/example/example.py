@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 import numpy as np
 
 import chainer
@@ -17,4 +18,8 @@ if __name__ == '__main__':
     t = variable.Variable(np.zeros(1).astype(np.int32))
     y = model(x, t)
     g = C.Chainer(model, (x,t), (y,))
-    print (g.to_mlir())
+    result = g.to_mlir()
+    if sys.version_info < (3, 0, 0):
+        print(result)
+    else:
+        sys.stdout.buffer.write(result)
