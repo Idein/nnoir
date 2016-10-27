@@ -345,8 +345,10 @@ class Chainer(object):
                      b'inputs': list(map(self._variable_elem_name, node.in_edges)),
                      b'outputs': list(map(self._variable_elem_name, node.out_edges)),
                      b'params': params }
-        nodes = map(_node, filter(lambda node: isinstance(node.node, variable.Variable), self.nodes))
-        edges = map(_function, filter(lambda node: not isinstance(node.node, variable.Variable), self.nodes))
+        sorted_nodes = sorted(self.nodes, key=lambda n: n.no)
+        inputs = map(_node, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))
+        nodes = map(_node, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))
+        edges = map(_function, filter(lambda node: not isinstance(node.node, variable.Variable), sorted_nodes))
         mlir = { b'mlir':
                  { b'version' : 0,
                    b'model' :
@@ -354,6 +356,8 @@ class Chainer(object):
                      b'generator':
                      { b'name' : 'chainer',
                        b'version': chainer.__version__ },
+                     b'inputs': map(self._variable_elem_name, self.input_variables),
+                     b'outputs': map(self._variable_elem_name, self.output_variables),
                      b'nodes': list(nodes),
                      b'edges': list(edges) } } }
         return msgpack.packb(mlir)
