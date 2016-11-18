@@ -356,8 +356,8 @@ class Chainer(object):
                      b'generator':
                      { b'name' : 'chainer',
                        b'version': chainer.__version__ },
-                     b'inputs': map(self._variable_elem_name, self.input_variables),
-                     b'outputs': map(self._variable_elem_name, self.output_variables),
+                     b'inputs': list(map(self._variable_elem_name, self.input_variables)),
+                     b'outputs': list(map(self._variable_elem_name, self.output_variables)),
                      b'nodes': list(nodes),
                      b'edges': list(edges) } } }
         return msgpack.packb(mlir)
