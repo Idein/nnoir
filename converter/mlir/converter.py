@@ -95,8 +95,9 @@ def patch_for_links():
         else:
             self.output_variables = list(outputs)
         return outputs
-    for l in target_links: l.__call__ = link_call
-    for l in target_links: l.label = l.__name__
+    for l in target_links:
+        l.__call__ = link_call
+        l.label = l.__name__
 
 def patch_for_functions():
     # patch for Functions
@@ -113,8 +114,9 @@ def patch_for_functions():
         else:
             self.output_variables = list(outputs)
         return outputs
-    for f in target_functions: f.__call__ = function_call
-    for f in target_functions: f.label = f.__name__
+    for f in target_functions:
+        f.__call__ = function_call
+        f.label = f.__name__
 
 def patch():
     patch_for_links()
@@ -146,7 +148,8 @@ class Chainer(object):
 
         out2link = {}
         for child in model.children():
-            out2link.update({id(o): child for o in child.output_variables})
+            if hasattr(child, 'output_variables'):
+                out2link.update({id(o): child for o in child.output_variables})
 
         # Create graph
         seen_edges = set()
