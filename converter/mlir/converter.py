@@ -345,7 +345,7 @@ class Chainer(object):
                 for name, param in find_params(node.node, aps):
                     params[name] = param
             return { b'name': node.node.label,
-                     b'inputs': list(map(self._variable_elem_name, node.in_edges)),
+                     b'inputs': list(map(self._variable_elem_name, reversed(node.in_edges))),
                      b'outputs': list(map(self._variable_elem_name, node.out_edges)),
                      b'params': params }
         sorted_nodes = sorted(self.nodes, key=lambda n: n.no)
