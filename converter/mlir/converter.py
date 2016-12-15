@@ -239,8 +239,10 @@ class Chainer(object):
 
     def _function_name(self, node):
         aps = self.additional_params[node.node.label] if node.node.label in self.additional_params else None
+        in_edges = '|'.join(map(lambda v: '<' + self._variable_elem_name(v) + '>', reversed(node.in_edges)))
+        out_edges = '|'.join(map(lambda v: '<' + self._variable_elem_name(v) + '>', reversed(node.out_edges)))
         if aps is None:
-            return node.node.label
+            return "{{%s}|%s|{%s}}" % (in_edges, node.node.label, out_edges)
         else:
             def find_params(n, ps):
                 for p in ps:
@@ -251,7 +253,7 @@ class Chainer(object):
                             for param in find_params(n.__dict__[k], vs):
                                 yield "%s.%s" % (k, param)
             #return "%s %s" % (node.node.label, ' '.join(map(lambda p: str(node.node.__dict__[p]), aps)))
-            return "%s %s" % (node.node.label, ' '.join(find_params(node.node, aps)))
+            return "{{%s}|%s %s|{%s}}" % (in_edges, node.node.label, ' '.join(find_params(node.node, aps)), out_edges)
 
     def to_dot(self, variable_style = None, function_style = None, rankdir = 'TB'):
         ret = 'digraph graphname { rankdir=%s;\n' % rankdir
@@ -285,7 +287,7 @@ class Chainer(object):
                 ret += "  %s [%s];\n" % (id(node.node), ",".join(attributes))
             elif isinstance(node.node, function.Function):
                 attribute = { 'label' : self._function_name(node),
-                              'shape': 'box',
+                              'shape': 'record',
                               'style' : 'filled',
                               'fillcolor' : 'aquamarine' }
                 attributes = ["%s=\"%s\"" % (k, v) for (k, v)
@@ -293,7 +295,7 @@ class Chainer(object):
                 ret += "  %s [%s];\n" % (id(node.node), ",".join(attributes))
             else:
                 attribute = { 'label' : self._function_name(node),
-                              'shape': 'box',
+                              'shape': 'record',
                               'style' : 'filled',
                               'fillcolor' : 'cyan' }
                 attributes = ["%s=\"%s\"" % (k, v) for (k, v)
@@ -302,7 +304,12 @@ class Chainer(object):
         for from_node in self.nodes:
             if from_node.out_edges is None: continue
             for to_node in from_node.out_edges:
-                ret += '  %s -> %s;\n' % (id(from_node.node), id(to_node.node))
+                if isinstance(from_node.node, variable.Variable):
+                    ret += '  %s -> %s:%s;\n' % (id(from_node.node), id(to_node.node), self._variable_elem_name(from_node))
+                else:
+                    ret += '  %s:%s -> %s;\n' % (id(from_node.node), self._variable_elem_name(to_node), id(to_node.node))
+
+
         ret += '  { rank = same; \n'
         for node in self.input_variables:
             attribute = { 'xlabel' : self._variable_name(node),
