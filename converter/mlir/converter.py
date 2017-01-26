@@ -78,6 +78,7 @@ additional_params = {
     'Concat': ['axis'],
     'LocalResponseNormalization': ['n', 'k', 'alpha', 'beta'],
     'BatchNormalizationFunction': ['eps', 'running_mean', 'running_var', 'train', 'decay'],
+    'LeakyReLU' : ['slope'],
 }
 
 def patch_for_links():
