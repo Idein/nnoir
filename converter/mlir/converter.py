@@ -6,6 +6,7 @@ import msgpack
 import numpy
 
 import chainer
+from chainer import link
 from chainer import function
 from chainer import variable
 import chainer.links as L
@@ -70,14 +71,15 @@ additional_params = {
     'EmbedID': ['W'],
     'Linear': ['W', 'b'],
     'MulConstant': ['value'],
-    'Convolution2DFunction': ['sy', 'sx', 'ph', 'pw', 'cover_all'],
     'SoftmaxCrossEntropy': ['normalize', 'cache_score'],
+    'SigmoidCrossEntropy': ['normalize'],
+    'MeanSquaredError': [],
     'Dropout': ['dropout_ratio'],
     'AveragePooling2D': ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all'],
     'MaxPooling2D': ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all'],
     'Concat': ['axis'],
     'LocalResponseNormalization': ['n', 'k', 'alpha', 'beta'],
-    'BatchNormalizationFunction': ['eps', 'running_mean', 'running_var', 'train', 'decay'],
+    'BatchNormalization': ['eps', 'avg_mean', 'avg_var', 'decay', 'gamma', 'beta'],
     'LeakyReLU' : ['slope'],
 }
 
@@ -100,10 +102,23 @@ def patch_for_links():
         l.__call__ = link_call
         l.label = l.__name__
 
+def caller_link():
+    framerecords = inspect.stack()
+    for framerecord in framerecords:
+        frame = framerecord[0]
+        arginfo = inspect.getargvalues(frame)
+        result = arginfo.locals['self'] if 'self' in arginfo.locals else None
+        if isinstance(result, link.Link):
+            return result
+    return None
+
 def patch_for_functions():
     # patch for Functions
     target_functions = []
-    for k,v in (list(F.__dict__.items()) + list(M.__dict__.items())):
+    for k,v in (list(F.__dict__.items()) + list(M.__dict__.items()) +
+                [ ('BatchNormalizationFunction', F.normalization.batch_normalization.BatchNormalizationFunction),
+                  ('Convolution2DFunction', F.connection.convolution_2d.Convolution2DFunction)
+                ]):
         if inspect.isclass(v):
             target_functions.append(v)
     orig_function_calls = {f.__name__: f.__call__ for f in target_functions}
@@ -114,6 +129,7 @@ def patch_for_functions():
             self.output_variables = [outputs]
         else:
             self.output_variables = list(outputs)
+        self.caller = caller_link()
         return outputs
     for f in target_functions:
         f.__call__ = function_call
@@ -167,6 +183,10 @@ class Chainer(object):
                     creator = out2link[id(candidate)]
                 else:
                     creator = candidate.creator
+                if isinstance(creator, F.connection.convolution_2d.Convolution2DFunction):
+                    creator = creator.caller
+                if isinstance(creator, F.normalization.batch_normalization.BatchNormalizationFunction):
+                    creator = creator.caller
                 if creator is not None and (creator, candidate) not in seen_edges:
                     add_candidate(creator)
                     seen_edges.add((creator, candidate))
@@ -248,11 +268,14 @@ class Chainer(object):
             def find_params(n, ps):
                 for p in ps:
                     if isinstance(p, str):
-                        yield str(n.__dict__[p])
+                        if isinstance(n.__dict__[p], numpy.ndarray):
+                            yield p
+                        else:
+                            yield str(n.__dict__[p])
                     else:
                         for k,vs in p.items():
                             for param in find_params(n.__dict__[k], vs):
-                                yield "%s.%s" % (k, param)
+                                yield "{}.{}".format(k, param)
             #return "%s %s" % (node.node.label, ' '.join(map(lambda p: str(node.node.__dict__[p]), aps)))
             return "{{%s}|%s %s|{%s}}" % (in_edges, node.node.label, ' '.join(find_params(node.node, aps)), out_edges)
 
@@ -344,6 +367,8 @@ class Chainer(object):
                         if isinstance(p, str):
                             if isinstance(n.__dict__[p], variable.Variable):
                                 yield (str(n.__dict__[p]), encode_ndarray(n.__dict__[p].data))
+                            elif isinstance(n.__dict__[p], numpy.ndarray):
+                                yield (str(n.__dict__[p]), encode_ndarray(n.__dict__[p]))
                             else:
                                 yield (p, n.__dict__[p])
                         else:
