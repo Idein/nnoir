@@ -79,7 +79,7 @@ additional_params = {
     'MaxPooling2D': ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all'],
     'Concat': ['axis'],
     'LocalResponseNormalization': ['n', 'k', 'alpha', 'beta'],
-    'BatchNormalization': ['eps', 'avg_mean', 'avg_var', 'decay', 'gamma', 'beta'],
+    'BatchNormalization': ['eps', 'avg_mean', 'avg_var', 'gamma', 'beta'],
     'LeakyReLU' : ['slope'],
 }
 
@@ -368,7 +368,7 @@ class Chainer(object):
                             if isinstance(n.__dict__[p], variable.Variable):
                                 yield (str(n.__dict__[p]), encode_ndarray(n.__dict__[p].data))
                             elif isinstance(n.__dict__[p], numpy.ndarray):
-                                yield (str(n.__dict__[p]), encode_ndarray(n.__dict__[p]))
+                                yield (p, encode_ndarray(n.__dict__[p]))
                             else:
                                 yield (p, n.__dict__[p])
                         else:
