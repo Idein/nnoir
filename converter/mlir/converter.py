@@ -4,6 +4,7 @@ import inspect
 import sys
 import msgpack
 import numpy
+import six
 
 import chainer
 from chainer import link
@@ -14,17 +15,11 @@ import chainer.functions as F
 import chainer.functions.math.basic_math as M
 
 def encode_ndarray(obj):
-    x = obj
-    if sys.byteorder == 'little':
-        if obj.dtype.byteorder != '>':
-            x = obj.byteswap().newbyteorder('B')
-    else:
-        if obj.dtype.byteorder == '<':
-            x = obj.byteswap().newbyteorder('B')
-    return { b'ndarray':
-             { b'dtype': x.dtype.str,
-               b'shape': x.shape,
-               b'data': x.tostring() } }
+    x = None
+    with six.BytesIO() as out:
+        numpy.save(out, obj)
+        x = out.getvalue()
+    return { b'ndarray': x }
 
 def decode(obj):
     x = obj[b'ndarray']
