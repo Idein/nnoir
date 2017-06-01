@@ -362,7 +362,7 @@ class Chainer(object):
                     for p in ps:
                         if isinstance(p, str):
                             if isinstance(n.__dict__[p], variable.Variable):
-                                yield (str(n.__dict__[p]), encode_ndarray(n.__dict__[p].data))
+                                yield (p, encode_ndarray(n.__dict__[p].data))
                             elif isinstance(n.__dict__[p], numpy.ndarray):
                                 yield (p, encode_ndarray(n.__dict__[p]))
                             else:
