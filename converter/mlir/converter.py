@@ -73,6 +73,7 @@ additional_params = {
     'AveragePooling2D': ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all'],
     'MaxPooling2D': ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all'],
     'Concat': ['axis'],
+    'Reshape': ['shape'],
     'LocalResponseNormalization': ['n', 'k', 'alpha', 'beta'],
     'BatchNormalization': ['eps', 'avg_mean', 'avg_var', 'gamma', 'beta'],
     'LeakyReLU' : ['slope'],
