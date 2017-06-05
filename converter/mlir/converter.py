@@ -73,6 +73,7 @@ additional_params = {
     'AveragePooling2D': ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all'],
     'MaxPooling2D': ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all'],
     'Concat': ['axis'],
+    'Reshape': ['shape'],
     'LocalResponseNormalization': ['n', 'k', 'alpha', 'beta'],
     'BatchNormalization': ['eps', 'avg_mean', 'avg_var', 'gamma', 'beta'],
     'LeakyReLU' : ['slope'],
@@ -112,7 +113,8 @@ def patch_for_functions():
     target_functions = []
     for k,v in (list(F.__dict__.items()) + list(M.__dict__.items()) +
                 [ ('BatchNormalizationFunction', F.normalization.batch_normalization.BatchNormalizationFunction),
-                  ('Convolution2DFunction', F.connection.convolution_2d.Convolution2DFunction)
+                  ('Convolution2DFunction', F.connection.convolution_2d.Convolution2DFunction),
+                  ('LinearFunction', F.connection.linear.LinearFunction)
                 ]):
         if inspect.isclass(v):
             target_functions.append(v)
@@ -178,6 +180,8 @@ class Chainer(object):
                     creator = out2link[id(candidate)]
                 else:
                     creator = candidate.creator
+                if isinstance(creator, F.connection.linear.LinearFunction):
+                    creator = creator.caller
                 if isinstance(creator, F.connection.convolution_2d.Convolution2DFunction):
                     creator = creator.caller
                 if isinstance(creator, F.normalization.batch_normalization.BatchNormalizationFunction):
@@ -263,7 +267,9 @@ class Chainer(object):
             def find_params(n, ps):
                 for p in ps:
                     if isinstance(p, str):
-                        if isinstance(n.__dict__[p], numpy.ndarray):
+                        if isinstance(n.__dict__[p], variable.Variable):
+                            yield p
+                        elif isinstance(n.__dict__[p], numpy.ndarray):
                             yield p
                         else:
                             yield str(n.__dict__[p])
@@ -361,7 +367,7 @@ class Chainer(object):
                     for p in ps:
                         if isinstance(p, str):
                             if isinstance(n.__dict__[p], variable.Variable):
-                                yield (str(n.__dict__[p]), encode_ndarray(n.__dict__[p].data))
+                                yield (p, encode_ndarray(n.__dict__[p].data))
                             elif isinstance(n.__dict__[p], numpy.ndarray):
                                 yield (p, encode_ndarray(n.__dict__[p]))
                             else:
