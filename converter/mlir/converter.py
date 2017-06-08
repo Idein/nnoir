@@ -77,8 +77,8 @@ additional_params = {
     'LocalResponseNormalization': ['n', 'k', 'alpha', 'beta'],
     'BatchNormalization': ['eps', 'avg_mean', 'avg_var', 'gamma', 'beta'],
     'LeakyReLU' : ['slope'],
-    'Scale' : ['axis', 'W'],
-    'Bias' : ['axis', 'W'],
+    'Scale' : ['axis', 'W', { 'bias': [ 'axis', 'b' ] } ],
+    'Bias' : ['axis', 'b'],
 }
 
 def patch_for_links():
