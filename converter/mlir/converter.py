@@ -77,6 +77,8 @@ additional_params = {
     'LocalResponseNormalization': ['n', 'k', 'alpha', 'beta'],
     'BatchNormalization': ['eps', 'avg_mean', 'avg_var', 'gamma', 'beta'],
     'LeakyReLU' : ['slope'],
+    'Scale' : ['axis', 'W'],
+    'Bias' : ['axis', 'W'],
 }
 
 def patch_for_links():
@@ -267,12 +269,13 @@ class Chainer(object):
             def find_params(n, ps):
                 for p in ps:
                     if isinstance(p, str):
-                        if isinstance(n.__dict__[p], variable.Variable):
-                            yield p
-                        elif isinstance(n.__dict__[p], numpy.ndarray):
-                            yield p
-                        else:
-                            yield str(n.__dict__[p])
+                        if hasattr(n, p):
+                            if isinstance(n.__dict__[p], variable.Variable):
+                                yield p
+                            elif isinstance(n.__dict__[p], numpy.ndarray):
+                                yield p
+                            else:
+                                yield str(n.__dict__[p])
                     else:
                         for k,vs in p.items():
                             for param in find_params(n.__dict__[k], vs):
@@ -366,12 +369,15 @@ class Chainer(object):
                 def find_params(n, ps):
                     for p in ps:
                         if isinstance(p, str):
-                            if isinstance(n.__dict__[p], variable.Variable):
-                                yield (p, encode_ndarray(n.__dict__[p].data))
-                            elif isinstance(n.__dict__[p], numpy.ndarray):
-                                yield (p, encode_ndarray(n.__dict__[p]))
+                            if hasattr(n, p):
+                                if isinstance(n.__dict__[p], variable.Variable):
+                                    yield (p, encode_ndarray(n.__dict__[p].data))
+                                elif isinstance(n.__dict__[p], numpy.ndarray):
+                                    yield (p, encode_ndarray(n.__dict__[p]))
+                                else:
+                                    yield (p, n.__dict__[p])
                             else:
-                                yield (p, n.__dict__[p])
+                                yield (p, None)
                         else:
                             for k,vs in p.items():
                                 for (name, param) in find_params(n.__dict__[k], vs):
