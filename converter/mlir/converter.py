@@ -17,7 +17,7 @@ import chainer.functions.math.basic_math as M
 def encode_ndarray(obj):
     x = None
     with six.BytesIO() as out:
-        numpy.save(out, obj)
+        numpy.save(out, obj.copy())
         x = out.getvalue()
     return { b'ndarray': x }
 
