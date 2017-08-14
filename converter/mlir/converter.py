@@ -85,7 +85,7 @@ def patch_for_links():
     # patch for Links (and Chains)
     target_links = []
     for k,v in L.__dict__.items():
-        if inspect.isclass(v):
+        if inspect.isclass(v) and not issubclass(v, link.Chain) and not issubclass(v, link.ChainList):
             target_links.append(v)
     orig_link_calls = {l.__name__: l.__call__ for l in target_links}
     def link_call(self, *inputs, **d):
