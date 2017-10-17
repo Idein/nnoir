@@ -72,11 +72,13 @@ additional_params = {
     'Dropout': ['dropout_ratio'],
     'AveragePooling2D': ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all'],
     'MaxPooling2D': ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all'],
+    'Unpooling2D' : ['kh', 'kw', 'sy', 'sx', 'ph', 'pw', 'cover_all', 'outh', 'outw'],
     'Concat': ['axis'],
     'Reshape': ['shape'],
     'LocalResponseNormalization': ['n', 'k', 'alpha', 'beta'],
     'BatchNormalization': ['eps', 'avg_mean', 'avg_var', 'gamma', 'beta'],
     'LeakyReLU' : ['slope'],
+    'ELU' : ['alpha'],
     'Scale' : ['axis', 'W', { 'bias': [ 'axis', 'b' ] } ],
     'Bias' : ['axis', 'b'],
 }
