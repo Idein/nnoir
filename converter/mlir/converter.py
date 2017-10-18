@@ -33,7 +33,7 @@ class Node(object):
         self.in_edges = None
         self.out_edges = None
     def __hash__(self):
-        return self.node.__hash__()
+        return id(self.node).__hash__()
     def __eq__(self, r):
         return self.node is r.node
     def add_in_edge(self, from_node):
@@ -118,16 +118,23 @@ def patch_for_functions():
     # patch for Functions
     target_functions = []
     for k,v in (list(F.__dict__.items()) + list(M.__dict__.items()) +
-                [ ('BatchNormalizationFunction', F.normalization.batch_normalization.BatchNormalizationFunction),
+                [ ('BatchNormalization', F.normalization.batch_normalization.BatchNormalization),
                   ('Convolution2DFunction', F.connection.convolution_2d.Convolution2DFunction),
                   ('LinearFunction', F.connection.linear.LinearFunction)
                 ]):
         if inspect.isclass(v):
             target_functions.append(v)
     orig_function_calls = {f.__name__: f.__call__ for f in target_functions}
-    def function_call(self, *inputs, **d):
-        self.input_variables = list(inputs)
-        outputs = orig_function_calls[self.__class__.__name__](self, *inputs, **d)
+    orig_function_applies = {f.__name__: (f.apply if hasattr(f, 'apply') else None) for f in target_functions}
+    def function_call(self, inputs, **d):
+        if isinstance(inputs, variable.Variable):
+            self.input_variables = [inputs]
+        else:
+            self.input_variables = list(inputs)
+        if hasattr(self, 'apply'):
+            outputs = orig_function_applies[self.__class__.__name__](self, inputs)
+        else:
+            outputs = orig_function_calls[self.__class__.__name__](self, inputs, **d)
         if isinstance(outputs, variable.Variable):
             self.output_variables = [outputs]
         else:
@@ -135,7 +142,10 @@ def patch_for_functions():
         self.caller = caller_link()
         return outputs
     for f in target_functions:
-        f.__call__ = function_call
+        if hasattr(f, 'apply'):
+            f.apply = function_call
+        else:
+            f.__call__ = function_call
         f.label = f.__name__
 
 def patch():
@@ -159,12 +169,12 @@ class Chainer(object):
         n2N = {}
         created_order = [0]
         def create_node(node):
-            if node in n2N:
-                return n2N[node]
+            if id(node) in n2N:
+                return n2N[id(node)]
             else:
-                n2N[node] = Node(node, created_order[0])
+                n2N[id(node)] = Node(node, created_order[0])
                 created_order[0] += 1
-                return n2N[node]
+                return n2N[id(node)]
 
         out2link = {}
         for child in model.children():
@@ -190,11 +200,11 @@ class Chainer(object):
                     creator = creator.caller
                 if isinstance(creator, F.connection.convolution_2d.Convolution2DFunction):
                     creator = creator.caller
-                if isinstance(creator, F.normalization.batch_normalization.BatchNormalizationFunction):
+                if isinstance(creator, F.normalization.batch_normalization.BatchNormalization):
                     creator = creator.caller
-                if creator is not None and (creator, candidate) not in seen_edges:
+                if creator is not None and (id(creator), id(candidate)) not in seen_edges:
                     add_candidate(creator)
-                    seen_edges.add((creator, candidate))
+                    seen_edges.add((id(creator), id(candidate)))
                     creator_node = create_node(creator)
                     candidate_node = create_node(candidate)
                     candidate_node.add_in_edge(creator_node)
@@ -202,9 +212,9 @@ class Chainer(object):
                     self.nodes.add(creator_node)
             else:
                 for input_ in reversed(candidate.input_variables):
-                    if input_ is not candidate and (input_, candidate) not in seen_edges:
+                    if input_ is not candidate and (id(input_), id(candidate)) not in seen_edges:
                         add_candidate(input_)
-                        seen_edges.add((input_, candidate))
+                        seen_edges.add((id(input_), id(candidate)))
                         input_node = create_node(input_)
                         candidate_node = create_node(candidate)
                         candidate_node.add_in_edge(input_node)
