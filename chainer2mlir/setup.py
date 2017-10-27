@@ -60,10 +60,12 @@ This library convert Chainer model to MLIR format.
     # simple. Or you can use find_packages().
     packages=[
         'chainer.mlir',
-        'chainer.mlir.links',
-        'chainer.mlir.links.connection',
         'chainer.mlir.functions',
         'chainer.mlir.functions.activation',
+        'chainer.mlir.functions.array',
+        'chainer.mlir.functions.normalization',
+        'chainer.mlir.links',
+        'chainer.mlir.links.connection',
     ],
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
