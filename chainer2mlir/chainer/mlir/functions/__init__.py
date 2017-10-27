@@ -1,5 +1,7 @@
 from chainer.mlir.functions.activation.relu import relu
 from chainer.mlir.functions.activation.relu import ReLU
+from chainer.mlir.functions.activation.softmax import softmax
+from chainer.mlir.functions.activation.softmax import Softmax
 
 from chainer.mlir.functions.normalization.local_response_normalization import local_response_normalization
 from chainer.mlir.functions.normalization.local_response_normalization import LocalResponseNormalization
