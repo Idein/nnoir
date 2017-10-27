@@ -1,8 +1,18 @@
+import numpy
 import chainer.variable as variable
+import six
+
+def encode_ndarray(obj):
+    x = None
+    with six.BytesIO() as out:
+        numpy.save(out, obj.copy())
+        x = out.getvalue()
+    return { b'ndarray': x }
 
 class Link(object):
     def __init__(self, chainer_base_link):
         self.chainer_base_link = chainer_base_link
+        self.chainer_node_label = chainer_base_link.__name__
         self.chainer_input_variables = None
         self.chainer_output_variables = None
 
