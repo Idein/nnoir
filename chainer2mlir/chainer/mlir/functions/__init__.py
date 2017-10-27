@@ -6,8 +6,13 @@ from chainer.mlir.functions.activation.softmax import Softmax
 from chainer.mlir.functions.array.concat import concat
 from chainer.mlir.functions.array.concat import Concat
 
+from chainer.mlir.functions.noise.dropout import dropout
+from chainer.mlir.functions.noise.dropout import Dropout
+
 from chainer.mlir.functions.normalization.local_response_normalization import local_response_normalization
 from chainer.mlir.functions.normalization.local_response_normalization import LocalResponseNormalization
 
+from chainer.mlir.functions.pooling.average_pooling_2d import average_pooling_2d
+from chainer.mlir.functions.pooling.average_pooling_2d import AveragePooling2D
 from chainer.mlir.functions.pooling.max_pooling_2d import max_pooling_2d
 from chainer.mlir.functions.pooling.max_pooling_2d import MaxPooling2D
