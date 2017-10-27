@@ -8,6 +8,7 @@ from chainer.mlir.functions.array.concat import Concat
 from chainer.mlir.functions.array.reshape import reshape
 from chainer.mlir.functions.array.reshape import Reshape
 
+from chainer.mlir.functions.connection.convolution_2d import convolution_2d
 from chainer.mlir.functions.connection.linear import linear
 
 from chainer.mlir.functions.loss.softmax_cross_entropy import softmax_cross_entropy
