@@ -1,6 +1,5 @@
 import chainer
 import chainer.links as links
-from chainer.links.connection import linear
 from chainer.mlir import node
 from chainer.mlir.node import encode_ndarray
 
