@@ -5,6 +5,11 @@ from chainer.mlir.functions.activation.softmax import Softmax
 
 from chainer.mlir.functions.array.concat import concat
 from chainer.mlir.functions.array.concat import Concat
+from chainer.mlir.functions.array.reshape import reshape
+from chainer.mlir.functions.array.reshape import Reshape
+
+from chainer.mlir.functions.loss.softmax_cross_entropy import softmax_cross_entropy
+from chainer.mlir.functions.loss.softmax_cross_entropy import SoftmaxCrossEntropy
 
 from chainer.mlir.functions.noise.dropout import dropout
 from chainer.mlir.functions.noise.dropout import Dropout
