@@ -4,9 +4,9 @@ from chainer.mlir import node
 from chainer.mlir.node import encode_ndarray
 
 class ReLU(node.Function, functions.ReLU):
-    def __init__(self):
+    def __init__(self, *inputs, **dicts):
         super(ReLU, self).__init__(functions.ReLU)
-        super(node.Function, self).__init__()
+        super(node.Function, self).__init__(*inputs, **dicts)
 
     def to_mlir_node(self):
         return {
