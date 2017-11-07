@@ -47,6 +47,7 @@ class Node(object):
 
 additional_params = {
     'Convolution2D': ['W', 'b', 'stride', 'pad'],
+    'DepthwiseConvolution2D': ['W', 'b', 'stride', 'pad'],
     'Inception': [
         { 'conv1': ['W', 'b'] },
         { 'proj3': ['W', 'b'] },
