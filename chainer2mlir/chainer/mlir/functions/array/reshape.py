@@ -1,23 +1,16 @@
-import chainer
-import chainer.functions as functions
-from chainer.mlir import node
-from chainer.mlir.node import encode_ndarray
+from chainer.functions import Reshape
+from chainer.mlir.patch import patched_function_apply, patched_function_call
 
-class Reshape(node.Function, functions.Reshape):
-    def __init__(self, *inputs, **dicts):
-        super(Reshape, self).__init__(functions.Reshape)
-        super(node.Function, self).__init__(*inputs, **dicts)
+if hasattr(Reshape, 'apply'):
+    Reshape.apply = patched_function_apply(Reshape.apply)
+else:
+    Reshape.__call__ = patched_function_call(Reshape.__call__)
 
-    def to_mlir_node(self):
-        return {
-            b'name': self.chainer_node_label,
-            b'params': {
-                b'shape': self.shape
-            }
+def to_mlir_node(self):
+    return {
+        b'name': 'Reshape',
+        b'params': {
+            b'shape': self.shape
         }
-
-def reshape(x, shape):
-    if x.shape == shape:
-        return chainer.as_variable(x)
-    y, = Reshape(shape).apply((x,))
-    return y
+    }
+Reshape.to_mlir_node = to_mlir_node

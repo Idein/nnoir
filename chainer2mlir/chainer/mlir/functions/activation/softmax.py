@@ -1,18 +1,14 @@
-import chainer
-import chainer.functions as functions
-from chainer.mlir import node
-from chainer.mlir.node import encode_ndarray
+from chainer.functions import Softmax
+from chainer.mlir.patch import patched_function_apply, patched_function_call
 
-class Softmax(node.Function, functions.Softmax):
-    def __init__(self, *inputs, **dicts):
-        super(Softmax, self).__init__(functions.Softmax)
-        super(node.Function, self).__init__(*inputs, **dicts)
+if hasattr(Softmax, 'apply'):
+    Softmax.apply = patched_function_apply(Softmax.apply)
+else:
+    Softmax.__call__ = patched_function_call(Softmax.__call__)
 
-    def to_mlir_node(self):
-        return {
-            b'name': self.chainer_node_label,
-            b'params': {}
-        }
-
-def softmax(x, axis=1):
-    return Softmax(axis=axis).apply((x,))[0]
+def to_mlir_node(self):
+    return {
+        b'name': 'Softmax',
+        b'params': {}
+    }
+Softmax.to_mlir_node = to_mlir_node

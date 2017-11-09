@@ -1,21 +1,16 @@
-import chainer
-import chainer.functions as functions
-from chainer.mlir import node
-from chainer.mlir.node import encode_ndarray
+from chainer.functions import Concat
+from chainer.mlir.patch import patched_function_apply, patched_function_call
 
-class Concat(node.Function, functions.Concat):
-    def __init__(self, *inputs, **dicts):
-        super(Concat, self).__init__(functions.Concat)
-        super(node.Function, self).__init__(*inputs, **dicts)
+if hasattr(Concat, 'apply'):
+    Concat.apply = patched_function_apply(Concat.apply)
+else:
+    Concat.__call__ = patched_function_call(Concat.__call__)
 
-    def to_mlir_node(self):
-        return {
-            b'name': self.chainer_node_label,
-            b'params': {
-                b'axis': self.axis
-            }
+def to_mlir_node(self):
+    return {
+        b'name': 'Concat',
+        b'params': {
+            b'axis': self.axis
         }
-
-def concat(xs, axis=1):
-    y, = Concat(axis).apply(xs)
-    return y
+    }
+Concat.to_mlir_node = to_mlir_node

@@ -1,14 +1,14 @@
-from chainer.functions import MaxPooling2D
+from chainer.functions import Unpooling2D
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
-if hasattr(MaxPooling2D, 'apply'):
-    MaxPooling2D.apply = patched_function_apply(MaxPooling2D.apply)
+if hasattr(Unpooling2D, 'apply'):
+    Unpooling2D.apply = patched_function_apply(Unpooling2D.apply)
 else:
-    MaxPooling2D.__call__ = patched_function_call(MaxPooling2D.__call__)
+    Unpooling2D.__call__ = patched_function_call(Unpooling2D.__call__)
 
 def to_mlir_node(self):
     return {
-        b'name': 'MaxPooling2D',
+        b'name': 'Unpooling2D',
         b'params': {
             b'kh': self.kh,
             b'kw': self.kw,
@@ -17,6 +17,8 @@ def to_mlir_node(self):
             b'ph': self.ph,
             b'pw': self.pw,
             b'cover_all': self.cover_all,
+            b'outh': self.outh,
+            b'outw': self.outw,
         }
     }
-MaxPooling2D.to_mlir_node = to_mlir_node
+Unpooling2D.to_mlir_node = to_mlir_node

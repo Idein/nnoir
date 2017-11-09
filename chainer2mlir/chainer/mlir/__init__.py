@@ -1,7 +1,3 @@
-import chainer
-from chainer.mlir import links
-from chainer.mlir import functions
+import chainer.mlir.links
+import chainer.mlir.functions
 from chainer.mlir.graph import Graph
-
-chainer.links = links
-chainer.functions = functions

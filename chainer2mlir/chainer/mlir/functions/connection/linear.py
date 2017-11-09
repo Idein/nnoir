@@ -1,27 +1,14 @@
-import chainer
-import chainer.functions as functions
-from chainer.mlir import node
-from chainer.mlir.node import encode_ndarray
+from chainer.functions.connection.linear import LinearFunction
+from chainer.mlir.patch import patched_function_apply, patched_function_call
 
-class LinearFunction(node.Function, functions.LinearFunction):
-    def __init__(self, *inputs, **dicts):
-        super(LinearFunction, self).__init__(functions.LinearFunction)
-        super(node.Function, self).__init__(*inputs, **dicts)
+if hasattr(LinearFunction, 'apply'):
+    LinearFunction.apply = patched_function_apply(LinearFunction.apply)
+else:
+    LinearFunction.__call__ = patched_function_call(LinearFunction.__call__)
 
-    def to_mlir_node(self):
-        return {
-            b'name': self.chainer_node_label,
-            b'params': {}
-        }
-
-def linear(x, W, b=None):
-    if x.ndim > 2:
-        x = x.reshape(len(x), -1)
-
-    if b is None:
-        args = x, W
-    else:
-        args = x, W, b
-
-    y, = LinearFunction().apply(args)
-    return y
+def to_mlir_node(self):
+    return {
+        b'name': 'LinearFunction',
+        b'params': {}
+    }
+LinearFunction.to_mlir_node = to_mlir_node

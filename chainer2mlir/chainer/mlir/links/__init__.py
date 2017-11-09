@@ -1,2 +1,2 @@
-from chainer.mlir.links.connection.linear import Linear
-from chainer.mlir.links.connection.convolution_2d import Convolution2D
+import chainer.mlir.links.connection
+import chainer.mlir.links.normalization

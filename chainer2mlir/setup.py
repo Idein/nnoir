@@ -65,10 +65,12 @@ This library convert Chainer model to MLIR format.
         'chainer.mlir.functions.array',
         'chainer.mlir.functions.connection',
         'chainer.mlir.functions.loss',
+        'chainer.mlir.functions.math',
         'chainer.mlir.functions.noise',
         'chainer.mlir.functions.normalization',
         'chainer.mlir.functions.pooling',
         'chainer.mlir.links',
+        'chainer.mlir.links.normalization',
         'chainer.mlir.links.connection',
     ],
 

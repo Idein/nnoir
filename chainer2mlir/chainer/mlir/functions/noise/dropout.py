@@ -1,18 +1,14 @@
-import chainer
-import chainer.functions as functions
-from chainer.mlir import node
-from chainer.mlir.node import encode_ndarray
+from chainer.functions import Dropout
+from chainer.mlir.patch import patched_function_apply, patched_function_call
 
-class Dropout(node.Function, functions.Dropout):
-    def __init__(self, *inputs, **dicts):
-        super(Dropout, self).__init__(functions.Dropout)
-        super(node.Function, self).__init__(*inputs, **dicts)
+if hasattr(Dropout, 'apply'):
+    Dropout.apply = patched_function_apply(Dropout.apply)
+else:
+    Dropout.__call__ = patched_function_call(Dropout.__call__)
 
-    def to_mlir_node(self):
-        return {
-            b'name': self.chainer_node_label,
-            b'params': {}
-        }
-
-def dropout(x, ratio=.5, **kwargs):
-    return chainer.as_variable(x)
+def to_mlir_node(self):
+    return {
+        b'name': 'Dropout',
+        b'params': {}
+    }
+Dropout.to_mlir_node = to_mlir_node
