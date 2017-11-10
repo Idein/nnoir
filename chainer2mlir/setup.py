@@ -1,5 +1,4 @@
-"""MLIR Converter
-
+"""Chainer Model to MLIR Converter
 
 """
 
@@ -9,22 +8,19 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
-
 setup(
-    name='mlir',
+    name='chainer2mlir',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.1.0',
 
-    description='MLIR Converter',
-    long_description=long_description,
+    description='Chainer Model to MLIR Converter',
+    long_description=
+"""
+This library convert Chainer model to MLIR format.
+""",
 
     # The project's main homepage.
     url='',
@@ -62,7 +58,21 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(),
+    packages=[
+        'chainer.mlir',
+        'chainer.mlir.functions',
+        'chainer.mlir.functions.activation',
+        'chainer.mlir.functions.array',
+        'chainer.mlir.functions.connection',
+        'chainer.mlir.functions.loss',
+        'chainer.mlir.functions.math',
+        'chainer.mlir.functions.noise',
+        'chainer.mlir.functions.normalization',
+        'chainer.mlir.functions.pooling',
+        'chainer.mlir.links',
+        'chainer.mlir.links.normalization',
+        'chainer.mlir.links.connection',
+    ],
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
