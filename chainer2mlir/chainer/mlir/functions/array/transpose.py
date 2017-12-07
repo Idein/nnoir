@@ -10,7 +10,7 @@ def to_mlir_node(self):
     return {
         b'name': 'Transpose',
         b'params': {
-            b'axes': self.shape
+            b'axes': self.axes
         }
     }
 Transpose.to_mlir_node = to_mlir_node
