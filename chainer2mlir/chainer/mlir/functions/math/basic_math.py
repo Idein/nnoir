@@ -34,7 +34,7 @@ def to_mlir_node(self):
     return {
         b'name': 'MulConstant',
         b'params': {
-            b'value': self.value
+            b'value': float(self.value)
         }
     }
 MulConstant.to_mlir_node = to_mlir_node
