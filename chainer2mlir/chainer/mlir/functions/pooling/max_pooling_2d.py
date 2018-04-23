@@ -10,13 +10,10 @@ def to_mlir_node(self):
     return {
         b'name': 'MaxPooling2D',
         b'params': {
-            b'kh': self.kh,
-            b'kw': self.kw,
-            b'sy': self.sy,
-            b'sx': self.sx,
-            b'ph': self.ph,
-            b'pw': self.pw,
-            b'cover_all': self.cover_all,
+            b'kernel': (self.kh, self.kw),
+            b'stride': (self.sy, self.sx),
+            b'pad_h' : (self.ph, self.ph + self.sy - 1),
+            b'pad_w' : (self.pw, self.pw + self.sx - 1)
         }
     }
 MaxPooling2D.to_mlir_node = to_mlir_node

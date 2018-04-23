@@ -11,7 +11,8 @@ def to_mlir_node(self):
             b'W': encode_ndarray(self.W.data),
             b'b': b,
             b'stride': self.stride,
-            b'pad' : self.pad,
+            b'pad_h' : (self.pad[0], self.pad[0]),
+            b'pad_w' : (self.pad[1], self.pad[1])
         }
     }
 DepthwiseConvolution2D.to_mlir_node = to_mlir_node
