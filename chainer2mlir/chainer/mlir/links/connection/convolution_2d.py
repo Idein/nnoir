@@ -1,18 +1,41 @@
 from chainer.links import Convolution2D
 from chainer.mlir.patch import encode_ndarray, patched_link_call
+import numpy as np
 
 Convolution2D.__call__ = patched_link_call(Convolution2D.__call__)
 
 def to_mlir_node(self):
     b = encode_ndarray(self.b.data) if (hasattr(self, 'b') and self.b is not None) else None
-    return {
-        b'name': 'Convolution2D',
-        b'params': {
-            b'W': encode_ndarray(self.W.data),
-            b'b': b,
-            b'stride': self.stride,
-            b'pad_h' : (self.pad[0], self.pad[0]),
-            b'pad_w' : (self.pad[1], self.pad[1])
+    if self.dilate != (1,1):
+        raise "Convolution2D(dilate={}) is unsupported".format(self.dilate)
+    is_depthwise = False
+    out_channels,in_channels_per_groups,kh,kw = self.W.data.shape
+    if self.groups == 1:
+        is_depthwise = False
+    elif self.groups > 1 and 1 == in_channels_per_groups:
+        is_depthwise = True
+    else:
+        raise "Convolution2D(groups={}) is unsupported".format(self.groups)
+    if is_depthwise:
+        return {
+            b'name': 'DepthwiseConvolution2D',
+            b'params': {
+                b'W': encode_ndarray(np.rollaxis(self.W.data.reshape(self.groups,out_channels//self.groups,kh,kw),1,0)),
+                b'b': b,
+                b'stride': self.stride,
+                b'pad_h' : (self.pad[0], self.pad[0]),
+                b'pad_w' : (self.pad[1], self.pad[1])
+            }
         }
-    }
+    else:
+        return {
+            b'name': 'Convolution2D',
+            b'params': {
+                b'W': encode_ndarray(self.W.data),
+                b'b': b,
+                b'stride': self.stride,
+                b'pad_h' : (self.pad[0], self.pad[0]),
+                b'pad_w' : (self.pad[1], self.pad[1])
+            }
+        }
 Convolution2D.to_mlir_node = to_mlir_node
