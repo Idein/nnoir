@@ -6,8 +6,6 @@ Convolution2D.__call__ = patched_link_call(Convolution2D.__call__)
 
 def to_mlir_node(self):
     b = encode_ndarray(self.b.data) if (hasattr(self, 'b') and self.b is not None) else None
-    if self.dilate != (1,1):
-        raise "Convolution2D(dilate={}) is unsupported".format(self.dilate)
     is_depthwise = False
     out_channels,in_channels_per_groups,kh,kw = self.W.data.shape
     if self.groups == 1:
@@ -24,7 +22,8 @@ def to_mlir_node(self):
                 b'b': b,
                 b'stride': self.stride,
                 b'pad_h' : (self.pad[0], self.pad[0]),
-                b'pad_w' : (self.pad[1], self.pad[1])
+                b'pad_w' : (self.pad[1], self.pad[1]),
+                b'dilate': self.dilate,
             }
         }
     else:
@@ -35,7 +34,9 @@ def to_mlir_node(self):
                 b'b': b,
                 b'stride': self.stride,
                 b'pad_h' : (self.pad[0], self.pad[0]),
-                b'pad_w' : (self.pad[1], self.pad[1])
+                b'pad_w' : (self.pad[1], self.pad[1]),
+                b'dilate': self.dilate,
+                b'groups': self.groups
             }
         }
 Convolution2D.to_mlir_node = to_mlir_node
