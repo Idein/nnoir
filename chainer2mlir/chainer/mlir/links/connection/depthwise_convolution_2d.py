@@ -13,6 +13,7 @@ def to_mlir_node(self):
             b'stride': self.stride,
             b'pad_h' : (self.pad[0], self.pad[0]),
             b'pad_w' : (self.pad[1], self.pad[1])
+            b'dilate': (1, 1),
         }
     }
 DepthwiseConvolution2D.to_mlir_node = to_mlir_node
