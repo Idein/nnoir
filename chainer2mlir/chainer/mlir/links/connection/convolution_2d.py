@@ -8,12 +8,8 @@ def to_mlir_node(self):
     b = encode_ndarray(self.b.data) if (hasattr(self, 'b') and self.b is not None) else None
     is_depthwise = False
     out_channels,in_channels_per_groups,kh,kw = self.W.data.shape
-    if self.groups == 1:
-        is_depthwise = False
-    elif self.groups > 1 and 1 == in_channels_per_groups:
+    if self.groups > 1 and 1 == in_channels_per_groups:
         is_depthwise = True
-    else:
-        raise "Convolution2D(groups={}) is unsupported".format(self.groups)
     if is_depthwise:
         return {
             b'name': 'DepthwiseConvolution2D',
