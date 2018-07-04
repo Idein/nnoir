@@ -1,4 +1,4 @@
-from chainer.functions.math.basic_math import Add, Mul, MulConstant
+from chainer.functions.math.basic_math import Add, AddConstant, Mul, MulConstant
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(Add, 'apply'):
@@ -12,6 +12,20 @@ def to_mlir_node(self):
         b'params': {}
     }
 Add.to_mlir_node = to_mlir_node
+
+if hasattr(AddConstant, 'apply'):
+    AddConstant.apply = patched_function_apply(AddConstant.apply)
+else:
+    AddConstant.__call__ = patched_function_call(AddConstant.__call__)
+
+def to_mlir_node(self):
+    return {
+        b'name': 'AddConstant',
+        b'params': {
+            b'value': float(self.value)
+        }
+    }
+AddConstant.to_mlir_node = to_mlir_node
 
 if hasattr(Mul, 'apply'):
     Mul.apply = patched_function_apply(Mul.apply)
