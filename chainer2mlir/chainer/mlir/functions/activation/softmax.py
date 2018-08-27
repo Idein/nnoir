@@ -9,6 +9,8 @@ else:
 def to_mlir_node(self):
     return {
         b'name': 'Softmax',
-        b'params': {}
+        b'params': {
+            b'axis': self.axis
+        }
     }
 Softmax.to_mlir_node = to_mlir_node
