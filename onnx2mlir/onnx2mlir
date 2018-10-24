@@ -1,0 +1,479 @@
+#!/usr/bin/env python3
+import io
+import copy
+import numpy as np
+import argparse
+import onnx
+import onnxruntime
+import msgpack
+from itertools import chain
+
+class MLIR:
+    def __init__(self, version = 0, model = None):
+        self.version = version
+        self.model = model
+
+    def to_dict(self):
+        return {
+            b'mlir': {
+                b'version': self.version,
+                b'model': self.model.to_dict()
+            }
+        }
+
+    def save(self, path):
+        pass
+
+    def load(self, path):
+        pass
+
+class Model:
+
+    def __init__(self, name, generator, inputs, outputs, nodes, edges):
+        self.name = name
+        self.generator = generator
+        self.inputs = inputs
+        self.outputs = outputs
+        self.nodes = nodes
+        self.edges = edges
+
+    def to_dict(self):
+        return {
+            b'name': self.name,
+            b'generator': self.generator,
+            b'inputs': self.inputs,
+            b'outputs': self.outputs,
+            b'nodes': [ n.to_dict() for n in self.nodes ],
+            b'edges': [ e.to_dict() for e in self.edges ]
+        }
+
+class Node:
+
+    def __init__(self, name, arr):
+        self.name = name
+        self.arr = arr
+
+    def to_dict(self):
+        return {
+            b'name': self.name,
+            b'dtype': self.arr.dtype.str,
+            b'shape': list(self.arr.shape)
+        }
+class Edge:
+
+    def __init__(self, inputs, outputs, function):
+        self.inputs = list(inputs)
+        self.outputs = list(outputs)
+        self.function = function
+
+    def to_dict(self):
+        return {
+            b'inputs': self.inputs,
+            b'outputs': self.outputs,
+            **self.function.to_dict()
+        }
+
+class Function:
+
+    def __init__(self, name, params = {}):
+        self.name = name
+        self.params = params
+
+    def to_dict(self):
+        return {
+            b'name': self.name,
+            b'params': dict(self.params)
+        }
+
+def tensor_to_narray(tensor):
+    dtypes = {
+        onnx.TensorProto.BOOL: np.bool,
+        onnx.TensorProto.INT8: np.int8,
+        onnx.TensorProto.INT16: np.int16,
+        onnx.TensorProto.INT32: np.int32,
+        onnx.TensorProto.INT64: np.int64,
+        onnx.TensorProto.UINT8: np.uint8,
+        onnx.TensorProto.UINT16: np.uint16,
+        onnx.TensorProto.UINT32: np.uint32,
+        onnx.TensorProto.UINT64: np.uint64,
+        onnx.TensorProto.FLOAT16: np.float16,
+        onnx.TensorProto.FLOAT: np.float32,
+        onnx.TensorProto.DOUBLE: np.float64,
+    }
+    arr = []
+    if tensor.data_type in [onnx.TensorProto.FLOAT]:
+        arr = tensor.float_data
+    elif tensor.data_type in [onnx.TensorProto.INT32, onnx.TensorProto.INT16, onnx.TensorProto.INT8, onnx.TensorProto.UINT16, onnx.TensorProto.UINT8, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT16]:
+        arr = tensor.int32_data
+    elif tensor.data_type in [onnx.TensorProto.INT64]:
+        arr = tensor.int64_data
+    elif tensor.data_type in [onnx.TensorProto.DOUBLE]:
+        arr = tensor.double_data
+    elif tensor.data_type in [onnx.TensorProto.UINT32, onnx.TensorProto.UINT64]:
+        arr = tensor.uint64_data
+    else:
+        raise 'unsupported'
+    result = np.array(arr, dtype=dtypes[tensor.data_type])
+    shape = tensor.dims if tensor.dims != [] else [1]
+    return result.reshape(*shape)
+
+def encode_ndarray(obj):
+    if obj is None:
+        return None
+    else:
+        with io.BytesIO() as out:
+            np.save(out, obj.copy())
+            return { b'ndarray': out.getvalue() }
+
+def auto_pad_to_manual_pad(n, k, s, auto_pad):
+    if n % s == 0:
+        pad = max(k - s, 0)
+    else:
+        pad = max(k - n % s, 0)
+    if auto_pad == b'SAME_LOWER':
+        pad_before = pad // 2
+        pad_after  = pad - pad_before
+        return (pad_before, pad_after)
+    elif auto_pad == b'SAME_UPPER':
+        pad_after = pad // 2
+        pad_before  = pad - pad_after
+        return (pad_before, pad_after)
+    elif auto_pad == b'VALID':
+        return (0, 0)
+    else:
+        raise 'invalid'
+
+def from_graph_to_inputs(graph):
+    initializers = [ i.name for i in graph.initializer ]
+    return [ i.name for i in graph.input if i.name not in initializers ]
+
+def from_graph_to_outputs(graph):
+    return [ o.name for o in graph.output ]
+
+class ONNX:
+    def __init__(self, path):
+        self.model = onnx.load(path)
+        onnx.checker.check_model(self.model)
+        self.constant_nodes = self._eval_constant_nodes()
+
+    def _find(self, p, xs, default=None):
+        return next(filter(p, xs), default)
+
+    def _find_initializer(self, name):
+        return self._find(lambda n: name == n.name, self.model.graph.initializer)
+
+    def _has_initializer(self, name):
+        return self._find_initializer(name) is not None
+
+    def _find_generator(self, name):
+        return self._find(lambda n: name in n.output, self.model.graph.node)
+
+    def _has_generator(self, name):
+        return self._find_generator(name) is not None
+
+    def _find_input(self, name):
+        return self._find(lambda n: name == n.name, self.model.graph.input)
+
+    def _has_input(self, name):
+        return self._find_input(name) is not None
+
+    def _has_constant(self, name):
+        return self._get_constant(name) is not None
+
+    def _get_constant(self, name):
+        i = self._find_initializer(name)
+        if i is not None:
+            return tensor_to_narray(i)
+        elif name in self.constant_nodes:
+            return self.constant_nodes[name]
+        else:
+            return None
+
+    def _find_value_info(self, name):
+        return self._find(lambda n: name == n.name, self.model.graph.value_info)
+
+    def to_MLIR(self, name):
+        inputs = from_graph_to_inputs(self.model.graph)
+        outputs = from_graph_to_outputs(self.model.graph)
+        edges = self._to_MLIR_edges()
+        edges = self._remove_constant(edges)
+        nodes = [ Node(v.name, to_dummy_input(v)) for v in self.model.graph.value_info ]
+        nodes += [ Node(v.name, to_dummy_input(v)) for v in self.model.graph.input ]
+        nodes += [ Node(v.name, to_dummy_input(v)) for v in self.model.graph.output ]
+        nodes += [ Node(k, v) for k,v in self.constant_nodes.items() ]
+        require_nodes = list(chain.from_iterable(map(lambda x: x.inputs + x.outputs, edges)))
+        nodes = list(filter(lambda x: x.name in require_nodes, nodes))
+        return MLIR(
+            model = Model(
+                name,
+                {b'name': self.model.producer_name, b'version': self.model.producer_version},
+                inputs,
+                outputs,
+                nodes,
+                edges
+            ),
+        )
+
+    def _eval_constant_nodes(self):
+        m = copy.deepcopy(self.model)
+        constant_nodes = self._list_constant_nodes()
+        for n in m.graph.output:
+            m.graph.output.remove(n)
+        for n in constant_nodes:
+            m.graph.output.extend(filter(lambda x: x.name == n, self.model.graph.value_info))
+        input_names = from_graph_to_inputs(self.model.graph)
+        output_names = from_graph_to_outputs(self.model.graph)
+        initializers = list(map(lambda x: x.name, self.model.graph.initializer))
+        inputs = filter(lambda x: x not in initializers, input_names)
+        inputs = map(lambda x: list(filter(lambda y: y.name == x, self.model.graph.input))[0], inputs)
+        inputs = list(map(to_dummy_input, inputs))
+        inputs = dict(zip(input_names, inputs))
+        onnx.save(m, '/tmp/tmp.onnx')
+        sess = onnxruntime.InferenceSession('/tmp/tmp.onnx')
+        output_names = [ x.name for x in sess.get_outputs() ]
+        result = sess.run(output_names, inputs)
+        return dict(zip(output_names, result))
+
+    def _to_MLIR_edges(self):
+        outputs = from_graph_to_outputs(self.model.graph)
+        visited = outputs
+        edges = []
+        while outputs != []:
+            o = outputs.pop(0)
+            generator = self._find_generator(o)
+            if generator is not None:
+                edge = self._from_operator_to_edge(generator)
+                inputs = list(chain.from_iterable(map(lambda x: x.inputs, edge)))
+                outputs += [ i for i in inputs if i not in visited ]
+                edges += edge
+            initializer = self._find_initializer(o)
+            if initializer is not None:
+                edge = self._from_initializer_to_edge(initializer)
+                edges += edge
+        return edges
+
+    def _list_constant_nodes(self):
+        outputs = from_graph_to_outputs(self.model.graph)
+        def dfs(visited, nodes, result):
+            for n in nodes:
+                if self._has_initializer(n):
+                    result.append(n)
+                elif self._has_input(n):
+                    pass
+                else:
+                    generator = self._find_generator(n)
+                    next_nodes = []
+                    if hasattr(generator, 'input'):
+                        next_nodes = [ i for i in generator.input if i not in visited ]
+                    dfs(visited, next_nodes, result)
+                    if hasattr(generator, 'input'):
+                        if all([ i in result for i in generator.input ]):
+                            for o in generator.output:
+                                result.append(o)
+                    else:
+                        for o in generator.output:
+                            result.append(o)
+                visited.append(n)
+        result = []
+        dfs([], outputs, result)
+        return result
+
+    def op2edge_Add(self, node):
+        return [
+            Edge(node.input, node.output, Function('Add'))
+        ]
+
+    def op2edge_Conv(self, node):
+        b = None
+        if len(node.input) == 2:
+            [x, W] = node.input
+        elif len(node.input) == 3:
+            [x, W, b] = node.input
+        else:
+            raise 'invalid'
+        W = self._get_constant(W)
+        if W is None:
+            raise 'unsupported'
+        if b is not None:
+            b = self._get_constant(b)
+            if b is None:
+                raise 'unsupported'
+        kh = W.shape[2]
+        kw = W.shape[3]
+        auto_pad = b'NOTSET'
+        pads = None
+        for attr in node.attribute:
+            if attr.name == 'dilations':
+                dilations = attr.ints
+            if attr.name == 'group':
+                group = attr.i
+            if attr.name == 'strides':
+                strides = attr.ints
+                [sy, sx] = strides
+            if attr.name == 'auto_pad':
+                auto_pad = attr.s
+            if attr.name == 'pads':
+                pads = attr.ints
+        if auto_pad == b'NOTSET':
+            pad_h = (0, 0)
+            pad_w = (0, 0)
+            if pads is not None:
+                pad_h = (pads[0], pads[2])
+                pad_w = (pads[1], pads[3])
+        else:
+            i = self._find_value_info(x)
+            if i is None:
+                i = self._find_input(x)
+                if i is None:
+                    raise 'invalid'
+            h = i.type.tensor_type.shape.dim[2].dim_value
+            w = i.type.tensor_type.shape.dim[3].dim_value
+            pad_h = auto_pad_to_manual_pad(h, kh, sy, auto_pad)
+            pad_w = auto_pad_to_manual_pad(w, kw, sx, auto_pad)
+        return [
+            Edge([x], node.output, Function('Convolution2D', {
+                b'W': encode_ndarray(W),
+                b'b': encode_ndarray(b),
+                b'stride': tuple(strides),
+                b'pad_h': pad_h,
+                b'pad_w': pad_w,
+                b'dilate': tuple(dilations),
+                b'groups': int(group)
+            }))
+        ]
+
+    def op2edge_Reshape(self, node):
+        [x, shape] = node.input
+        shape = self._find_initializer(shape)
+        return [
+            Edge([x], node.output, Function('Reshape', {b'shape': list(shape.int64_data)}))
+        ]
+
+    def op2edge_Relu(self, node):
+        return [
+            Edge(node.input, node.output, Function('ReLU'))
+        ]
+
+    def op2edge_MatMul(self, node):
+        [x, W] = node.input
+        W = self._get_constant(W)
+        if W is not None:
+            return [
+                Edge([x], node.output, Function('Linear', {
+                    b'W': encode_ndarray(W),
+                    b'b': None
+                }))
+            ]
+        else:
+            raise 'unsupported'
+
+    def op2edge_MaxPool(self, node):
+        auto_pad = b'NOTSET'
+        pads = None
+        for attr in node.attribute:
+            if attr.name == 'kernel_shape':
+                [kh, kw] = attr.ints
+            if attr.name == 'strides':
+                strides = attr.ints
+                [sy, sx] = strides
+            if attr.name == 'auto_pad':
+                auto_pad = attr.s
+            if attr.name == 'pads':
+                pads = attr.ints
+        if auto_pad == b'NOTSET':
+            pad_h = (0, 0)
+            pad_w = (0, 0)
+            if pads is not None:
+                pad_h = (pads[0], pads[2])
+                pad_w = (pads[1], pads[3])
+        else:
+            i = self._find_value_info(x)
+            if i is None:
+                i = self._find_input(x)
+                if i is None:
+                    raise 'invalid'
+            h = i.type.tensor_type.shape.dim[2].dim_value
+            w = i.type.tensor_type.shape.dim[3].dim_value
+            pad_h = auto_pad_to_manual_pad(h, kh, sy, auto_pad)
+            pad_w = auto_pad_to_manual_pad(w, kw, sx, auto_pad)
+        return [
+            Edge(node.input, node.output, Function('MaxPooling2D', {
+                b'kernel': (kh, kw),
+                b'stride': tuple(strides),
+                b'pad_h': pad_h,
+                b'pad_w': pad_w,
+            }))
+        ]
+
+    def _from_initializer_to_edge(self, node):
+        return [
+            Edge([], [node.name], Function('Constant', {b'value': encode_ndarray(self._get_constant(node.name))}))
+        ]
+
+    def _from_operator_to_edge(self, node):
+        if all(map(lambda x: self._has_constant(x), node.output)):
+            return [
+                Edge([], [x], Function('Constant', {b'value': encode_ndarray(self._get_constant(x))}))
+                for x in node.output
+            ]
+        else:
+            return {
+                'Add': self.op2edge_Add,
+                'Conv': self.op2edge_Conv,
+                'MatMul': self.op2edge_MatMul,
+                'MaxPool': self.op2edge_MaxPool,
+                'Relu': self.op2edge_Relu,
+                'Reshape': self.op2edge_Reshape,
+            }[node.op_type](node)
+
+    def _remove_constant(self, edges):
+        while True:
+            constant_edge = next(filter(lambda x: x.function.name == 'Constant', edges), None)
+            if constant_edge is None:
+                return edges
+            [constant_edge_output] = constant_edge.outputs
+            constant_edge_output_consumer_edges = list(filter(lambda x: constant_edge_output in x.inputs, edges))
+            for constant_edge_output_consumer_edge in constant_edge_output_consumer_edges:
+                if constant_edge_output_consumer_edge.function.name == 'Add':
+                    [a, b] = constant_edge_output_consumer_edge.inputs
+                    x = a
+                    if a == constant_edge_output:
+                        x = b
+                    bias = Edge([x], constant_edge_output_consumer_edge.outputs, Function('Bias', [
+                        (b'axis', 0),
+                        (b'b', dict(constant_edge.function.params)[b'value'])
+                        ]
+                    ))
+                    edges.append(bias)
+                    edges.remove(constant_edge_output_consumer_edge)
+                else:
+                    raise 'unsupported'
+            edges.remove(constant_edge)
+        return edges
+
+def to_dummy_input(x):
+    if hasattr(x.type, 'tensor_type'):
+        if x.type.tensor_type.elem_type == onnx.TensorProto.FLOAT:
+            return np.zeros(tuple(map(lambda d: d.dim_value, x.type.tensor_type.shape.dim)), dtype=np.float32)
+        else:
+            'unsupported'
+    else:
+        raise 'unsupported'
+
+def main(args):
+    with open(args.output, 'w') as f:
+        mlir = ONNX(args.input).to_MLIR(args.name)
+        import pprint
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(mlir.to_dict())
+        f.buffer.write(msgpack.packb(mlir.to_dict()))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='ONNX to MLIR Converter')
+    parser.add_argument('-n', '--name', dest='name', type=str, required=True,
+                        metavar='STR', help='Model name')
+    parser.add_argument('-o', '--output', dest='output', type=str, required=True,
+                        metavar='MLIR', help='MLIR file path')
+    parser.add_argument(dest='input', type=str,
+                        metavar='ONNX', help='ONNX file path')
+    main(parser.parse_args())
