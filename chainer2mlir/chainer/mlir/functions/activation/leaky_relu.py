@@ -1,4 +1,4 @@
-from chainer.functions import LeakyReLU
+from chainer.functions.activation.leaky_relu import LeakyReLU
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(LeakyReLU, 'apply'):

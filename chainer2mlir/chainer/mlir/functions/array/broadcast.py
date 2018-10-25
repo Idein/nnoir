@@ -1,4 +1,4 @@
-from chainer.functions import BroadcastTo
+from chainer.functions.array.broadcast import BroadcastTo
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(BroadcastTo, 'apply'):

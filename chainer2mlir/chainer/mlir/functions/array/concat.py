@@ -1,4 +1,4 @@
-from chainer.functions import Concat
+from chainer.functions.array.concat import Concat
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(Concat, 'apply'):

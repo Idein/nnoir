@@ -1,4 +1,4 @@
-from chainer.functions import SoftmaxCrossEntropy
+from chainer.functions.loss.softmax_cross_entropy import SoftmaxCrossEntropy
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(SoftmaxCrossEntropy, 'apply'):

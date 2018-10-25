@@ -1,4 +1,4 @@
-from chainer.functions import ELU
+from chainer.functions.activation.elu import ELU
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(ELU, 'apply'):

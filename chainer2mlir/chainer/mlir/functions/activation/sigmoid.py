@@ -1,4 +1,4 @@
-from chainer.functions import Sigmoid
+from chainer.functions.activation.sigmoid import Sigmoid
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(Sigmoid, 'apply'):

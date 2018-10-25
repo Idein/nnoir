@@ -1,4 +1,4 @@
-from chainer.functions import Pad
+from chainer.functions.array.pad import Pad
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 from numpy.lib.arraypad import _validate_lengths # dirty
 

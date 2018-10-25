@@ -1,4 +1,4 @@
-from chainer.functions import Softmax
+from chainer.functions.activation.softmax import Softmax
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(Softmax, 'apply'):

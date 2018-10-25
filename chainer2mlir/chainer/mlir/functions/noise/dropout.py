@@ -1,4 +1,4 @@
-from chainer.functions import Dropout
+from chainer.functions.noise.dropout import Dropout
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(Dropout, 'apply'):

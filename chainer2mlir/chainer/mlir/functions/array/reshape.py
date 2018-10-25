@@ -1,4 +1,4 @@
-from chainer.functions import Reshape
+from chainer.functions.array.reshape import Reshape
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(Reshape, 'apply'):

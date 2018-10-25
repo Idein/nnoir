@@ -1,4 +1,4 @@
-from chainer.functions import LocalResponseNormalization
+from chainer.functions.normalization.local_response_normalization import LocalResponseNormalization
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(LocalResponseNormalization, 'apply'):

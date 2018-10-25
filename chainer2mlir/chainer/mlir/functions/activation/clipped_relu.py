@@ -1,4 +1,4 @@
-from chainer.functions import ClippedReLU
+from chainer.functions.activation.clipped_relu import ClippedReLU
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(ClippedReLU, 'apply'):

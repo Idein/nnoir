@@ -1,4 +1,4 @@
-from chainer.functions import Transpose
+from chainer.functions.array.transpose import Transpose
 from chainer.mlir.patch import patched_function_apply, patched_function_call
 
 if hasattr(Transpose, 'apply'):
