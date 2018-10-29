@@ -22,10 +22,8 @@ class MLIR:
         }
 
     def save(self, path):
-        pass
-
-    def load(self, path):
-        pass
+        with open(path, 'w') as f:
+            f.buffer.write(msgpack.packb(self.to_dict()))
 
 class Model:
 
@@ -192,7 +190,7 @@ class ONNX:
     def _find_value_info(self, name):
         return self._find(lambda n: name == n.name, self.model.graph.value_info)
 
-    def to_MLIR(self, name):
+    def to_MLIR(self):
         inputs = from_graph_to_inputs(self.model.graph)
         outputs = from_graph_to_outputs(self.model.graph)
         edges = self._to_MLIR_edges()
@@ -205,7 +203,7 @@ class ONNX:
         nodes = list(filter(lambda x: x.name in require_nodes, nodes))
         return MLIR(
             model = Model(
-                name,
+                self.model.graph.name,
                 {b'name': self.model.producer_name, b'version': self.model.producer_version},
                 inputs,
                 outputs,
@@ -461,17 +459,14 @@ def to_dummy_input(x):
         raise 'unsupported'
 
 def main(args):
-    with open(args.output, 'w') as f:
-        mlir = ONNX(args.input).to_MLIR(args.name)
-        import pprint
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(mlir.to_dict())
-        f.buffer.write(msgpack.packb(mlir.to_dict()))
+    mlir = ONNX(args.input).to_MLIR()
+    mlir.save(args.output)
+    # import pprint
+    # pp = pprint.PrettyPrinter(indent=4)
+    # pp.pprint(mlir.to_dict())
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ONNX to MLIR Converter')
-    parser.add_argument('-n', '--name', dest='name', type=str, required=True,
-                        metavar='STR', help='Model name')
     parser.add_argument('-o', '--output', dest='output', type=str, required=True,
                         metavar='MLIR', help='MLIR file path')
     parser.add_argument(dest='input', type=str,
