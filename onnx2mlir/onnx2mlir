@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import io
 import copy
+import functools
 import numpy as np
 import argparse
 import onnx
@@ -57,6 +58,7 @@ class Node:
             b'dtype': self.arr.dtype.str,
             b'shape': list(self.arr.shape)
         }
+
 class Edge:
 
     def __init__(self, inputs, outputs, function):
@@ -71,6 +73,9 @@ class Edge:
             **self.function.to_dict()
         }
 
+    def __str__(self):
+        return '{} ({} -> {})'.format(self.function, self.inputs, self.outputs)
+
 class Function:
 
     def __init__(self, name, params = {}):
@@ -80,8 +85,11 @@ class Function:
     def to_dict(self):
         return {
             b'name': self.name,
-            b'params': dict(self.params)
+            b'params': self.params
         }
+
+    def __str__(self):
+        return '{}'.format(self.name)
 
 def tensor_to_narray(tensor):
     dtypes = {
@@ -111,9 +119,29 @@ def tensor_to_narray(tensor):
         arr = tensor.uint64_data
     else:
         raise 'unsupported'
-    result = np.array(arr, dtype=dtypes[tensor.data_type])
+    if arr == []:
+        result = np.frombuffer(tensor.raw_data, dtype=dtypes[tensor.data_type])
+    else:
+        result = np.array(arr, dtype=dtypes[tensor.data_type])
     shape = tensor.dims if tensor.dims != [] else [1]
     return result.reshape(*shape)
+
+def narray_to_value_info(name, arr):
+    dtypes = {
+        'bool': onnx.TensorProto.BOOL,
+        'int8': onnx.TensorProto.INT8,
+        'int16': onnx.TensorProto.INT16,
+        'int32': onnx.TensorProto.INT32,
+        'int64': onnx.TensorProto.INT64,
+        'uint8': onnx.TensorProto.UINT8,
+        'uint16': onnx.TensorProto.UINT16,
+        'uint32': onnx.TensorProto.UINT32,
+        'uint64': onnx.TensorProto.UINT64,
+        'float16': onnx.TensorProto.FLOAT16,
+        'float32': onnx.TensorProto.FLOAT,
+        'float64': onnx.TensorProto.DOUBLE,
+    }
+    return onnx.helper.make_tensor_value_info(name, dtypes[str(arr.dtype)], arr.shape)
 
 def encode_ndarray(obj):
     if obj is None:
@@ -148,11 +176,294 @@ def from_graph_to_inputs(graph):
 def from_graph_to_outputs(graph):
     return [ o.name for o in graph.output ]
 
+class OpAdd:
+    def __init__(self, node):
+        self.node = node
+
+    def get_dummy_output(self, env):
+        [a,b] = self.node.input
+        return env[a] + env[b]
+
+class OpAveragePool(Function):
+    def __init__(self, node):
+        self.node = node
+
+        self.kernel_shape = None
+        self.auto_pad = b'NOTSET'
+        self.pads = None
+        self.storage_order = 0
+        self.strides = (1,1)
+        for attr in node.attribute:
+            if attr.name == 'kernel_shape':
+                self.kernel_shape = attr.ints
+            if attr.name == 'storage_order':
+                self.storage_order = attr.i
+            if attr.name == 'strides':
+                self.strides = attr.ints
+            if attr.name == 'auto_pad':
+                self.auto_pad = attr.s
+            if attr.name == 'pads':
+                self.pads = attr.ints
+
+    def get_dummy_output(self, env):
+        [x] = self.node.input
+
+        _input = env[x]
+        batch = _input.shape[0]
+        channel = _input.shape[1]
+        in_h = _input.shape[2]
+        in_w = _input.shape[3]
+        kh = self.kernel_shape[0]
+        kw = self.kernel_shape[1]
+        sy = self.strides[0]
+        sx = self.strides[1]
+
+        if self.auto_pad == b'NOTSET':
+            pad_h = (0, 0)
+            pad_w = (0, 0)
+            if self.pads is not None:
+                pad_h = (self.pads[0], self.pads[2])
+                pad_w = (self.pads[1], self.pads[3])
+        else:
+            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, self.auto_pad)
+            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, self.auto_pad)
+
+        out_h = ((pad_h[0] + in_h + pad_h[1]) - ((kh - 1) * 1 + 1)) // sy + 1
+        out_w = ((pad_w[0] + in_w + pad_w[1]) - ((kw - 1) * 1 + 1)) // sx + 1
+
+        return np.zeros((batch, channel, out_h, out_w), dtype=env[x].dtype)
+
+class OpBatchNormalization(Function):
+    def __init__(self, node):
+        self.node = node
+
+    def get_dummy_output(self, env):
+        [x,_,_,_,_] = self.node.input
+        return env[x]
+
+class OpConv(Function):
+    def __init__(self, node):
+        self.node = node
+
+        self.kernel_shape = None
+        self.auto_pad = b'NOTSET'
+        self.pads = None
+        self.strides = (1,1)
+        self.dilations = (1,1)
+        self.group = 1
+        for attr in node.attribute:
+            if attr.name == 'kernel_shape':
+                self.kernel_shape = attr.ints
+            if attr.name == 'dilations':
+                self.dilations = attr.ints
+            if attr.name == 'group':
+                self.group = attr.i
+            if attr.name == 'strides':
+                self.strides = attr.ints
+            if attr.name == 'auto_pad':
+                self.auto_pad = attr.s
+            if attr.name == 'pads':
+                self.pads = attr.ints
+
+    def get_dummy_output(self, env):
+
+        if len(self.node.input) == 3:
+            [x,W,b] = self.node.input
+        else:
+            [x,W] = self.node.input
+            b = None
+
+        _input = env[x]
+        batch = _input.shape[0]
+        in_ch = _input.shape[1]
+        in_h = _input.shape[2]
+        in_w = _input.shape[3]
+        kh = self.kernel_shape[0]
+        kw = self.kernel_shape[1]
+        sy = self.strides[0]
+        sx = self.strides[1]
+        dy = self.dilations[0]
+        dx = self.dilations[1]
+
+        if self.auto_pad == b'NOTSET':
+            pad_h = (0, 0)
+            pad_w = (0, 0)
+            if self.pads is not None:
+                pad_h = (self.pads[0], self.pads[2])
+                pad_w = (self.pads[1], self.pads[3])
+        else:
+            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, self.auto_pad)
+            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, self.auto_pad)
+
+        out_ch = env[W].shape[0]
+
+        out_h = ((pad_h[0] + in_h + pad_h[1]) - ((kh - 1) * dy + 1)) // sy + 1
+        out_w = ((pad_w[0] + in_w + pad_w[1]) - ((kw - 1) * dx + 1)) // sx + 1
+
+        return np.zeros((batch, out_ch, out_h, out_w), dtype=env[x].dtype)
+
+class OpGemm(Function):
+    def __init__(self, node):
+        self.node = node
+
+        self.alpha = 1.0
+        self.beta = 1.0
+        self.transA = 0
+        self.transB = 0
+        for attr in node.attribute:
+            if attr.name == 'alpha':
+                self.alpha = attr.i
+            if attr.name == 'beta':
+                self.beta = attr.i
+            if attr.name == 'transA':
+                self.transA = attr.i
+            if attr.name == 'transB':
+                self.transB = attr.i
+
+    def get_dummy_output(self, env):
+        [A,B,C] = self.node.input
+        a = env[A]
+        if self.transA == 1:
+            a = a.T
+        b = env[B]
+        if self.transB == 1:
+            b = b.T
+        return a.dot(b)+env[C]
+
+class OpMatMul(Function):
+    def __init__(self, node):
+        self.node = node
+
+    def get_dummy_output(self, env):
+        [x,W] = self.node.input
+        return env[x].dot(env[W])
+
+class OpMaxPool(Function):
+    def __init__(self, node):
+        self.node = node
+
+        self.kernel_shape = None
+        self.auto_pad = b'NOTSET'
+        self.pads = None
+        self.storage_order = 0
+        self.strides = (1,1)
+        for attr in node.attribute:
+            if attr.name == 'kernel_shape':
+                self.kernel_shape = attr.ints
+            if attr.name == 'storage_order':
+                self.storage_order = attr.i
+            if attr.name == 'strides':
+                self.strides = attr.ints
+            if attr.name == 'auto_pad':
+                self.auto_pad = attr.s
+            if attr.name == 'pads':
+                self.pads = attr.ints
+
+    def get_dummy_output(self, env):
+        [x] = self.node.input
+
+        _input = env[x]
+        batch = _input.shape[0]
+        channel = _input.shape[1]
+        in_h = _input.shape[2]
+        in_w = _input.shape[3]
+        kh = self.kernel_shape[0]
+        kw = self.kernel_shape[1]
+        sy = self.strides[0]
+        sx = self.strides[1]
+
+        if self.auto_pad == b'NOTSET':
+            pad_h = (0, 0)
+            pad_w = (0, 0)
+            if self.pads is not None:
+                pad_h = (self.pads[0], self.pads[2])
+                pad_w = (self.pads[1], self.pads[3])
+        else:
+            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, self.auto_pad)
+            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, self.auto_pad)
+
+        out_h = ((pad_h[0] + in_h + pad_h[1]) - ((kh - 1) * 1 + 1)) // sy + 1
+        out_w = ((pad_w[0] + in_w + pad_w[1]) - ((kw - 1) * 1 + 1)) // sx + 1
+
+        return np.zeros((batch, channel, out_h, out_w), dtype=env[x].dtype)
+
+class OpRelu(Function):
+    def __init__(self, node):
+        self.node = node
+
+    def get_dummy_output(self, env):
+        [x] = self.node.input
+        return env[x]
+
+class OpReshape(Function):
+    def __init__(self, node):
+        self.node = node
+
+    def get_dummy_output(self, env):
+        [x,shape] = self.node.input
+        return env[x].reshape(list(env[shape]))
+
+class OpSoftmax(Function):
+    def __init__(self, node):
+        self.node = node
+
+    def get_dummy_output(self, env):
+        [x] = self.node.input
+        return env[x]
+
+class OpSum(Function):
+    def __init__(self, node):
+        self.node = node
+
+    def get_dummy_output(self, env):
+        xs = map(lambda x: env[x], self.node.input)
+        return functools.reduce(lambda a,b: a+b, xs)
+
+_OP_CLASSES = {
+    'Add': OpAdd,
+    'AveragePool': OpAveragePool,
+    'BatchNormalization': OpBatchNormalization,
+    'Conv': OpConv,
+    'Gemm': OpGemm,
+    'MatMul': OpMatMul,
+    'MaxPool': OpMaxPool,
+    'Relu': OpRelu,
+    'Reshape': OpReshape,
+    'Softmax': OpSoftmax,
+    'Sum': OpSum,
+}
+
+def evaluate(node, env):
+    return _OP_CLASSES[node.op_type](node).get_dummy_output(env)
+
 class ONNX:
     def __init__(self, path):
         self.model = onnx.load(path)
         onnx.checker.check_model(self.model)
-        self.constant_nodes = self._eval_constant_nodes()
+        self.nodes = self._reconstruct_value_info()
+        self.constant_nodes = self._eval_nodes(self._list_constant_nodes())
+
+    def _reconstruct_value_info(self):
+        outputs = from_graph_to_outputs(self.model.graph)
+        def dfs(visited, nodes, result):
+            for n in nodes:
+                _input = self._find_input(n)
+                initializer = self._find_initializer(n)
+                if initializer is not None:
+                    result[n] = tensor_to_narray(initializer)
+                elif _input is not None:
+                    result[n] = to_dummy_input(_input)
+                else:
+                    generator = self._find_generator(n)
+                    next_nodes = []
+                    if hasattr(generator, 'input'):
+                        next_nodes = [ i for i in generator.input if i not in visited ]
+                    dfs(visited, next_nodes, result)
+                    result[n] = evaluate(generator, result)
+                visited.append(n)
+        result = {}
+        dfs([], outputs, result)
+        return result
 
     def _find(self, p, xs, default=None):
         return next(filter(p, xs), default)
@@ -187,20 +498,31 @@ class ONNX:
         else:
             return None
 
-    def _find_value_info(self, name):
-        return self._find(lambda n: name == n.name, self.model.graph.value_info)
+    def _find_node(self, name):
+        return self.nodes[name] # self._find(lambda n: name == n.name, self.model.graph.value_info)
 
     def to_MLIR(self):
         inputs = from_graph_to_inputs(self.model.graph)
         outputs = from_graph_to_outputs(self.model.graph)
         edges = self._to_MLIR_edges()
-        edges = self._remove_constant(edges)
-        nodes = [ Node(v.name, to_dummy_input(v)) for v in self.model.graph.value_info ]
-        nodes += [ Node(v.name, to_dummy_input(v)) for v in self.model.graph.input ]
-        nodes += [ Node(v.name, to_dummy_input(v)) for v in self.model.graph.output ]
-        nodes += [ Node(k, v) for k,v in self.constant_nodes.items() ]
-        require_nodes = list(chain.from_iterable(map(lambda x: x.inputs + x.outputs, edges)))
-        nodes = list(filter(lambda x: x.name in require_nodes, nodes))
+        nodes = [ Node(n, self.nodes[n]) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, edges))) ]
+
+        # rename to C ident (some frameworks don't satisfy the onnx spec.)
+        renaming_table = dict([ (n.name, 'v{}'.format(i)) for i,n in enumerate(nodes) ])
+        def rename(x):
+            return renaming_table[x]
+        inputs = list(map(rename, inputs))
+        outputs = list(map(rename, outputs))
+        def rename_edge(e):
+            e.inputs = list(map(rename, e.inputs))
+            e.outputs = list(map(rename, e.outputs))
+            return e
+        edges = list(map(rename_edge, edges))
+        def rename_node(n):
+            n.name = rename(n.name)
+            return n
+        nodes = list(map(rename_node, nodes))
+
         return MLIR(
             model = Model(
                 self.model.graph.name,
@@ -212,13 +534,11 @@ class ONNX:
             ),
         )
 
-    def _eval_constant_nodes(self):
+    def _eval_nodes(self, nodes):
         m = copy.deepcopy(self.model)
-        constant_nodes = self._list_constant_nodes()
         for n in m.graph.output:
             m.graph.output.remove(n)
-        for n in constant_nodes:
-            m.graph.output.extend(filter(lambda x: x.name == n, self.model.graph.value_info))
+        m.graph.output.extend(map(lambda n: narray_to_value_info(n, self.nodes[n]), nodes))
         input_names = from_graph_to_inputs(self.model.graph)
         output_names = from_graph_to_outputs(self.model.graph)
         initializers = list(map(lambda x: x.name, self.model.graph.initializer))
@@ -229,20 +549,26 @@ class ONNX:
         onnx.save(m, '/tmp/tmp.onnx')
         sess = onnxruntime.InferenceSession('/tmp/tmp.onnx')
         output_names = [ x.name for x in sess.get_outputs() ]
-        result = sess.run(output_names, inputs)
+        if output_names != []:
+            result = sess.run(output_names, inputs)
+        else:
+            result = []
         return dict(zip(output_names, result))
 
     def _to_MLIR_edges(self):
         outputs = from_graph_to_outputs(self.model.graph)
-        visited = outputs
+        visited = []
         edges = []
         while outputs != []:
             o = outputs.pop(0)
+            if o in visited:
+                continue
+            visited.append(o)
             generator = self._find_generator(o)
             if generator is not None:
                 edge = self._from_operator_to_edge(generator)
                 inputs = list(chain.from_iterable(map(lambda x: x.inputs, edge)))
-                outputs += [ i for i in inputs if i not in visited ]
+                outputs += inputs
                 edges += edge
             initializer = self._find_initializer(o)
             if initializer is not None:
@@ -277,8 +603,90 @@ class ONNX:
         return result
 
     def op2edge_Add(self, node):
+        [a, b] = node.input
+        ca = self._get_constant(a)
+        cb = self._get_constant(b)
+        if ca is not None and cb is None:
+            return [
+                Edge([b], node.output, Function('Bias', {
+                    b'axis': 0,
+                    b'b': encode_ndarray(ca)
+                }))
+            ]
+        elif ca is None and cb is not None:
+            return [
+                Edge([a], node.output, Function('Bias', {
+                    b'axis': 0,
+                    b'b': encode_ndarray(cb)
+                    }))
+            ]
+        elif ca is None and cb is None:
+            return [
+                Edge(node.input, node.output, Function('Add'))
+            ]
+        else:
+            raise 'unsupported'
+
+    def op2edge_AveragePool(self, node):
+        auto_pad = b'NOTSET'
+        pads = None
+        for attr in node.attribute:
+            if attr.name == 'kernel_shape':
+                [kh, kw] = attr.ints
+            if attr.name == 'strides':
+                strides = attr.ints
+                [sy, sx] = strides
+            if attr.name == 'auto_pad':
+                auto_pad = attr.s
+            if attr.name == 'pads':
+                pads = attr.ints
+        if auto_pad == b'NOTSET':
+            pad_h = (0, 0)
+            pad_w = (0, 0)
+            if pads is not None:
+                pad_h = (pads[0], pads[2])
+                pad_w = (pads[1], pads[3])
+        else:
+            i = self._find_node(x)
+            h = i.shape[2]
+            w = i.shape[3]
+            pad_h = auto_pad_to_manual_pad(h, kh, sy, auto_pad)
+            pad_w = auto_pad_to_manual_pad(w, kw, sx, auto_pad)
         return [
-            Edge(node.input, node.output, Function('Add'))
+            Edge(node.input, node.output, Function('AveragePooling2D', {
+                b'kernel': (kh, kw),
+                b'stride': tuple(strides),
+                b'pad_h': pad_h,
+                b'pad_w': pad_w,
+            }))
+        ]
+
+    def op2edge_BatchNormalization(self, node):
+        [x,gamma,beta,mean,var] = node.input
+        gamma = self._get_constant(gamma)
+        if gamma is None:
+            raise 'unsupported'
+        beta = self._get_constant(beta)
+        if beta is None:
+            raise 'unsupported'
+        mean = self._get_constant(mean)
+        if mean is None:
+            raise 'unsupported'
+        var = self._get_constant(var)
+        if var is None:
+            raise 'unsupported'
+        eps = 1e-05
+        for attr in node.attribute:
+            if attr.name == 'epsilon':
+                eps = attr.f
+        return [
+            Edge([x], node.output, Function('BatchNormalization', {
+                b'eps': eps,
+                b'avg_mean': encode_ndarray(mean),
+                b'avg_var': encode_ndarray(var),
+                b'gamma': encode_ndarray(gamma),
+                b'beta': encode_ndarray(beta),
+            }))
         ]
 
     def op2edge_Conv(self, node):
@@ -300,6 +708,9 @@ class ONNX:
         kw = W.shape[3]
         auto_pad = b'NOTSET'
         pads = None
+        strides = (1,1)
+        dilations = (1,1)
+        group = 1
         for attr in node.attribute:
             if attr.name == 'dilations':
                 dilations = attr.ints
@@ -319,13 +730,9 @@ class ONNX:
                 pad_h = (pads[0], pads[2])
                 pad_w = (pads[1], pads[3])
         else:
-            i = self._find_value_info(x)
-            if i is None:
-                i = self._find_input(x)
-                if i is None:
-                    raise 'invalid'
-            h = i.type.tensor_type.shape.dim[2].dim_value
-            w = i.type.tensor_type.shape.dim[3].dim_value
+            i = self._find_node(x)
+            h = i.shape[2]
+            w = i.shape[3]
             pad_h = auto_pad_to_manual_pad(h, kh, sy, auto_pad)
             pad_w = auto_pad_to_manual_pad(w, kw, sx, auto_pad)
         return [
@@ -340,17 +747,35 @@ class ONNX:
             }))
         ]
 
-    def op2edge_Reshape(self, node):
-        [x, shape] = node.input
-        shape = self._find_initializer(shape)
+    def op2edge_Gemm(self, node):
+        [A,B,C] = node.input
+        B = self._get_constant(B)
+        if B is None:
+            raise 'unsupported'
+        C = self._get_constant(C)
+        if C is None:
+            raise 'unsupported'
+        alpha = 1.0
+        beta = 1.0
+        transA = 0
+        transB = 0
+        for attr in node.attribute:
+            if attr.name == 'alpha':
+                alpha = attr.i
+            if attr.name == 'beta':
+                beta = attr.i
+            if attr.name == 'transA':
+                transA = attr.i
+            if attr.name == 'transB':
+                transB = attr.i
+        if len(C.shape) == 2 and C.shape[0] != 1:
+            raise 'unsupported'
         return [
-            Edge([x], node.output, Function('Reshape', {b'shape': list(shape.int64_data)}))
-        ]
-
-    def op2edge_Relu(self, node):
-        return [
-            Edge(node.input, node.output, Function('ReLU'))
-        ]
+            Edge([A], node.output, Function('Linear', {
+                b'W': encode_ndarray(alpha * B),
+                b'b': encode_ndarray(beta * C.ravel())
+                }))
+            ]
 
     def op2edge_MatMul(self, node):
         [x, W] = node.input
@@ -385,13 +810,9 @@ class ONNX:
                 pad_h = (pads[0], pads[2])
                 pad_w = (pads[1], pads[3])
         else:
-            i = self._find_value_info(x)
-            if i is None:
-                i = self._find_input(x)
-                if i is None:
-                    raise 'invalid'
-            h = i.type.tensor_type.shape.dim[2].dim_value
-            w = i.type.tensor_type.shape.dim[3].dim_value
+            i = self._find_node(x)
+            h = i.shape[2]
+            w = i.shape[3]
             pad_h = auto_pad_to_manual_pad(h, kh, sy, auto_pad)
             pad_w = auto_pad_to_manual_pad(w, kw, sx, auto_pad)
         return [
@@ -401,6 +822,34 @@ class ONNX:
                 b'pad_h': pad_h,
                 b'pad_w': pad_w,
             }))
+        ]
+
+    def op2edge_Relu(self, node):
+        return [
+            Edge(node.input, node.output, Function('ReLU'))
+        ]
+
+    def op2edge_Reshape(self, node):
+        [x, shape] = node.input
+        shape = self._find_initializer(shape)
+        return [
+            Edge([x], node.output, Function('Reshape', {b'shape': list(shape.int64_data)}))
+        ]
+
+    def op2edge_Softmax(self, node):
+        axis = 1
+        for attr in node.attribute:
+            if attr.name == 'axis':
+                axis = attr.i
+        return [
+            Edge(node.input, node.output, Function('Softmax', {b'axis': axis}))
+        ]
+
+    def op2edge_Sum(self, node):
+        if len(node.input) != 2:
+            raise 'unsupported'
+        return [
+            Edge(node.input, node.output, Function('Add'))
         ]
 
     def _from_initializer_to_edge(self, node):
@@ -417,37 +866,17 @@ class ONNX:
         else:
             return {
                 'Add': self.op2edge_Add,
+                'AveragePool': self.op2edge_AveragePool,
+                'BatchNormalization': self.op2edge_BatchNormalization,
                 'Conv': self.op2edge_Conv,
+                'Gemm': self.op2edge_Gemm,
                 'MatMul': self.op2edge_MatMul,
                 'MaxPool': self.op2edge_MaxPool,
                 'Relu': self.op2edge_Relu,
                 'Reshape': self.op2edge_Reshape,
+                'Softmax': self.op2edge_Softmax,
+                'Sum': self.op2edge_Sum,
             }[node.op_type](node)
-
-    def _remove_constant(self, edges):
-        while True:
-            constant_edge = next(filter(lambda x: x.function.name == 'Constant', edges), None)
-            if constant_edge is None:
-                return edges
-            [constant_edge_output] = constant_edge.outputs
-            constant_edge_output_consumer_edges = list(filter(lambda x: constant_edge_output in x.inputs, edges))
-            for constant_edge_output_consumer_edge in constant_edge_output_consumer_edges:
-                if constant_edge_output_consumer_edge.function.name == 'Add':
-                    [a, b] = constant_edge_output_consumer_edge.inputs
-                    x = a
-                    if a == constant_edge_output:
-                        x = b
-                    bias = Edge([x], constant_edge_output_consumer_edge.outputs, Function('Bias', [
-                        (b'axis', 0),
-                        (b'b', dict(constant_edge.function.params)[b'value'])
-                        ]
-                    ))
-                    edges.append(bias)
-                    edges.remove(constant_edge_output_consumer_edge)
-                else:
-                    raise 'unsupported'
-            edges.remove(constant_edge)
-        return edges
 
 def to_dummy_input(x):
     if hasattr(x.type, 'tensor_type'):
@@ -461,9 +890,9 @@ def to_dummy_input(x):
 def main(args):
     mlir = ONNX(args.input).to_MLIR()
     mlir.save(args.output)
-    # import pprint
-    # pp = pprint.PrettyPrinter(indent=4)
-    # pp.pprint(mlir.to_dict())
+    #import pprint
+    #pp = pprint.PrettyPrinter(indent=4)
+    #pp.pprint(mlir.to_dict())
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ONNX to MLIR Converter')
