@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import io
+import sys
 import copy
 import functools
 import numpy as np
@@ -151,11 +152,12 @@ def encode_ndarray(obj):
             np.save(out, obj.copy())
             return { b'ndarray': out.getvalue() }
 
-def auto_pad_to_manual_pad(n, k, s, auto_pad):
+def auto_pad_to_manual_pad(n, k, s, d, auto_pad):
+    dk = (k - 1) * d + 1
     if n % s == 0:
-        pad = max(k - s, 0)
+        pad = max(dk - s, 0)
     else:
-        pad = max(k - n % s, 0)
+        pad = max(dk - n % s, 0)
     if auto_pad == b'SAME_LOWER':
         pad_before = pad // 2
         pad_after  = pad - pad_before
@@ -169,17 +171,52 @@ def auto_pad_to_manual_pad(n, k, s, auto_pad):
     else:
         raise 'invalid'
 
-class OpAdd:
+class Op:
     def __init__(self, node):
         self.node = node
+
+    def get_dummy_output(self, env):
+        raise 'unsupported'
+
+    def to_Edge(self, env, constants):
+        raise 'unsupported'
+
+class OpAdd(Op):
+
+    def __init__(self, node):
+        super().__init__(node)
 
     def get_dummy_output(self, env):
         [a,b] = self.node.input
         return env[a] + env[b]
 
-class OpAveragePool(Function):
+    def to_Edge(self, env, constants):
+        [a, b] = self.node.input
+        if a in constants and b not in constants:
+            return [
+                Edge([b], self.node.output, Function('Bias', {
+                    b'axis': 0,
+                    b'b': encode_ndarray(constants[a])
+                }))
+            ]
+        elif a not in constants and b in constants:
+            return [
+                Edge([a], self.node.output, Function('Bias', {
+                    b'axis': 0,
+                    b'b': encode_ndarray(constants[b])
+                    }))
+            ]
+        elif a not in constants and b not in constants:
+            return [
+                Edge(self.node.input, self.node.output, Function('Add'))
+            ]
+        else:
+            raise 'bug! (unreachable here)'
+
+class OpAveragePool(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
         self.kernel_shape = None
         self.auto_pad = b'NOTSET'
@@ -218,33 +255,109 @@ class OpAveragePool(Function):
                 pad_h = (self.pads[0], self.pads[2])
                 pad_w = (self.pads[1], self.pads[3])
         else:
-            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, self.auto_pad)
-            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, self.auto_pad)
+            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, 1, self.auto_pad)
+            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, 1, self.auto_pad)
 
         out_h = ((pad_h[0] + in_h + pad_h[1]) - ((kh - 1) * 1 + 1)) // sy + 1
         out_w = ((pad_w[0] + in_w + pad_w[1]) - ((kw - 1) * 1 + 1)) // sx + 1
 
         return np.zeros((batch, channel, out_h, out_w), dtype=env[x].dtype)
 
-class OpBatchNormalization(Function):
+    def to_Edge(self, env, constants):
+        [x] = self.node.input
+
+        _input = env[x]
+        batch = _input.shape[0]
+        channel = _input.shape[1]
+        in_h = _input.shape[2]
+        in_w = _input.shape[3]
+        kh = self.kernel_shape[0]
+        kw = self.kernel_shape[1]
+        sy = self.strides[0]
+        sx = self.strides[1]
+
+        if self.auto_pad == b'NOTSET':
+            pad_h = (0, 0)
+            pad_w = (0, 0)
+            if self.pads is not None:
+                pad_h = (self.pads[0], self.pads[2])
+                pad_w = (self.pads[1], self.pads[3])
+        else:
+            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, 1, self.auto_pad)
+            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, 1, self.auto_pad)
+
+        return [
+            Edge(self.node.input, self.node.output, Function('AveragePooling2D', {
+                b'kernel': (kh, kw),
+                b'stride': (sy, sx),
+                b'pad_h': pad_h,
+                b'pad_w': pad_w,
+            }))
+        ]
+
+class OpBatchNormalization(Op):
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
     def get_dummy_output(self, env):
         [x,_,_,_,_] = self.node.input
         return env[x]
 
-class OpClip(Function):
+    def to_Edge(self, env, constants):
+        [x,gamma,beta,mean,var] = self.node.input
+        if gamma not in constants:
+            raise 'unsupported'
+        if beta not in constants:
+            raise 'unsupported'
+        if mean not in constants:
+            raise 'unsupported'
+        if var not in constants:
+            raise 'unsupported'
+        eps = 1e-05
+        for attr in self.node.attribute:
+            if attr.name == 'epsilon':
+                eps = attr.f
+        return [
+            Edge([x], self.node.output, Function('BatchNormalization', {
+                b'eps': eps,
+                b'avg_mean': encode_ndarray(constants[mean]),
+                b'avg_var': encode_ndarray(constants[var]),
+                b'gamma': encode_ndarray(constants[gamma]),
+                b'beta': encode_ndarray(constants[beta]),
+            }))
+        ]
+
+class OpClip(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
     def get_dummy_output(self, env):
         [x] = self.node.input
         return env[x]
 
-class OpConv(Function):
+    def to_Edge(self, env, constants):
+        _min = -3.4028234663852886e+38
+        _max =  3.4028234663852886e+38
+        for attr in self.node.attribute:
+            if attr.name == 'max':
+                _max = attr.f
+            if attr.name == 'min':
+                _min = attr.f
+
+        if _min != 0.0:
+            raise 'unsupported'
+
+        return [
+            Edge(self.node.input, self.node.output, Function('ClippedReLU', {
+                b'upper': _max,
+            }))
+        ]
+
+class OpConv(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
         self.kernel_shape = None
         self.auto_pad = b'NOTSET'
@@ -293,8 +406,8 @@ class OpConv(Function):
                 pad_h = (self.pads[0], self.pads[2])
                 pad_w = (self.pads[1], self.pads[3])
         else:
-            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, self.auto_pad)
-            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, self.auto_pad)
+            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, dy, self.auto_pad)
+            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, dx, self.auto_pad)
 
         out_ch = env[W].shape[0]
 
@@ -303,9 +416,74 @@ class OpConv(Function):
 
         return np.zeros((batch, out_ch, out_h, out_w), dtype=env[x].dtype)
 
-class OpGemm(Function):
+    def to_Edge(self, env, constants):
+        b = None
+        if len(self.node.input) == 2:
+            [x, W] = self.node.input
+        elif len(self.node.input) == 3:
+            [x, W, b] = self.node.input
+        else:
+            raise 'invalid'
+        if W not in constants:
+            raise 'unsupported'
+        W = constants[W]
+        if b is not None:
+            if b not in constants:
+                raise 'unsupported'
+            b = constants[b]
+
+        _input = env[x]
+        batch = _input.shape[0]
+        in_ch = _input.shape[1]
+        in_h = _input.shape[2]
+        in_w = _input.shape[3]
+        kh = self.kernel_shape[0]
+        kw = self.kernel_shape[1]
+        sy = self.strides[0]
+        sx = self.strides[1]
+        dy = self.dilations[0]
+        dx = self.dilations[1]
+
+        if self.auto_pad == b'NOTSET':
+            pad_h = (0, 0)
+            pad_w = (0, 0)
+            if self.pads is not None:
+                pad_h = (self.pads[0], self.pads[2])
+                pad_w = (self.pads[1], self.pads[3])
+        else:
+            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, dy, self.auto_pad)
+            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, dx, self.auto_pad)
+
+        is_depthwise = False
+        out_channels,in_channels_per_groups = W.shape[:2]
+        if self.group > 1 and 1 == in_channels_per_groups:
+            return [
+                Edge([x], self.node.output, Function('DepthwiseConvolution2D', {
+                    b'W': encode_ndarray(np.rollaxis(W.reshape(self.group,out_channels//self.group,kh,kw),1,0)),
+                    b'b': encode_ndarray(b),
+                    b'stride': (sy, sx),
+                    b'pad_h': pad_h,
+                    b'pad_w': pad_w,
+                    b'dilate': (dy, dx),
+                }))
+            ]
+        else:
+            return [
+                Edge([x], self.node.output, Function('Convolution2D', {
+                    b'W': encode_ndarray(W),
+                    b'b': encode_ndarray(b),
+                    b'stride': (sy, sx),
+                    b'pad_h': pad_h,
+                    b'pad_w': pad_w,
+                    b'dilate': (dy, dx),
+                    b'groups': self.group,
+                }))
+            ]
+
+class OpGemm(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
         self.alpha = 1.0
         self.beta = 1.0
@@ -313,9 +491,9 @@ class OpGemm(Function):
         self.transB = 0
         for attr in node.attribute:
             if attr.name == 'alpha':
-                self.alpha = attr.i
+                self.alpha = attr.f
             if attr.name == 'beta':
-                self.beta = attr.i
+                self.beta = attr.f
             if attr.name == 'transA':
                 self.transA = attr.i
             if attr.name == 'transB':
@@ -331,17 +509,67 @@ class OpGemm(Function):
             b = b.T
         return a.dot(b)+env[C]
 
-class OpMatMul(Function):
+    def to_Edge(self, env, constants):
+        [A,B,C] = self.node.input
+
+        if B not in constants:
+            raise 'unsupported'
+        if C not in constants:
+            raise 'unsupported'
+
+        b = env[B]
+        if self.transB == 0:
+            b = b.T
+        c = env[C]
+
+        if len(c.shape) == 2 and c.shape[0] != 1:
+            raise 'unsupported'
+
+        if self.transA == 1:
+            internal_node = "{}_{}".format(A, id(A))
+            env[internal_node] = env[A].T
+            return [
+                Edge([A], [internal_node], Function('Transpose', {
+                    b'axes': [1,0]
+                })),
+                Edge([internal_node], self.node.output, Function('Linear', {
+                    b'W': encode_ndarray(self.alpha * b),
+                    b'b': encode_ndarray(self.beta * c.ravel())
+                }))
+            ]
+        else:
+            return [
+                Edge([A], self.node.output, Function('Linear', {
+                    b'W': encode_ndarray(self.alpha * b),
+                    b'b': encode_ndarray(self.beta * c.ravel())
+                }))
+            ]
+
+class OpMatMul(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
     def get_dummy_output(self, env):
         [x,W] = self.node.input
         return env[x].dot(env[W])
 
-class OpMaxPool(Function):
+    def to_Edge(self, env, constants):
+        [x,W] = self.node.input
+        if W in constants:
+            return [
+                Edge([x], node.output, Function('Linear', {
+                    b'W': encode_ndarray(env[W]),
+                    b'b': None
+                }))
+            ]
+        else:
+            raise 'unsupported'
+
+class OpMaxPool(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
         self.kernel_shape = None
         self.auto_pad = b'NOTSET'
@@ -380,17 +608,50 @@ class OpMaxPool(Function):
                 pad_h = (self.pads[0], self.pads[2])
                 pad_w = (self.pads[1], self.pads[3])
         else:
-            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, self.auto_pad)
-            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, self.auto_pad)
+            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, 1, self.auto_pad)
+            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, 1, self.auto_pad)
 
         out_h = ((pad_h[0] + in_h + pad_h[1]) - ((kh - 1) * 1 + 1)) // sy + 1
         out_w = ((pad_w[0] + in_w + pad_w[1]) - ((kw - 1) * 1 + 1)) // sx + 1
 
         return np.zeros((batch, channel, out_h, out_w), dtype=env[x].dtype)
 
-class OpPad:
+    def to_Edge(self, env, constants):
+        [x] = self.node.input
+
+        _input = env[x]
+        batch = _input.shape[0]
+        channel = _input.shape[1]
+        in_h = _input.shape[2]
+        in_w = _input.shape[3]
+        kh = self.kernel_shape[0]
+        kw = self.kernel_shape[1]
+        sy = self.strides[0]
+        sx = self.strides[1]
+
+        if self.auto_pad == b'NOTSET':
+            pad_h = (0, 0)
+            pad_w = (0, 0)
+            if self.pads is not None:
+                pad_h = (self.pads[0], self.pads[2])
+                pad_w = (self.pads[1], self.pads[3])
+        else:
+            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, 1, self.auto_pad)
+            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, 1, self.auto_pad)
+
+        return [
+            Edge(self.node.input, self.node.output, Function('MaxPooling2D', {
+                b'kernel': (kh, kw),
+                b'stride': (sy, sx),
+                b'pad_h': pad_h,
+                b'pad_w': pad_w,
+            }))
+        ]
+
+class OpPad(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
         self.mode = b'constant'
         self.pads = None
@@ -411,41 +672,86 @@ class OpPad:
         n = len(self.pads) // 2
         return np.pad(env[x], list(zip(self.pads[:n], self.pads[n:])), mode='constant', constant_values=self.value)
 
-class OpRelu(Function):
+    def to_Edge(self, env, constants):
+        n = len(self.pads) // 2
+        return [
+            Edge(self.node.input, self.node.output, Function('ConstantPadding', {
+                b'pads': list(zip(self.pads[:n], self.pads[n:])),
+                b'value': self.value,
+            }))
+        ]
+
+class OpRelu(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
     def get_dummy_output(self, env):
         [x] = self.node.input
         return env[x]
 
-class OpReshape(Function):
+    def to_Edge(self, env, constants):
+        return [
+            Edge(self.node.input, self.node.output, Function('ReLU'))
+        ]
+
+class OpReshape(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
     def get_dummy_output(self, env):
         [x,shape] = self.node.input
         return env[x].reshape(list(env[shape]))
 
-class OpSoftmax(Function):
+    def to_Edge(self, env, constants):
+        [x,_] = self.node.input
+        [y] = self.node.output
+        return [
+            Edge([x], self.node.output, Function('Reshape', {
+                b'shape': list(map(int, env[y].shape))
+            }))
+        ]
+
+class OpSoftmax(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
+
+        self.axis = 1
+        for attr in self.node.attribute:
+            if attr.name == 'axis':
+                self.axis = attr.i
 
     def get_dummy_output(self, env):
         [x] = self.node.input
         return env[x]
 
-class OpSum(Function):
+    def to_Edge(self, env, constants):
+        return [
+            Edge(self.node.input, self.node.output, Function('Softmax', {b'axis': self.axis}))
+        ]
+
+class OpSum(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
     def get_dummy_output(self, env):
         xs = map(lambda x: env[x], self.node.input)
         return functools.reduce(lambda a,b: a+b, xs)
 
-class OpTranspose(Function):
+    def to_Edge(self, env, constants):
+        if len(self.node.input) != 2:
+            raise 'unsupported'
+        return [
+            Edge(self.node.input, self.node.output, Function('Add'))
+        ]
+
+class OpTranspose(Op):
+
     def __init__(self, node):
-        self.node = node
+        super().__init__(node)
 
         self.perm = None
         for attr in node.attribute:
@@ -456,25 +762,19 @@ class OpTranspose(Function):
         [x] = self.node.input
         return np.transpose(env[x], self.perm)
 
-_OP_CLASSES = {
-    'Add': OpAdd,
-    'AveragePool': OpAveragePool,
-    'BatchNormalization': OpBatchNormalization,
-    'Clip': OpClip,
-    'Conv': OpConv,
-    'Gemm': OpGemm,
-    'MatMul': OpMatMul,
-    'MaxPool': OpMaxPool,
-    'Pad': OpPad,
-    'Relu': OpRelu,
-    'Reshape': OpReshape,
-    'Softmax': OpSoftmax,
-    'Sum': OpSum,
-    'Transpose': OpTranspose,
-}
+    def to_Edge(self, env, constants):
+        return [
+            Edge(self.node.input, self.node.output, Function('Transpose', {
+                b'axes': self.perm
+            }))
+        ]
 
 def evaluate(node, env):
-    return _OP_CLASSES[node.op_type](node).get_dummy_output(env)
+    op_name = 'Op{}'.format(node.op_type)
+    if hasattr(sys.modules['__main__'], op_name):
+        return getattr(sys.modules['__main__'], op_name)(node).get_dummy_output(env)
+    else:
+        raise 'unsupported'
 
 class ONNX:
     def __init__(self, path):
@@ -518,29 +818,11 @@ class ONNX:
     def _find_generator(self, name):
         return self._find(lambda n: name in n.output, self.model.graph.node)
 
-    def _has_generator(self, name):
-        return self._find_generator(name) is not None
-
     def _find_input(self, name):
         return self._find(lambda n: name == n.name, self.model.graph.input)
 
     def _has_input(self, name):
         return self._find_input(name) is not None
-
-    def _has_constant(self, name):
-        return self._get_constant(name) is not None
-
-    def _get_constant(self, name):
-        i = self._find_initializer(name)
-        if name in self.constant_nodes:
-            return self.constant_nodes[name]
-        elif i is not None:
-            return tensor_to_narray(i)
-        else:
-            return None
-
-    def _find_node(self, name):
-        return self.nodes[name] # self._find(lambda n: name == n.name, self.model.graph.value_info)
 
     def to_MLIR(self):
         inputs = list(map(lambda x: x.name, self.sess.get_inputs()))
@@ -607,6 +889,7 @@ class ONNX:
                 edges += edge
             initializer = self._find_initializer(o)
             if initializer is not None:
+                print('_from_initializer_to_edge')
                 edge = self._from_initializer_to_edge(initializer)
                 edges += edge
         return edges
@@ -637,356 +920,17 @@ class ONNX:
         dfs([], outputs, result)
         return result
 
-    def op2edge_Add(self, node):
-        [a, b] = node.input
-        ca = self._get_constant(a)
-        cb = self._get_constant(b)
-        if ca is not None and cb is None:
-            return [
-                Edge([b], node.output, Function('Bias', {
-                    b'axis': 0,
-                    b'b': encode_ndarray(ca)
-                }))
-            ]
-        elif ca is None and cb is not None:
-            return [
-                Edge([a], node.output, Function('Bias', {
-                    b'axis': 0,
-                    b'b': encode_ndarray(cb)
-                    }))
-            ]
-        elif ca is None and cb is None:
-            return [
-                Edge(node.input, node.output, Function('Add'))
-            ]
-        else:
-            raise 'unsupported'
-
-    def op2edge_AveragePool(self, node):
-        auto_pad = b'NOTSET'
-        pads = None
-        for attr in node.attribute:
-            if attr.name == 'kernel_shape':
-                [kh, kw] = attr.ints
-            if attr.name == 'strides':
-                strides = attr.ints
-                [sy, sx] = strides
-            if attr.name == 'auto_pad':
-                auto_pad = attr.s
-            if attr.name == 'pads':
-                pads = attr.ints
-        if auto_pad == b'NOTSET':
-            pad_h = (0, 0)
-            pad_w = (0, 0)
-            if pads is not None:
-                pad_h = (pads[0], pads[2])
-                pad_w = (pads[1], pads[3])
-        else:
-            i = self._find_node(x)
-            h = i.shape[2]
-            w = i.shape[3]
-            pad_h = auto_pad_to_manual_pad(h, kh, sy, auto_pad)
-            pad_w = auto_pad_to_manual_pad(w, kw, sx, auto_pad)
-        return [
-            Edge(node.input, node.output, Function('AveragePooling2D', {
-                b'kernel': (kh, kw),
-                b'stride': tuple(strides),
-                b'pad_h': pad_h,
-                b'pad_w': pad_w,
-            }))
-        ]
-
-    def op2edge_BatchNormalization(self, node):
-        [x,gamma,beta,mean,var] = node.input
-        gamma = self._get_constant(gamma)
-        if gamma is None:
-            raise 'unsupported'
-        beta = self._get_constant(beta)
-        if beta is None:
-            raise 'unsupported'
-        mean = self._get_constant(mean)
-        if mean is None:
-            raise 'unsupported'
-        var = self._get_constant(var)
-        if var is None:
-            raise 'unsupported'
-        eps = 1e-05
-        for attr in node.attribute:
-            if attr.name == 'epsilon':
-                eps = attr.f
-        return [
-            Edge([x], node.output, Function('BatchNormalization', {
-                b'eps': eps,
-                b'avg_mean': encode_ndarray(mean),
-                b'avg_var': encode_ndarray(var),
-                b'gamma': encode_ndarray(gamma),
-                b'beta': encode_ndarray(beta),
-            }))
-        ]
-
-    def op2edge_Clip(self, node):
-
-        _min = -3.4028234663852886e+38
-        _max = 3.4028234663852886e+38
-        for attr in node.attribute:
-            if attr.name == 'max':
-                _max = attr.f
-            if attr.name == 'min':
-                _min = attr.f
-
-        if _min != 0.0:
-            raise 'unsupported'
-
-        return [
-            Edge(node.input, node.output, Function('ClippedReLU', {
-                b'upper': _max,
-            }))
-        ]
-
-    def op2edge_Conv(self, node):
-        b = None
-        if len(node.input) == 2:
-            [x, W] = node.input
-        elif len(node.input) == 3:
-            [x, W, b] = node.input
-        else:
-            raise 'invalid'
-        W = self._get_constant(W)
-        if W is None:
-            raise 'unsupported'
-        if b is not None:
-            b = self._get_constant(b)
-            if b is None:
-                raise 'unsupported'
-        kh = W.shape[2]
-        kw = W.shape[3]
-        auto_pad = b'NOTSET'
-        pads = None
-        strides = (1,1)
-        dilations = (1,1)
-        group = 1
-        for attr in node.attribute:
-            if attr.name == 'dilations':
-                dilations = attr.ints
-            if attr.name == 'group':
-                group = attr.i
-            if attr.name == 'strides':
-                strides = attr.ints
-                [sy, sx] = strides
-            if attr.name == 'auto_pad':
-                auto_pad = attr.s
-            if attr.name == 'pads':
-                pads = attr.ints
-        if auto_pad == b'NOTSET':
-            pad_h = (0, 0)
-            pad_w = (0, 0)
-            if pads is not None:
-                pad_h = (pads[0], pads[2])
-                pad_w = (pads[1], pads[3])
-        else:
-            i = self._find_node(x)
-            h = i.shape[2]
-            w = i.shape[3]
-            pad_h = auto_pad_to_manual_pad(h, kh, sy, auto_pad)
-            pad_w = auto_pad_to_manual_pad(w, kw, sx, auto_pad)
-
-        is_depthwise = False
-        out_channels,in_channels_per_groups = W.shape[:2]
-        if group > 1 and 1 == in_channels_per_groups:
-            return [
-                Edge([x], node.output, Function('DepthwiseConvolution2D', {
-                    b'W': encode_ndarray(np.rollaxis(W.reshape(group,out_channels//group,kh,kw),1,0)),
-                    b'b': encode_ndarray(b),
-                    b'stride': tuple(strides),
-                    b'pad_h': pad_h,
-                    b'pad_w': pad_w,
-                    b'dilate': tuple(dilations),
-                }))
-            ]
-        else:
-            return [
-                Edge([x], node.output, Function('Convolution2D', {
-                    b'W': encode_ndarray(W),
-                    b'b': encode_ndarray(b),
-                    b'stride': tuple(strides),
-                    b'pad_h': pad_h,
-                    b'pad_w': pad_w,
-                    b'dilate': tuple(dilations),
-                    b'groups': int(group)
-                }))
-            ]
-
-    def op2edge_Gemm(self, node):
-        [A,B,C] = node.input
-        B = self._get_constant(B)
-        if B is None:
-            raise 'unsupported'
-        C = self._get_constant(C)
-        if C is None:
-            raise 'unsupported'
-        alpha = 1.0
-        beta = 1.0
-        transA = 0
-        transB = 0
-        for attr in node.attribute:
-            if attr.name == 'alpha':
-                alpha = attr.f
-            if attr.name == 'beta':
-                beta = attr.f
-            if attr.name == 'transA':
-                transA = attr.i
-            if attr.name == 'transB':
-                transB = attr.i
-        if len(C.shape) == 2 and C.shape[0] != 1:
-            raise 'unsupported'
-        return [
-            Edge([A], node.output, Function('Linear', {
-                b'W': encode_ndarray(alpha * B),
-                b'b': encode_ndarray(beta * C.ravel())
-                }))
-            ]
-
-    def op2edge_MatMul(self, node):
-        [x, W] = node.input
-        W = self._get_constant(W)
-        if W is not None:
-            return [
-                Edge([x], node.output, Function('Linear', {
-                    b'W': encode_ndarray(W),
-                    b'b': None
-                }))
-            ]
-        else:
-            raise 'unsupported'
-
-    def op2edge_MaxPool(self, node):
-        auto_pad = b'NOTSET'
-        pads = None
-        for attr in node.attribute:
-            if attr.name == 'kernel_shape':
-                [kh, kw] = attr.ints
-            if attr.name == 'strides':
-                strides = attr.ints
-                [sy, sx] = strides
-            if attr.name == 'auto_pad':
-                auto_pad = attr.s
-            if attr.name == 'pads':
-                pads = attr.ints
-        if auto_pad == b'NOTSET':
-            pad_h = (0, 0)
-            pad_w = (0, 0)
-            if pads is not None:
-                pad_h = (pads[0], pads[2])
-                pad_w = (pads[1], pads[3])
-        else:
-            i = self._find_node(x)
-            h = i.shape[2]
-            w = i.shape[3]
-            pad_h = auto_pad_to_manual_pad(h, kh, sy, auto_pad)
-            pad_w = auto_pad_to_manual_pad(w, kw, sx, auto_pad)
-        return [
-            Edge(node.input, node.output, Function('MaxPooling2D', {
-                b'kernel': (kh, kw),
-                b'stride': tuple(strides),
-                b'pad_h': pad_h,
-                b'pad_w': pad_w,
-            }))
-        ]
-
-    def op2edge_Pad(self, node):
-
-        mode = b'constant'
-        pads = None
-        value = 0.0
-        for attr in node.attribute:
-            if attr.name == 'mode':
-                mode = attr.s
-            if attr.name == 'pads':
-                pads = attr.ints
-            if attr.name == 'value':
-                value = attr.f
-
-        if mode != b'constant':
-            raise 'unsupported'
-
-        n = len(pads) // 2
-
-        return [
-            Edge(node.input, node.output, Function('ConstantPadding', {
-                b'pads': list(zip(pads[:n], pads[n:])),
-                b'value': value,
-            }))
-        ]
-
-    def op2edge_Relu(self, node):
-        return [
-            Edge(node.input, node.output, Function('ReLU'))
-        ]
-
-    def op2edge_Reshape(self, node):
-        [x, shape] = node.input
-        shape = self._find_initializer(shape)
-        return [
-            Edge([x], node.output, Function('Reshape', {b'shape': list(shape.int64_data)}))
-        ]
-
-    def op2edge_Softmax(self, node):
-        axis = 1
-        for attr in node.attribute:
-            if attr.name == 'axis':
-                axis = attr.i
-        return [
-            Edge(node.input, node.output, Function('Softmax', {b'axis': axis}))
-        ]
-
-    def op2edge_Sum(self, node):
-        if len(node.input) != 2:
-            raise 'unsupported'
-        return [
-            Edge(node.input, node.output, Function('Add'))
-        ]
-
-    def op2edge_Transpose(self, node):
-
-        perm = None
-        for attr in node.attribute:
-            if attr.name == 'perm':
-                perm = attr.ints
-
-        return [
-            Edge(node.input, node.output, Function('Transpose', {
-                b'axes': perm
-            }))
-        ]
-
     def _from_initializer_to_edge(self, node):
         return [
-            Edge([], [node.name], Function('Constant', {b'value': encode_ndarray(self._get_constant(node.name))}))
+            Edge([], [node.name], Function('Constant', {b'value': encode_ndarray(self.nodes[node.name])}))
         ]
 
     def _from_operator_to_edge(self, node):
-        if all(map(lambda x: self._has_constant(x), node.output)):
-            return [
-                Edge([], [x], Function('Constant', {b'value': encode_ndarray(self._get_constant(x))}))
-                for x in node.output
-            ]
+        op_name = 'Op{}'.format(node.op_type)
+        if hasattr(sys.modules['__main__'], op_name):
+            return getattr(sys.modules['__main__'], op_name)(node).to_Edge(self.nodes, self.constant_nodes)
         else:
-            return {
-                'Add': self.op2edge_Add,
-                'AveragePool': self.op2edge_AveragePool,
-                'BatchNormalization': self.op2edge_BatchNormalization,
-                'Clip': self.op2edge_Clip,
-                'Conv': self.op2edge_Conv,
-                'Gemm': self.op2edge_Gemm,
-                'MatMul': self.op2edge_MatMul,
-                'MaxPool': self.op2edge_MaxPool,
-                'Pad': self.op2edge_Pad,
-                'Relu': self.op2edge_Relu,
-                'Reshape': self.op2edge_Reshape,
-                'Softmax': self.op2edge_Softmax,
-                'Sum': self.op2edge_Sum,
-                'Transpose': self.op2edge_Transpose,
-            }[node.op_type](node)
+            raise 'unsupported'
 
 def to_dummy_input(x):
     if hasattr(x.type, 'tensor_type'):
@@ -999,10 +943,11 @@ def to_dummy_input(x):
 
 def main(args):
     mlir = ONNX(args.input).to_MLIR()
+    if False:
+        import pprint
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(mlir.to_dict())
     mlir.save(args.output)
-    #import pprint
-    #pp = pprint.PrettyPrinter(indent=4)
-    #pp.pprint(mlir.to_dict())
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ONNX to MLIR Converter')
