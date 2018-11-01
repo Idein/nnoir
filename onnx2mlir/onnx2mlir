@@ -558,7 +558,7 @@ class OpMatMul(Op):
         [x,W] = self.node.input
         if W in constants:
             return [
-                Edge([x], node.output, Function('Linear', {
+                Edge([x], self.node.output, Function('Linear', {
                     b'W': encode_ndarray(env[W]),
                     b'b': None
                 }))
