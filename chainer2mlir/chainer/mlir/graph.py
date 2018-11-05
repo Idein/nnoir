@@ -106,7 +106,7 @@ class Graph(object):
         for no, node in enumerate(sorted_nodes):
             node.no = no
 
-    def to_mlir(self):
+    def to_mlir(self, name=None):
         def _node(node):
             return { b'name': self._variable_elem_name(node),
                      b'dtype': node.node.dtype.str, # TODO: エンディアンとかが入り込むのでfloatとかでいい
@@ -124,7 +124,7 @@ class Graph(object):
         mlir = { b'mlir':
                  { b'version' : 0,
                    b'model' :
-                   { b'name': self.model.__class__.__name__,
+                   { b'name': name or self.model.__class__.__name__,
                      b'generator':
                      { b'name' : 'chainer',
                        b'version': chainer.__version__ },
