@@ -93,56 +93,19 @@ class Function:
         return '{}'.format(self.name)
 
 def tensor_to_narray(tensor):
-    dtypes = {
-        onnx.TensorProto.BOOL: np.bool,
-        onnx.TensorProto.INT8: np.int8,
-        onnx.TensorProto.INT16: np.int16,
-        onnx.TensorProto.INT32: np.int32,
-        onnx.TensorProto.INT64: np.int64,
-        onnx.TensorProto.UINT8: np.uint8,
-        onnx.TensorProto.UINT16: np.uint16,
-        onnx.TensorProto.UINT32: np.uint32,
-        onnx.TensorProto.UINT64: np.uint64,
-        onnx.TensorProto.FLOAT16: np.float16,
-        onnx.TensorProto.FLOAT: np.float32,
-        onnx.TensorProto.DOUBLE: np.float64,
-    }
     arr = []
-    if tensor.data_type in [onnx.TensorProto.FLOAT]:
-        arr = tensor.float_data
-    elif tensor.data_type in [onnx.TensorProto.INT32, onnx.TensorProto.INT16, onnx.TensorProto.INT8, onnx.TensorProto.UINT16, onnx.TensorProto.UINT8, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT16]:
-        arr = tensor.int32_data
-    elif tensor.data_type in [onnx.TensorProto.INT64]:
-        arr = tensor.int64_data
-    elif tensor.data_type in [onnx.TensorProto.DOUBLE]:
-        arr = tensor.double_data
-    elif tensor.data_type in [onnx.TensorProto.UINT32, onnx.TensorProto.UINT64]:
-        arr = tensor.uint64_data
-    else:
-        raise 'unsupported'
+    storage = onnx.mapping.TENSOR_TYPE_TO_STORAGE_TENSOR_TYPE[tensor.data_type]
+    storage = onnx.mapping.STORAGE_TENSOR_TYPE_TO_FIELD[storage]
+    arr = getattr(tensor, storage)
     if arr == []:
-        result = np.frombuffer(tensor.raw_data, dtype=dtypes[tensor.data_type])
+        result = np.frombuffer(tensor.raw_data, dtype=onnx.mapping.TENSOR_TYPE_TO_NP_TYPE[tensor.data_type])
     else:
-        result = np.array(arr, dtype=dtypes[tensor.data_type])
+        result = np.array(arr, dtype=onnx.mapping.TENSOR_TYPE_TO_NP_TYPE[tensor.data_type])
     shape = tensor.dims if tensor.dims != [] else [1]
     return result.reshape(*shape)
 
 def narray_to_value_info(name, arr):
-    dtypes = {
-        'bool': onnx.TensorProto.BOOL,
-        'int8': onnx.TensorProto.INT8,
-        'int16': onnx.TensorProto.INT16,
-        'int32': onnx.TensorProto.INT32,
-        'int64': onnx.TensorProto.INT64,
-        'uint8': onnx.TensorProto.UINT8,
-        'uint16': onnx.TensorProto.UINT16,
-        'uint32': onnx.TensorProto.UINT32,
-        'uint64': onnx.TensorProto.UINT64,
-        'float16': onnx.TensorProto.FLOAT16,
-        'float32': onnx.TensorProto.FLOAT,
-        'float64': onnx.TensorProto.DOUBLE,
-    }
-    return onnx.helper.make_tensor_value_info(name, dtypes[str(arr.dtype)], arr.shape)
+    return onnx.helper.make_tensor_value_info(name, onnx.mapping.NP_TYPE_TO_TENSOR_TYPE[arr.dtype], arr.shape)
 
 def encode_ndarray(obj):
     if obj is None:
