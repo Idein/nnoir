@@ -108,5 +108,4 @@ if __name__ == '__main__':
     with open(mlir_file, 'rb') as f:
         mlir = msgpack.unpackb(f.read())
         result = to_dot(mlir)
-        with open('cnn.dot', 'w') as f:
-            six.print_(result, file=f)
+        six.print_(result)
