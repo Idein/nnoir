@@ -77,9 +77,11 @@ def to_dot(mlir, rankdir = 'TB'):
         ret += "  %s [%s];\n" % (function_name(edge), ",".join(attributes))
         # output edges
         for from_node in edge[b'inputs']:
-            ret += '  %s -> %s:%s;\n' % (from_node.decode(), function_name(edge), from_node.decode())
+            ret += '  %s -> %s:%s[constraint=false];' % (from_node.decode(), function_name(edge), from_node.decode())
+            ret += '  %s -> %s[color="transparent"];\n' % (from_node.decode(), function_name(edge))
         for to_node in edge[b'outputs']:
-            ret += '  %s:%s -> %s;\n' % (function_name(edge), to_node.decode(), to_node.decode())
+            ret += '  %s:%s -> %s[constraint=false];' % (function_name(edge), to_node.decode(), to_node.decode())
+            ret += '  %s -> %s[color="transparent"];\n' % (function_name(edge), to_node.decode())
 
     ret += '  { rank = same; \n'
     for var in inputs:
