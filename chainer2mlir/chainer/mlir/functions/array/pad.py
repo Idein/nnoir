@@ -23,7 +23,7 @@ def to_mlir_node(self):
             b'name': 'ConstantPadding',
             b'params': {
                 b'pads': _validate_lengths(var.data, self.pad_width),
-                b'value': float(self.keywords['constant_values'][0])
+                b'value': value
             }
         }
     else:
