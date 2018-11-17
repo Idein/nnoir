@@ -904,6 +904,15 @@ class ONNX:
             result = []
         return dict(zip(output_names, result))
 
+    def test(self):
+        m = copy.deepcopy(self.model)
+        for n in m.graph.output:
+            m.graph.output.remove(n)
+        m.graph.output.extend(map(lambda nv: narray_to_value_info(nv[0], nv[1]), self.nodes.items()))
+        for n in m.graph.input:
+            m.graph.output.remove(n)
+        onnx.save(m, '/tmp/test.onnx')
+
     def _to_MLIR_edges(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
         visited = []
@@ -974,7 +983,9 @@ def to_dummy_input(x):
         raise 'unsupported'
 
 def main(args):
-    mlir = ONNX(args.input).to_MLIR()
+    o = ONNX(args.input)
+    o.test()
+    mlir = o.to_MLIR()
     if False:
         import pprint
         pp = pprint.PrettyPrinter(indent=4)
