@@ -13,7 +13,8 @@ def to_mlir_node(self):
             b'kernel': (self.kh, self.kw),
             b'stride': (self.sy, self.sx),
             b'pad_h' : (self.ph, self.ph + self.sy - 1),
-            b'pad_w' : (self.pw, self.pw + self.sx - 1)
+            b'pad_w' : (self.pw, self.pw + self.sx - 1),
+            b'count_exclude_pad' : False
         }
     }
 AveragePooling2D.to_mlir_node = to_mlir_node
