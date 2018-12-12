@@ -10,10 +10,10 @@ import chainer.links as L
 def test_fixed_batch_normalization():
     shape = (2,3,4,5)
     channel = 3
-    gamma = np.zeros(channel).astype(np.float32)
-    beta = np.zeros(channel).astype(np.float32)
-    avg_mean = np.zeros(channel).astype(np.float32)
-    avg_var = np.zeros(channel).astype(np.float32)
+    gamma = np.zeros(channel)
+    beta = np.zeros(channel)
+    avg_mean = np.zeros(channel)
+    avg_var = np.zeros(channel)
     eps = 2e-05
     gamma[:] = 0.9
     beta[:] = 0.1

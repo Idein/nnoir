@@ -18,8 +18,8 @@ def test_convolution_2d():
     kw = 3
     inputs  = [mlir.Node('v0', 'float', (batch, in_ch, in_h, in_w))]
     outputs = [mlir.Node('v1', 'float', (batch,out_ch,out_h, out_w))]
-    W = np.arange(out_ch*in_ch*kh*kw).reshape(out_ch, in_ch, kh, kw).astype('float32')
-    b = np.arange(out_ch).astype('float32')
+    W = np.random.randn(out_ch, in_ch, kh, kw)
+    b = np.random.randn(out_ch)
 
     nodes = inputs + outputs
     input_names = [ x.name for x in inputs ]

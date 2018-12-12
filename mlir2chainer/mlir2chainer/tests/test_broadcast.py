@@ -21,7 +21,7 @@ def test_broadcast():
     result = mlir.MLIR('BroadcastTo', 'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
     result.dump('broadcast.mlir')
     
-    x = np.random.randn(*in_shape).astype(np.float32)
+    x = np.random.randn(*in_shape)
     ref = function.run(x, out_shape)
     with chainer.using_config('train', False):
         m = mlir2chainer.ChainerNN('broadcast.mlir')

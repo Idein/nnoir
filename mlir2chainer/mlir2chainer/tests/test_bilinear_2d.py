@@ -21,7 +21,7 @@ def test_bilinear_2d():
     result = mlir.MLIR('Bilinear2D', 'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
     result.dump('bilinear_2d.mlir')
     
-    x = np.random.randn(*in_shape).astype(np.float32)
+    x = np.random.randn(*in_shape)
     ref = function.run(x)
     with chainer.using_config('train', False):
         m = mlir2chainer.ChainerNN('bilinear_2d.mlir')
