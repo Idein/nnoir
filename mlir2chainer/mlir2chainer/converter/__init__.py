@@ -24,7 +24,7 @@ from .relu import ConvertReLU
 from .reshape import ConvertReshape
 from .scale import ConvertScale
 from .sigmoid import ConvertSigmoid
-from .softmax_cross_entropy import ConvertLinearFunction
+from .softmax_cross_entropy import ConvertSoftmaxCrossEntropy
 from .softmax import ConvertSoftmax
 from .transpose import ConvertTranspose
 from .unpooling_2d import ConvertUnpooling2D

@@ -15,12 +15,12 @@ class ConvertDepthwiseConvolution2D():
                                             nobias = (edge.params["b"] is None))
             conv.W.data = edge.params["W"]
         else:
+            in_channels = x.shape[1]
             groups = edge.params["W"].shape[1]
-            out_channels = edge.params["W"].shape[0]*groups
-            in_channels = 1
+            out_channels = edge.params["W"].shape[0] * groups
             kh = edge.params["W"].shape[2]
             kw = edge.params["W"].shape[3]
-            conv = L.Convolution2D(in_channels = in_channels,
+            conv = L.Convolution2D(in_channels = groups,
                                    out_channels = out_channels,
                                    ksize = (kh, kw),
                                    stride = tuple(edge.params["stride"]),
@@ -28,7 +28,7 @@ class ConvertDepthwiseConvolution2D():
                                    nobias = (edge.params["b"] is None),
                                    dilate = edge.params["dilate"],
                                    groups = groups)
-            conv.W.data = np.rollaxis(edge.params["W"].reshape(in_channels, out_channels, kh, kw), 1, 0)
+            conv.W.data = numpy.rollaxis(edge.params["W"], 1, 0).reshape(out_channels, in_channels//groups, kh, kw)
         if edge.params["b"] is not None:
             conv.b.data = edge.params["b"]
         return conv(x)
