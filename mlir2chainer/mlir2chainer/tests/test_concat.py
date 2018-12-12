@@ -2,8 +2,6 @@ import mlir
 import chainer
 import mlir2chainer
 import numpy as np
-import six
-import msgpack
 import util
 
 def test_concat():
