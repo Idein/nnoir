@@ -9,7 +9,7 @@ class MaxPooling2D(Edge):
                             'pad_h',
                             'pad_w'}
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(MaxPooling2D, self).__init__(inputs, outputs, params, necessary_params, optional_params)
     def run(self, x):
         img, col = util.im2col_cpu(x, self.params['kernel'], self.params['stride'],
                                    self.params['pad_h'], self.params['pad_w'],

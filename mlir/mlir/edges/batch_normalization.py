@@ -10,7 +10,7 @@ class BatchNormalization(Edge):
                             'gamma',
                             'beta'}
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(BatchNormalization, self).__init__(inputs, outputs, params, necessary_params, optional_params)
     def run(self, x):
         shape = (1, self.params['gamma'].size, 1, 1)
         gamma = self.params['gamma'].reshape(shape)

@@ -1,7 +1,7 @@
 import chainer.functions as F
 
 class ConvertUnpooling2D():
-    def to_chainer(edge, x):
+    def to_chainer(self, edge, x):
         return F.unpooling_2d(x,
                               ksize = (edge.params['kh'], edge.params['kw']),
                               stride = (edge.params['sy'], edge.params['sx']),

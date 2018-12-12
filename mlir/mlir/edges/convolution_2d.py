@@ -13,7 +13,7 @@ class Convolution2D(Edge):
                             'dilate',
                             'groups'}
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(Convolution2D, self).__init__(inputs, outputs, params, necessary_params, optional_params)
     def run(self, x):
         kernel = (self.params['W'].shape[2], self.params['W'].shape[3])
         img, col = util.im2col_cpu(x, kernel, self.params['stride'],

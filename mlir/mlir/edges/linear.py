@@ -7,6 +7,6 @@ class Linear(Edge):
         necessary_params = {'W', #(out_ch, in_ch)
                             'b'}
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(Linear, self).__init__(inputs, outputs, params, necessary_params, optional_params)
     def run(self, x):
         return x.dot(np.transpose(self.params['W'])) + self.params['b']

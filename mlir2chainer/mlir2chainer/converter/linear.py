@@ -3,7 +3,7 @@ import six
 import chainer.links as L
 
 class ConvertLinear():
-    def to_chainer(edge, x):
+    def to_chainer(self, edge, x):
         linear = L.Linear(in_size = edge.params['W'].shape[1],
                           out_size = edge.params['W'].shape[0],
                           nobias = (edge.params['b'] is None))

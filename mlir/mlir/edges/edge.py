@@ -1,7 +1,7 @@
 import numpy
 import six
 
-class Edge():
+class Edge(object):
     def __init__(self, inputs, outputs, params, necessary_params, optional_params):
         if necessary_params - set(params.keys()) != set():
             lacks = ", ".join(necessary_params - set(params.keys()))

@@ -3,7 +3,7 @@ import numpy
 import six
 
 class ConvertBatchNormalization():
-    def to_chainer(edge, x):
+    def to_chainer(self, edge, x):
         batch_norm = L.BatchNormalization(size = edge.params['avg_mean'].size,
                                           eps = edge.params['eps'],
                                           use_gamma = (edge.params['gamma'] is not None),

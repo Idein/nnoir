@@ -5,4 +5,4 @@ class Softmax(Edge):
     def __init__(self, inputs, outputs, **params):
         necessary_params = {'axis'}
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(Softmax, self).__init__(inputs, outputs, params, necessary_params, optional_params)

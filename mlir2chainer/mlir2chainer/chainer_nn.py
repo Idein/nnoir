@@ -14,7 +14,7 @@ class ChainerNN(chainer.Chain):
             raise Exception("the number of input variables and the expected number of inputs do not match.")
         variable_dict = { inp:x for inp,x in zip(self.mlir.inputs, xs) }
         for edge in self.mlir.edges:
-            converter = globals()["Convert" + edge.__class__.__name__]
+            converter = globals()["Convert" + edge.__class__.__name__]()
             output_from = converter.to_chainer(edge, *[ variable_dict[x] for x in edge.inputs ])
             variable_dict[edge.outputs[0]] = output_from
         ret = tuple( variable_dict[x] for x in self.mlir.outputs )

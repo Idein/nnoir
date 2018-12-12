@@ -3,7 +3,7 @@ import six
 import chainer.links as L
 
 class ConvertScale():
-    def to_chainer(edge, *xs):
+    def to_chainer(self, edge, *xs):
         scale = L.Scale(axis = edge.params['axis'],
                         W_shape = tuple(edge.params['W'].shape),
                         bias_term = (edge.params['bias.b'] is not None),

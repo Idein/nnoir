@@ -5,4 +5,4 @@ class Sigmoid(Edge):
     def __init__(self, inputs, outputs, **params):
         necessary_params = set()
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(Sigmoid, self).__init__(inputs, outputs, params, necessary_params, optional_params)

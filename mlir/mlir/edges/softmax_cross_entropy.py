@@ -6,4 +6,4 @@ class SoftmaxCrossEntropy(Edge):
         necessary_params = {'normalize',
                             'cache_score'}
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(SoftmaxCrossEntropy, self).__init__(inputs, outputs, params, necessary_params, optional_params)

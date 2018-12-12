@@ -3,7 +3,7 @@ import six
 import chainer.links as L
 
 class ConvertConvolution2D():
-    def to_chainer(edge, x):
+    def to_chainer(self, edge, x):
         if edge.params['pad_h'][0] != edge.params['pad_h'][1] or edge.params['pad_w'][0] != edge.params['pad_w'][1]:
             raise Exception('this padding is not supported now')
         conv = L.Convolution2D(in_channels = edge.params['W'].shape[1],

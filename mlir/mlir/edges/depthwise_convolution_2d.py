@@ -13,7 +13,7 @@ class DepthwiseConvolution2D(Edge):
                             'pad_w',
                             'dilate'}
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(DepthwiseConvolution2D, self).__init__(inputs, outputs, params, necessary_params, optional_params)
     def run(self, x):
         W = self.params['W']
         b = self.params['b']

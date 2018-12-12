@@ -6,7 +6,7 @@ class ELU(Edge):
     def __init__(self, inputs, outputs, **params):
         necessary_params = {'alpha'}
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(ELU, self).__init__(inputs, outputs, params, necessary_params, optional_params)
     def run(self, x):
         R = x.copy()
         v = R < 0

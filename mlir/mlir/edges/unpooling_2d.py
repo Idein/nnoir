@@ -15,7 +15,7 @@ class Unpooling2D(Edge):
                             'outh',
                             'outw'}
         optional_params = set()
-        super().__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(Unpooling2D, self).__init__(inputs, outputs, params, necessary_params, optional_params)
     def run(self, x):
         col = np.tile(x[:, :, None, None], (1, 1, self.params['kh'], self.params['kw'], 1, 1))
         R = util.col2im_cpu(col, (self.params['sy'], self.params['sx']),
