@@ -186,6 +186,7 @@ class OpAveragePool(Op):
         self.pads = None
         self.storage_order = 0
         self.strides = (1,1)
+        self.count_include_pad = 0
         for attr in node.attribute:
             if attr.name == 'kernel_shape':
                 self.kernel_shape = attr.ints
@@ -197,6 +198,8 @@ class OpAveragePool(Op):
                 self.auto_pad = attr.s
             if attr.name == 'pads':
                 self.pads = attr.ints
+            if attr.name == 'count_include_pad':
+                self.count_include_pad = attr.i
 
     def get_dummy_output(self, env):
         [x] = self.node.input
@@ -255,6 +258,7 @@ class OpAveragePool(Op):
                 b'stride': (sy, sx),
                 b'pad_h': pad_h,
                 b'pad_w': pad_w,
+                b'count_exclude_pad': self.count_include_pad == 0,
             }))
         ]
 
