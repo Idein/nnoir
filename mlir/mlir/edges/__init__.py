@@ -2,6 +2,7 @@ from .add_constant import AddConstant
 from .add import Add
 from .average_pooling_2d import AveragePooling2D
 from .batch_normalization import BatchNormalization
+from .bias import Bias
 from .bilinear_2d import Bilinear2D
 from .broadcast import BroadcastTo
 from .clipped_relu import ClippedReLU
