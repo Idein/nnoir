@@ -9,73 +9,8 @@ import onnx
 import onnxruntime
 import msgpack
 from itertools import chain
-
-class MLIR:
-    def __init__(self, version = 0, model = None):
-        self.version = version
-        self.model = model
-
-    def to_dict(self):
-        return {
-            b'mlir': {
-                b'version': self.version,
-                b'model': self.model.to_dict()
-            }
-        }
-
-    def save(self, path):
-        with open(path, 'w') as f:
-            f.buffer.write(msgpack.packb(self.to_dict()))
-
-class Model:
-
-    def __init__(self, name, generator, inputs, outputs, nodes, edges):
-        self.name = name
-        self.generator = generator
-        self.inputs = inputs
-        self.outputs = outputs
-        self.nodes = nodes
-        self.edges = edges
-
-    def to_dict(self):
-        return {
-            b'name': self.name,
-            b'generator': self.generator,
-            b'inputs': self.inputs,
-            b'outputs': self.outputs,
-            b'nodes': [ n.to_dict() for n in self.nodes ],
-            b'edges': [ e.to_dict() for e in self.edges ]
-        }
-
-class Node:
-
-    def __init__(self, name, arr):
-        self.name = name
-        self.arr = arr
-
-    def to_dict(self):
-        return {
-            b'name': self.name,
-            b'dtype': self.arr.dtype.str,
-            b'shape': list(self.arr.shape)
-        }
-
-class Edge:
-
-    def __init__(self, inputs, outputs, function):
-        self.inputs = list(inputs)
-        self.outputs = list(outputs)
-        self.function = function
-
-    def to_dict(self):
-        return {
-            b'inputs': self.inputs,
-            b'outputs': self.outputs,
-            **self.function.to_dict()
-        }
-
-    def __str__(self):
-        return '{} ({} -> {})'.format(self.function, self.inputs, self.outputs)
+from mlir import *
+from mlir.edges import *
 
 class Function:
 
@@ -134,15 +69,20 @@ def auto_pad_to_manual_pad(n, k, s, d, auto_pad):
     else:
         raise 'invalid'
 
+class UnsupportedONNXOperation(Exception):
+    def __init__(self, node, message):
+        self.node = node
+        self.message = message
+
 class Op:
     def __init__(self, node):
         self.node = node
 
     def get_dummy_output(self, env):
-        raise 'unsupported'
+        raise UnsupportedONNXOperation(self.node, "not implemented")
 
     def to_Edge(self, env, constants):
-        raise 'unsupported'
+        raise UnsupportedONNXOperation(self.node, "not implemented")
 
 class OpAdd(Op):
 
@@ -156,25 +96,13 @@ class OpAdd(Op):
     def to_Edge(self, env, constants):
         [a, b] = self.node.input
         if a in constants and b not in constants:
-            return [
-                Edge([b], self.node.output, Function('Bias', {
-                    b'axis': 0,
-                    b'b': encode_ndarray(constants[a])
-                }))
-            ]
+            return [ Bias([b], list(self.node.output), axis=0,b=encode_ndarray(constants[a])) ]
         elif a not in constants and b in constants:
-            return [
-                Edge([a], self.node.output, Function('Bias', {
-                    b'axis': 0,
-                    b'b': encode_ndarray(constants[b])
-                    }))
-            ]
+            return [ Bias([a], list(self.node.output), axis=0,b=encode_ndarray(constants[b])) ]
         elif a not in constants and b not in constants:
-            return [
-                Edge(self.node.input, self.node.output, Function('Add'))
-            ]
+            return [ Add(list(self.node.input), list(self.node.output)) ]
         else:
-            raise 'bug! (unreachable here)'
+            raise UnsupportedONNXOperation(self.node, 'bug! (unreachable here)')
 
 class OpAveragePool(Op):
 
@@ -253,13 +181,15 @@ class OpAveragePool(Op):
             pad_w = auto_pad_to_manual_pad(in_w, kw, sx, 1, self.auto_pad)
 
         return [
-            Edge(self.node.input, self.node.output, Function('AveragePooling2D', {
-                b'kernel': (kh, kw),
-                b'stride': (sy, sx),
-                b'pad_h': pad_h,
-                b'pad_w': pad_w,
-                b'count_exclude_pad': self.count_include_pad == 0,
-            }))
+            AveragePooling2D(
+                list(self.node.input),
+                list(self.node.output),
+                kernel=(kh, kw),
+                stride=(sy, sx),
+                pad_h=pad_h,
+                pad_w=pad_w,
+                count_exclude_pad=self.count_include_pad==0,
+            )
         ]
 
 class OpBatchNormalization(Op):
@@ -273,25 +203,27 @@ class OpBatchNormalization(Op):
     def to_Edge(self, env, constants):
         [x,gamma,beta,mean,var] = self.node.input
         if gamma not in constants:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'missing gamma')
         if beta not in constants:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'missing beta')
         if mean not in constants:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'missing mean')
         if var not in constants:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'missing var')
         eps = 1e-05
         for attr in self.node.attribute:
             if attr.name == 'epsilon':
                 eps = attr.f
         return [
-            Edge([x], self.node.output, Function('BatchNormalization', {
-                b'eps': eps,
-                b'avg_mean': encode_ndarray(constants[mean]),
-                b'avg_var': encode_ndarray(constants[var]),
-                b'gamma': encode_ndarray(constants[gamma]),
-                b'beta': encode_ndarray(constants[beta]),
-            }))
+            BatchNormalization(
+                [x],
+                list(self.node.output),
+                eps=eps,
+                avg_mean=encode_ndarray(constants[mean]),
+                avg_var=encode_ndarray(constants[var]),
+                gamma=encode_ndarray(constants[gamma]),
+                beta=encode_ndarray(constants[beta]),
+            )
         ]
 
 class OpClip(Op):
@@ -313,12 +245,14 @@ class OpClip(Op):
                 _min = attr.f
 
         if _min != 0.0:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'min must be 0.0')
 
         return [
-            Edge(self.node.input, self.node.output, Function('ClippedReLU', {
-                b'upper': _max,
-            }))
+            ClippedReLU(
+                list(self.node.input),
+                list(self.node.output),
+                upper=_max
+            )
         ]
 
 class OpConcat(Op):
@@ -336,9 +270,11 @@ class OpConcat(Op):
 
     def to_Edge(self, env, constants):
         return [
-            Edge(self.node.input, self.node.output, Function('Concat', {
-                b'axis': self.axis
-            }))
+            Concat(
+                list(self.node.input),
+                list(self.node.output),
+                axis=self.axis
+            )
         ]
 
 class OpConv(Op):
@@ -412,11 +348,11 @@ class OpConv(Op):
         else:
             raise 'invalid'
         if W not in constants:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'W must be constant')
         W = constants[W]
         if b is not None:
             if b not in constants:
-                raise 'unsupported'
+                raise UnsupportedONNXOperation(self.node, 'b must be constant')
             b = constants[b]
 
         _input = env[x]
@@ -445,26 +381,30 @@ class OpConv(Op):
         out_channels,in_channels_per_groups = W.shape[:2]
         if self.group > 1 and 1 == in_channels_per_groups:
             return [
-                Edge([x], self.node.output, Function('DepthwiseConvolution2D', {
-                    b'W': encode_ndarray(np.rollaxis(W.reshape(self.group,out_channels//self.group,kh,kw),1,0)),
-                    b'b': encode_ndarray(b),
-                    b'stride': (sy, sx),
-                    b'pad_h': pad_h,
-                    b'pad_w': pad_w,
-                    b'dilate': (dy, dx),
-                }))
+                DepthwiseConvolution2D(
+                    [x],
+                    list(self.node.output),
+                    W=encode_ndarray(np.rollaxis(W.reshape(self.group,out_channels//self.group,kh,kw),1,0)),
+                    b=encode_ndarray(b),
+                    stride=(sy, sx),
+                    pad_h=pad_h,
+                    pad_w=pad_w,
+                    dilate=(dy, dx),
+                )
             ]
         else:
             return [
-                Edge([x], self.node.output, Function('Convolution2D', {
-                    b'W': encode_ndarray(W),
-                    b'b': encode_ndarray(b),
-                    b'stride': (sy, sx),
-                    b'pad_h': pad_h,
-                    b'pad_w': pad_w,
-                    b'dilate': (dy, dx),
-                    b'groups': self.group,
-                }))
+                Convolution2D(
+                    [x],
+                    list(self.node.output),
+                    W=encode_ndarray(W),
+                    b=encode_ndarray(b),
+                    stride=(sy, sx),
+                    pad_h=pad_h,
+                    pad_w=pad_w,
+                    dilate=(dy, dx),
+                    groups=self.group
+                )
             ]
 
 class OpDropout(Op):
@@ -478,9 +418,11 @@ class OpDropout(Op):
 
     def to_Edge(self, env, constants):
         return [
-            Edge(self.node.input, self.node.output[:1], Function('Transpose', {
-                b'axes': list(range(len(env[self.node.input[0]].shape)))
-            }))
+            Transpose(
+                list(self.node.input),
+                list(self.node.output[:1]),
+                axes=list(range(len(env[self.node.input[0]].shape)))
+            )
         ]
 
 class OpGemm(Op):
@@ -516,9 +458,9 @@ class OpGemm(Op):
         [A,B,C] = self.node.input
 
         if B not in constants:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'B must be constant')
         if C not in constants:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'C must be constant')
 
         b = env[B]
         if self.transB == 0:
@@ -526,26 +468,32 @@ class OpGemm(Op):
         c = env[C]
 
         if len(c.shape) == 2 and c.shape[0] != 1:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'shapes mismatch')
 
         if self.transA == 1:
             internal_node = "{}_{}".format(A, id(A))
             env[internal_node] = env[A].T
             return [
-                Edge([A], [internal_node], Function('Transpose', {
-                    b'axes': [1,0]
-                })),
-                Edge([internal_node], self.node.output, Function('Linear', {
-                    b'W': encode_ndarray(self.alpha * b),
-                    b'b': encode_ndarray(self.beta * c.ravel())
-                }))
+                Transpose(
+                    [A],
+                    [internal_node],
+                    axes=[1,0]
+                ),
+                Linear(
+                    [internal_node],
+                    list(self.node.output),
+                    W=encode_ndarray(self.alpha * b),
+                    b=encode_ndarray(self.beta * c.ravel())
+                )
             ]
         else:
             return [
-                Edge([A], self.node.output, Function('Linear', {
-                    b'W': encode_ndarray(self.alpha * b),
-                    b'b': encode_ndarray(self.beta * c.ravel())
-                }))
+                Linear(
+                    [A],
+                    list(self.node.output),
+                    W=encode_ndarray(self.alpha * b),
+                    b=encode_ndarray(self.beta * c.ravel())
+                )
             ]
 
 class OpLRN(Op):
@@ -573,12 +521,14 @@ class OpLRN(Op):
 
     def to_Edge(self, env, constants):
         return [
-            Edge(self.node.input, self.node.output, Function('LocalResponseNormalization', {
-                b'n': self.size,
-                b'k': self.bias,
-                b'alpha': self.alpha,
-                b'beta': self.beta
-            }))
+            LocalResponseNormalization(
+                list(self.node.input),
+                list(self.node.output),
+                n=self.size,
+                k=self.bias,
+                alpha=self.alpha,
+                beta=self.beta
+            )
         ]
 
 class OpMatMul(Op):
@@ -594,13 +544,15 @@ class OpMatMul(Op):
         [x,W] = self.node.input
         if W in constants:
             return [
-                Edge([x], self.node.output, Function('Linear', {
-                    b'W': encode_ndarray(env[W]),
-                    b'b': None
-                }))
+                Linear(
+                    [x],
+                    list(self.node.output),
+                    W=encode_ndarray(env[W]),
+                    b=None
+                )
             ]
         else:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'W must be constant')
 
 class OpMaxPool(Op):
 
@@ -676,12 +628,14 @@ class OpMaxPool(Op):
             pad_w = auto_pad_to_manual_pad(in_w, kw, sx, 1, self.auto_pad)
 
         return [
-            Edge(self.node.input, self.node.output, Function('MaxPooling2D', {
-                b'kernel': (kh, kw),
-                b'stride': (sy, sx),
-                b'pad_h': pad_h,
-                b'pad_w': pad_w,
-            }))
+            MaxPooling2D(
+                list(self.node.input),
+                list(self.node.output),
+                kernel=(kh, kw),
+                stride=(sy, sx),
+                pad_h=pad_h,
+                pad_w=pad_w,
+            )
         ]
 
 class OpPad(Op):
@@ -701,7 +655,7 @@ class OpPad(Op):
                 self.value = attr.f
 
         if self.mode != b'constant':
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(self.node, 'mode must be "constant"')
 
     def get_dummy_output(self, env):
         [x] = self.node.input
@@ -711,10 +665,12 @@ class OpPad(Op):
     def to_Edge(self, env, constants):
         n = len(self.pads) // 2
         return [
-            Edge(self.node.input, self.node.output, Function('ConstantPadding', {
-                b'pads': list(zip(self.pads[:n], self.pads[n:])),
-                b'value': self.value,
-            }))
+            ConstantPadding(
+                list(self.node.input),
+                list(self.node.output),
+                pads=list(zip(self.pads[:n], self.pads[n:])),
+                value=self.value,
+            )
         ]
 
 class OpRelu(Op):
@@ -727,9 +683,7 @@ class OpRelu(Op):
         return env[x]
 
     def to_Edge(self, env, constants):
-        return [
-            Edge(self.node.input, self.node.output, Function('ReLU'))
-        ]
+        return [ ReLU(list(self.node.input), list(self.node.output)) ]
 
 class OpReshape(Op):
 
@@ -744,9 +698,11 @@ class OpReshape(Op):
         [x,_] = self.node.input
         [y] = self.node.output
         return [
-            Edge([x], self.node.output, Function('Reshape', {
-                b'shape': list(map(int, env[y].shape))
-            }))
+            Reshape(
+                [x],
+                list(self.node.output),
+                shape=list(map(int, env[y].shape))
+            )
         ]
 
 class OpSoftmax(Op):
@@ -765,7 +721,11 @@ class OpSoftmax(Op):
 
     def to_Edge(self, env, constants):
         return [
-            Edge(self.node.input, self.node.output, Function('Softmax', {b'axis': self.axis}))
+            Softmax(
+                list(self.node.input),
+                list(self.node.output),
+                axis=self.axis
+            )
         ]
 
 class OpSum(Op):
@@ -779,10 +739,8 @@ class OpSum(Op):
 
     def to_Edge(self, env, constants):
         if len(self.node.input) != 2:
-            raise 'unsupported'
-        return [
-            Edge(self.node.input, self.node.output, Function('Add'))
-        ]
+            raise UnsupportedONNXOperation(self.node, '# of inputs must be 2')
+        return [ Add(list(self.node.input), list(self.node.output)) ]
 
 class OpTranspose(Op):
 
@@ -800,17 +758,19 @@ class OpTranspose(Op):
 
     def to_Edge(self, env, constants):
         return [
-            Edge(self.node.input, self.node.output, Function('Transpose', {
-                b'axes': self.perm
-            }))
+            Transpose(
+                list(self.node.input),
+                list(self.node.output),
+                axes=self.perm
+            )
         ]
 
 def evaluate(node, env):
     op_name = 'Op{}'.format(node.op_type)
-    if hasattr(sys.modules['__main__'], op_name):
-        return getattr(sys.modules['__main__'], op_name)(node).get_dummy_output(env)
+    if hasattr(sys.modules[__name__], op_name):
+        return getattr(sys.modules[__name__], op_name)(node).get_dummy_output(env)
     else:
-        raise 'unsupported'
+        raise UnsupportedONNXOperation(node, 'not implemented')
 
 class ONNX:
     def __init__(self, path):
@@ -864,7 +824,7 @@ class ONNX:
         inputs = list(map(lambda x: x.name, self.sess.get_inputs()))
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
         edges = self._to_MLIR_edges()
-        nodes = [ Node(n, self.nodes[n]) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, edges))) ]
+        nodes = [ Node(n, self.nodes[n].dtype.str, list(self.nodes[n].shape)) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, edges))) ]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
         renaming_table = dict([ (n.name, 'v{}'.format(i)) for i,n in enumerate(nodes) ])
@@ -883,14 +843,13 @@ class ONNX:
         nodes = list(map(rename_node, nodes))
 
         return MLIR(
-            model = Model(
-                self.model.graph.name,
-                {b'name': self.model.producer_name, b'version': self.model.producer_version},
-                inputs,
-                outputs,
-                nodes,
-                edges
-            ),
+            self.model.graph.name,
+            self.model.producer_name,
+            self.model.producer_version,
+            inputs,
+            outputs,
+            nodes,
+            edges
         )
 
     def _eval_nodes(self, nodes):
@@ -934,7 +893,6 @@ class ONNX:
                 edges += edge
             initializer = self._find_initializer(o)
             if initializer is not None:
-                print('_from_initializer_to_edge')
                 edge = self._from_initializer_to_edge(initializer)
                 edges += edge
         return edges
@@ -972,29 +930,29 @@ class ONNX:
 
     def _from_operator_to_edge(self, node):
         op_name = 'Op{}'.format(node.op_type)
-        if hasattr(sys.modules['__main__'], op_name):
-            return getattr(sys.modules['__main__'], op_name)(node).to_Edge(self.nodes, self.constant_nodes)
+        if hasattr(sys.modules[__name__], op_name):
+            return getattr(sys.modules[__name__], op_name)(node).to_Edge(self.nodes, self.constant_nodes)
         else:
-            raise 'unsupported'
+            raise UnsupportedONNXOperation(node, 'not implemented')
 
 def to_dummy_input(x):
     if hasattr(x.type, 'tensor_type'):
         if x.type.tensor_type.elem_type == onnx.TensorProto.FLOAT:
             return np.zeros(tuple(map(lambda d: d.dim_value, x.type.tensor_type.shape.dim)), dtype=np.float32)
         else:
-            'unsupported'
+            raise 'unsupported'
     else:
         raise 'unsupported'
 
 def main(args):
     o = ONNX(args.input)
-    o.test()
+    # o.test()
     mlir = o.to_MLIR()
     if False:
         import pprint
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(mlir.to_dict())
-    mlir.save(args.output)
+    mlir.dump(args.output)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ONNX to MLIR Converter')
