@@ -7,14 +7,11 @@ from .bilinear_2d import ConvertBilinear2D
 from .broadcast import ConvertBroadcastTo
 from .clipped_relu import ConvertClippedReLU
 from .concat import ConvertConcat
-from .convolution_2d_function import ConvertConvolution2DFunction
 from .convolution_2d import ConvertConvolution2D
 from .depthwise_convolution_2d import ConvertDepthwiseConvolution2D
 from .dropout import ConvertDropout
 from .elu import ConvertELU
-from .fixed_batch_normalization import ConvertFixedBatchNormalization
 from .leaky_relu import ConvertLeakyReLU
-from .linear_function import ConvertLinearFunction
 from .linear import ConvertLinear
 from .local_response_normalization import ConvertLocalResponseNormalization
 from .max_pooling_2d import ConvertMaxPooling2D

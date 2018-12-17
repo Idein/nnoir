@@ -19,10 +19,11 @@ def test_average_pooling_2d():
                                            kernel=list(ksize),
                                            stride=list(stride),
                                            pad_h=[pad[0],pad[0]+stride[0]-1],
-                                           pad_w=[pad[1],pad[1]+stride[1]-1])
+                                           pad_w=[pad[1],pad[1]+stride[1]-1],
+                                           count_exclude_pad=False)
     result = mlir.MLIR('AveragePooling2D', 'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
     result.dump('average_pooling_2d.mlir')
-    
+
     x = np.random.randn(2,3,4,5)
     ref = function.run(x)
     with chainer.using_config('train', False):

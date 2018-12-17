@@ -1,5 +1,9 @@
 import chainer.functions as F
 
 class ConvertTranspose():
-    def to_chainer(self, edge, x):
-        return F.transpose(x, edge.params['axes'])
+
+    def __init__(self, edge, inputs, outputs):
+        self.f = lambda x: F.transpose(x, edge.params['axes'])
+
+    def __call__(self, x):
+        return self.f(x)

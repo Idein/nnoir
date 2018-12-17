@@ -4,7 +4,7 @@ import mlir2chainer
 import numpy as np
 import util
 
-def test_scale():
+def test_bias():
     inputs  = [mlir.Node('v0', 'float', (2,3,4,5))]
     outputs = [mlir.Node('v2', 'float', (2,3,4,5))]
     nodes = inputs + outputs

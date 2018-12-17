@@ -1,5 +1,9 @@
 import chainer.functions as F
 
 class ConvertMul():
-    def to_chainer(self, edge, lhs, rhs):
+
+    def __init__(self, edge, inputs, outputs):
+        pass
+
+    def __call__(self, lhs, rhs):
         return lhs * rhs

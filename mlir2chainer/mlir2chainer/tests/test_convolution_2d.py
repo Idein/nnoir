@@ -16,8 +16,8 @@ def test_convolution_2d():
     kw = 3
     inputs  = [mlir.Node('v0', 'float', (batch, in_ch, in_h, in_w))]
     outputs = [mlir.Node('v1', 'float', (batch,out_ch,out_h, out_w))]
-    W = np.random.randn(out_ch, in_ch, kh, kw)
-    b = np.random.randn(out_ch)
+    W = np.random.randn(out_ch, in_ch, kh, kw).astype(np.float32)
+    b = np.random.randn(out_ch).astype(np.float32)
 
     nodes = inputs + outputs
     input_names = [ x.name for x in inputs ]
@@ -26,7 +26,7 @@ def test_convolution_2d():
     result = mlir.MLIR('Convolution2D', 'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
     result.dump('convolution_2d.mlir')
 
-    x = np.random.randn(batch, in_ch, in_h, in_w)
+    x = np.random.randn(batch, in_ch, in_h, in_w).astype(np.float32)
     ref = function.run(x)
     m = mlir2chainer.ChainerNN('convolution_2d.mlir')
     with chainer.using_config('train', False):

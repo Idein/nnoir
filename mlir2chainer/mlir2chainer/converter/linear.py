@@ -1,13 +1,13 @@
-import numpy
-import six
 import chainer.links as L
 
 class ConvertLinear():
-    def to_chainer(self, edge, x):
-        linear = L.Linear(in_size = edge.params['W'].shape[1],
-                          out_size = edge.params['W'].shape[0],
-                          nobias = (edge.params['b'] is None))
-        linear.W.data = edge.params['W']
-        if edge.params['b'] is not None:
-            linear.b.data = edge.params['b']
-        return linear(x)
+
+    def __init__(self, edge, inputs, outputs):
+        self.fc = L.Linear(in_size = edge.params['W'].shape[1],
+                           out_size = edge.params['W'].shape[0],
+                           nobias = (edge.params['b'] is None),
+                           initialW = edge.params['W'],
+                           initial_bias = edge.params['b'])
+
+    def __call__(self, x):
+        return self.fc(x)

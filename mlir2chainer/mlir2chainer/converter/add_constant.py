@@ -1,5 +1,9 @@
 import chainer.functions as F
 
 class ConvertAddConstant():
-    def to_chainer(self, edge, x):
-        return x + edge.params['value']
+
+    def __init__(self, edge, inputs, outputs):
+        self.f = lambda x: x + edge.params['value']
+
+    def __call__(self, x):
+        return self.f(x)

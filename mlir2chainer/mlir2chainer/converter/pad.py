@@ -1,6 +1,10 @@
 import chainer.functions as F
 
 class ConvertConstantPadding():
-    def to_chainer(self, edge, x):
+
+    def __init__(self, edge, inputs, outputs):
         pad_width = list(map(tuple, edge.params['pads']))
-        return F.pad(x, pad_width, 'constant', constant_values=[edge.params['value']])
+        self.f = lambda x: F.pad(x, pad_width, 'constant', constant_values=[edge.params['value']])
+
+    def __call__(self, x):
+        return self.f(x)

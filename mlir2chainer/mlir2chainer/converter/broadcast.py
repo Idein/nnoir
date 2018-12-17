@@ -1,5 +1,9 @@
 import chainer.functions as F
 
 class ConvertBroadcastTo():
-    def to_chainer(self, edge, x):
+
+    def __init__(self, edge, inputs, outputs):
+        pass
+
+    def __call__(self, x):
         return F.broadcast(x)

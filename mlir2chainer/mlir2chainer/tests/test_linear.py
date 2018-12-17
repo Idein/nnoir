@@ -13,13 +13,13 @@ def test_linear():
     nodes = inputs + outputs
     input_names = [ x.name for x in inputs ]
     output_names = [ x.name for x in outputs ]
-    W = np.random.randn(out_ch, in_ch)
-    b = np.random.randn(out_ch)
+    W = np.random.randn(out_ch, in_ch).astype(np.float32)
+    b = np.random.randn(out_ch).astype(np.float32)
     function = mlir.edges.Linear(input_names, output_names, W=W, b=b)
     result = mlir.MLIR('Linear', 'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
     result.dump('linear.mlir')
 
-    x = np.random.randn(batch, in_ch)
+    x = np.random.randn(batch, in_ch).astype(np.float32)
     ref = function.run(x)
     m = mlir2chainer.ChainerNN('linear.mlir')
     with chainer.using_config('train', False):
