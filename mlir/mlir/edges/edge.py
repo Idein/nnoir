@@ -2,12 +2,12 @@ import numpy
 import six
 
 class Edge(object):
-    def __init__(self, inputs, outputs, params, necessary_params, optional_params):
-        if necessary_params - set(params.keys()) != set():
-            lacks = ", ".join(necessary_params - set(params.keys()))
-            raise Exception("lack of necessary parameter: {}".format(lacks))
-        if set(params.keys()) - necessary_params - optional_params != set():
-            unknowns = ", ".join(set(params.keys()) - necessary_params - optional_params)
+    def __init__(self, inputs, outputs, params, required_params, optional_params):
+        if required_params - set(params.keys()) != set():
+            lacks = ", ".join(required_params - set(params.keys()))
+            raise Exception("lack of required parameter: {}".format(lacks))
+        if set(params.keys()) - required_params - optional_params != set():
+            unknowns = ", ".join(set(params.keys()) - required_params - optional_params)
             raise Exception("unknown parameter: {}".format(unknowns))
         self.inputs = inputs
         self.outputs = outputs

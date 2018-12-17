@@ -5,9 +5,9 @@ import numpy as np
 
 class Convolution2DFunction(Edge):
     def __init__(self, inputs, outputs, **params):
-        necessary_params = {'stride', 'pad_h', 'pad_w', 'dilate', 'groups'}
+        required_params = {'stride', 'pad_h', 'pad_w', 'dilate', 'groups'}
         optional_params = set()
-        super(Convolution2DFunction, self).__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(Convolution2DFunction, self).__init__(inputs, outputs, params, required_params, optional_params)
     def run(self, x, W, b):
         kernel = (W.shape[2], W.shape[3])
         img, col = util.im2col_cpu(x, kernel, self.params['stride'],

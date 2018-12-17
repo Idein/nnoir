@@ -4,8 +4,8 @@ import numpy as np
 
 class Concat(Edge):
     def __init__(self, inputs, outputs, **params):
-        necessary_params = {'axis'}
+        required_params = {'axis'}
         optional_params = set()
-        super(Concat, self).__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(Concat, self).__init__(inputs, outputs, params, required_params, optional_params)
     def run(self, *xs):
         return np.concatenate(xs, self.params['axis'])

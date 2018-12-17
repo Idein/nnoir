@@ -4,13 +4,13 @@ from . import util
 
 class AveragePooling2D(Edge):
     def __init__(self, inputs, outputs, **params):
-        necessary_params = {'kernel',
-                            'stride',
-                            'pad_h',
-                            'pad_w',
-                            'count_exclude_pad'}
+        required_params = {'kernel',
+                           'stride',
+                           'pad_h',
+                           'pad_w',
+                           'count_exclude_pad'}
         optional_params = set()
-        super(AveragePooling2D, self).__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(AveragePooling2D, self).__init__(inputs, outputs, params, required_params, optional_params)
     def run(self, x):
         if self.params['count_exclude_pad']:
             img, col = util.im2col_cpu(x, self.params['kernel'], self.params['stride'],
