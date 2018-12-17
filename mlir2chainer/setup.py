@@ -7,6 +7,7 @@ setup(
     author_email='fujii@idein.jp',
     license='MIT',
     keywords='mlir machine learning',
-    packages=find_packages(),
+    packages=['chainer.links.mlir',
+              'chainer.links.mlir.converter'],
     install_requires=['chainer', 'msgpack-python'],
 )
