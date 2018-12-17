@@ -6,14 +6,14 @@ from . import util
 
 class DepthwiseConvolution2D(Edge):
     def __init__(self, inputs, outputs, **params):
-        necessary_params = {'W',
-                            'b',
-                            'stride',
-                            'pad_h',
-                            'pad_w',
-                            'dilate'}
+        required_params = {'W',
+                           'b',
+                           'stride',
+                           'pad_h',
+                           'pad_w',
+                           'dilate'}
         optional_params = set()
-        super(DepthwiseConvolution2D, self).__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(DepthwiseConvolution2D, self).__init__(inputs, outputs, params, required_params, optional_params)
     def run(self, x):
         W = self.params['W']
         b = self.params['b']

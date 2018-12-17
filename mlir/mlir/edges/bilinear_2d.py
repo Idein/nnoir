@@ -4,9 +4,9 @@ from .edge import Edge
 
 class Bilinear2D(Edge):
     def __init__(self, inputs, outputs, **params):
-        necessary_params = {'size'}
+        required_params = {'size'}
         optional_params = set()
-        super(Bilinear2D, self).__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(Bilinear2D, self).__init__(inputs, outputs, params, required_params, optional_params)
     def run(self, x):
         out_h = self.params['size'][0]
         out_w = self.params['size'][1]

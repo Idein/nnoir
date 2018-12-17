@@ -4,9 +4,9 @@ import numpy as np
 
 class FixedBatchNormalization(Edge):
     def __init__(self, inputs, outputs, **params):
-        necessary_params = {'eps'}
+        required_params = {'eps'}
         optional_params = set()
-        super(FixedBatchNormalization, self).__init__(inputs, outputs, params, necessary_params, optional_params)
+        super(FixedBatchNormalization, self).__init__(inputs, outputs, params, required_params, optional_params)
     def run(self, x, gamma, beta, avg_mean, avg_var):
         shape = (1, gamma.size, 1, 1)
         gamma = gamma.reshape(shape)
