@@ -1,12 +1,13 @@
 import copy
 import tempfile
 from itertools import chain
+import re
 import numpy as np
 import onnx
 import onnxruntime
 from mlir import *
 from mlir.onnx.operators import *
-from .operators.utils import UnsupportedONNXOperation
+from .operators.utils import UnsupportedONNXOperation, InvalidONNXData
 
 def tensor_to_narray(tensor):
     arr = []
@@ -34,6 +35,10 @@ class ONNX:
     def __init__(self, path):
         self.model = onnx.load(path)
         onnx.checker.check_model(self.model)
+        # All names MUST adhere to C identifier syntax rules.
+        if not re.match(r'[_A-Za-z][_0-9A-Za-z]*', self.model.graph.name):
+            raise InvalidONNXData('''graph name "{}" is not C identifier.
+see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.format(self.model.graph.name))
         self.sess = onnxruntime.InferenceSession(path)
         self.nodes = self._reconstruct_value_info()
         self.constant_nodes = self._eval_nodes(self._list_constant_nodes())
