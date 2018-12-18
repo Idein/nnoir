@@ -4,7 +4,7 @@ from .utils import *
 class OpSoftmax(Op):
 
     def __init__(self, node):
-        super().__init__(node)
+        super(OpSoftmax, self).__init__(node)
 
         self.axis = 1
         for attr in self.node.attribute:

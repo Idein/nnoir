@@ -4,7 +4,7 @@ from .utils import *
 class OpReshape(Op):
 
     def __init__(self, node):
-        super().__init__(node)
+        super(OpReshape, self).__init__(node)
 
     def get_dummy_output(self, env):
         [x,shape] = self.node.input

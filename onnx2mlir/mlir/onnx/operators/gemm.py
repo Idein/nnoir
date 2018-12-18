@@ -4,7 +4,7 @@ from .utils import *
 class OpGemm(Op):
 
     def __init__(self, node):
-        super().__init__(node)
+        super(OpGemm, self).__init__(node)
 
         self.alpha = 1.0
         self.beta = 1.0

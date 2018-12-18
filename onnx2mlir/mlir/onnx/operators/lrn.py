@@ -4,7 +4,7 @@ from .utils import *
 class OpLRN(Op):
 
     def __init__(self, node):
-        super().__init__(node)
+        super(OpLRN, self).__init__(node)
 
         self.alpha = 0.0001
         self.beta = 0.75

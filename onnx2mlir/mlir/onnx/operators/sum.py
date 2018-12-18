@@ -5,7 +5,7 @@ from .utils import *
 class OpSum(Op):
 
     def __init__(self, node):
-        super().__init__(node)
+        super(OpSum, self).__init__(node)
 
     def get_dummy_output(self, env):
         xs = map(lambda x: env[x], self.node.input)

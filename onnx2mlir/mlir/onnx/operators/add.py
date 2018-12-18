@@ -4,7 +4,7 @@ from .utils import *
 class OpAdd(Op):
 
     def __init__(self, node):
-        super().__init__(node)
+        super(OpAdd, self).__init__(node)
 
     def get_dummy_output(self, env):
         [a,b] = self.node.input

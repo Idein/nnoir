@@ -4,7 +4,7 @@ from .utils import *
 class OpDropout(Op):
 
     def __init__(self, node):
-        super().__init__(node)
+        super(OpDropout, self).__init__(node)
 
     def get_dummy_output(self, env):
         [x] = self.node.input

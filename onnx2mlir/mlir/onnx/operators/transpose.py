@@ -5,7 +5,7 @@ from .utils import *
 class OpTranspose(Op):
 
     def __init__(self, node):
-        super().__init__(node)
+        super(OpTranspose, self).__init__(node)
 
         self.perm = None
         for attr in node.attribute:

@@ -6,6 +6,7 @@ from .concat import OpConcat
 from .conv import OpConv
 from .dropout import OpDropout
 from .gemm import OpGemm
+from .leaky_relu import OpLeakyRelu
 from .lrn import OpLRN
 from .mat_mul import OpMatMul
 from .max_pool import OpMaxPool
