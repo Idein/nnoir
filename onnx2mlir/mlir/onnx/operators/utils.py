@@ -1,6 +1,11 @@
 import io
 import numpy as np
 
+class InvalidONNXData(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
 class UnsupportedONNXOperation(Exception):
 
     def __init__(self, node, message):
