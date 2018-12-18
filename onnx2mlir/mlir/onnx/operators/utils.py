@@ -2,11 +2,13 @@ import io
 import numpy as np
 
 class UnsupportedONNXOperation(Exception):
+
     def __init__(self, node, message):
         self.node = node
         self.message = message
 
 class Op:
+
     def __init__(self, node):
         self.node = node
 

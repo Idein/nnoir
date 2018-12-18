@@ -5,7 +5,7 @@ from .utils import *
 class OpPad(Op):
 
     def __init__(self, node):
-        super().__init__(node)
+        super(OpPad, self).__init__(node)
 
         self.mode = b'constant'
         self.pads = None

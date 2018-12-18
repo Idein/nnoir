@@ -2,8 +2,9 @@ from mlir.edges import *
 from .utils import *
 
 class OpBatchNormalization(Op):
+
     def __init__(self, node):
-        super().__init__(node)
+        super(OpBatchNormalization, self).__init__(node)
 
     def get_dummy_output(self, env):
         [x,_,_,_,_] = self.node.input
