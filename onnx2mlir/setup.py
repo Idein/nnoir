@@ -7,7 +7,7 @@ setup(
     author_email='n.ohkawa@idein.jp',
     license='MIT',
     keywords='mlir machine learning onnx',
-    packages=find_packages(),
+    packages=['mlir.onnx','mlir.onnx.operators'],
     install_requires=['numpy', 'msgpack-python', 'onnx', 'onnxruntime', 'mlir'],
     scripts=['onnx2mlir']
 )
