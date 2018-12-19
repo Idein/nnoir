@@ -90,7 +90,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         nodes = [ Node(n, self.nodes[n].dtype.str, list(self.nodes[n].shape)) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, edges))) ]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
-        renaming_table = dict([ (n.name, 'v{}'.format(i)) for i,n in enumerate(nodes) ])
+        renaming_table = dict([ (n.name, 'v{}'.format(i).encode('utf-8')) for i,n in enumerate(nodes) ])
         def rename(x):
             return renaming_table[x]
         inputs = list(map(rename, inputs))
@@ -106,7 +106,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         nodes = list(map(rename_node, nodes))
 
         return MLIR(
-            self.model.graph.name,
+            self.model.graph.name.encode('utf-8'),
             self.model.producer_name,
             self.model.producer_version,
             inputs,
