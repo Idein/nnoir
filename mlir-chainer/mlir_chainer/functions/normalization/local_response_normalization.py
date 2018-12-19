@@ -1,5 +1,5 @@
 from chainer.functions.normalization.local_response_normalization import LocalResponseNormalization
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(LocalResponseNormalization, 'apply'):
     LocalResponseNormalization.apply = patched_function_apply(LocalResponseNormalization.apply)

@@ -54,7 +54,7 @@ This library convert Chainer model from/to MLIR format.
     ],
 
     # What does your project relate to?
-    keywords='mlir machine learning',
+    keywords='mlir machine learning chainer',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().

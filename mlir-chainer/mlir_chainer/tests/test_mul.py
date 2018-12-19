@@ -5,14 +5,14 @@ import numpy as np
 import util
 
 def test_mul():
-    inputs  = [mlir.Node('v0', 'float', (10,10)),
-               mlir.Node('v1', 'float', (10,10))]
-    outputs = [mlir.Node('v2', 'float', (10,10))]
+    inputs  = [mlir.Node(b'v0', 'float', (10,10)),
+               mlir.Node(b'v1', 'float', (10,10))]
+    outputs = [mlir.Node(b'v2', 'float', (10,10))]
     nodes = inputs + outputs
     input_names = [ x.name for x in inputs ]
     output_names = [ x.name for x in outputs ]
     function = mlir.edges.Mul(input_names, output_names)
-    result = mlir.MLIR('Mul', 'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
+    result = mlir.MLIR(b'Mul', b'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
     result.dump('mul.mlir')
 
     x1 = np.random.randn(10,10)

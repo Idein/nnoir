@@ -1,8 +1,8 @@
-import chainer.mlir.functions.activation
-import chainer.mlir.functions.array
-import chainer.mlir.functions.connection
-import chainer.mlir.functions.loss
-import chainer.mlir.functions.math
-import chainer.mlir.functions.noise
-import chainer.mlir.functions.normalization
-import chainer.mlir.functions.pooling
+import mlir_chainer.functions.activation
+import mlir_chainer.functions.array
+import mlir_chainer.functions.connection
+import mlir_chainer.functions.loss
+import mlir_chainer.functions.math
+import mlir_chainer.functions.noise
+import mlir_chainer.functions.normalization
+import mlir_chainer.functions.pooling

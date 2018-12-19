@@ -1,5 +1,5 @@
 from chainer.functions.connection.linear import LinearFunction
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(LinearFunction, 'apply'):
     LinearFunction.apply = patched_function_apply(LinearFunction.apply)

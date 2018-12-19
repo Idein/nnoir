@@ -1,5 +1,5 @@
 from chainer.functions.normalization.batch_normalization import FixedBatchNormalization
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(FixedBatchNormalization, 'apply'):
     FixedBatchNormalization.apply = patched_function_apply(FixedBatchNormalization.apply)

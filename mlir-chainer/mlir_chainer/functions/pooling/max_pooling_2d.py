@@ -1,5 +1,5 @@
 from chainer.functions.pooling.max_pooling_2d import MaxPooling2D
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(MaxPooling2D, 'apply'):
     MaxPooling2D.apply = patched_function_apply(MaxPooling2D.apply)

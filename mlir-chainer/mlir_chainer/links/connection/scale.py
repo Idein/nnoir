@@ -1,5 +1,5 @@
 from chainer.links import Scale
-from chainer.mlir.patch import encode_ndarray, patched_link_call
+from mlir_chainer.patch import encode_ndarray, patched_link_call
 
 Scale.__call__ = patched_link_call(Scale.__call__)
 

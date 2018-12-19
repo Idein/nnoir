@@ -1,5 +1,5 @@
 from chainer.functions.noise.dropout import Dropout
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(Dropout, 'apply'):
     Dropout.apply = patched_function_apply(Dropout.apply)

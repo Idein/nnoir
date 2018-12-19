@@ -1,5 +1,5 @@
 from chainer.links import DilatedConvolution2D
-from chainer.mlir.patch import encode_ndarray, patched_link_call
+from mlir_chainer.patch import encode_ndarray, patched_link_call
 import numpy as np
 
 DilatedConvolution2D.__call__ = patched_link_call(DilatedConvolution2D.__call__)

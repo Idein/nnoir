@@ -1,5 +1,5 @@
 from chainer.functions.connection.convolution_2d import Convolution2DFunction
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(Convolution2DFunction, 'apply'):
     Convolution2DFunction.apply = patched_function_apply(Convolution2DFunction.apply)

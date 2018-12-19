@@ -1,5 +1,5 @@
 from chainer.links import Bias
-from chainer.mlir.patch import encode_ndarray, patched_link_call
+from mlir_chainer.patch import encode_ndarray, patched_link_call
 
 Bias.__call__ = patched_link_call(Bias.__call__)
 

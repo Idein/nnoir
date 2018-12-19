@@ -1,1 +1,1 @@
-import chainer.mlir.functions.math.basic_math
+import mlir_chainer.functions.math.basic_math

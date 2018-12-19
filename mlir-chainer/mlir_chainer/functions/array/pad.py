@@ -1,5 +1,5 @@
 from chainer.functions.array.pad import Pad
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 from numpy.lib.arraypad import _validate_lengths # dirty
 
 if hasattr(Pad, 'apply'):

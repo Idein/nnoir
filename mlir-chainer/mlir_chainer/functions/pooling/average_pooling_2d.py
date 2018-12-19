@@ -1,5 +1,5 @@
 from chainer.functions.pooling.average_pooling_2d import AveragePooling2D
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(AveragePooling2D, 'apply'):
     AveragePooling2D.apply = patched_function_apply(AveragePooling2D.apply)

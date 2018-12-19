@@ -1,6 +1,6 @@
-import chainer.mlir.functions.activation.elu
-import chainer.mlir.functions.activation.clipped_relu
-import chainer.mlir.functions.activation.leaky_relu
-import chainer.mlir.functions.activation.relu
-import chainer.mlir.functions.activation.sigmoid
-import chainer.mlir.functions.activation.softmax
+import mlir_chainer.functions.activation.elu
+import mlir_chainer.functions.activation.clipped_relu
+import mlir_chainer.functions.activation.leaky_relu
+import mlir_chainer.functions.activation.relu
+import mlir_chainer.functions.activation.sigmoid
+import mlir_chainer.functions.activation.softmax

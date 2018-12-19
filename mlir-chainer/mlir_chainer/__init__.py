@@ -1,4 +1,8 @@
-import chainer.mlir.configuration
-import chainer.mlir.links
-import chainer.mlir.functions
-from chainer.mlir.graph import Graph
+# Chainer to MLIR
+import mlir_chainer.configuration
+import mlir_chainer.links
+import mlir_chainer.functions
+from .graph import Graph
+
+# MLIR to Chainer
+from .mlir_function import MLIRFunction

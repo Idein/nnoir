@@ -1,6 +1,6 @@
-import chainer.mlir.functions.array.broadcast
-import chainer.mlir.functions.array.concat
-import chainer.mlir.functions.array.pad
-import chainer.mlir.functions.array.reshape
-import chainer.mlir.functions.array.transpose
-import chainer.mlir.functions.array.resize_images
+import mlir_chainer.functions.array.broadcast
+import mlir_chainer.functions.array.concat
+import mlir_chainer.functions.array.pad
+import mlir_chainer.functions.array.reshape
+import mlir_chainer.functions.array.transpose
+import mlir_chainer.functions.array.resize_images

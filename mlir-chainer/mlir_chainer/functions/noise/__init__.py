@@ -1,1 +1,1 @@
-import chainer.mlir.functions.noise.dropout
+import mlir_chainer.functions.noise.dropout

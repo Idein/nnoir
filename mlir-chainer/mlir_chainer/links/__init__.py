@@ -1,2 +1,2 @@
-import chainer.mlir.links.connection
-import chainer.mlir.links.normalization
+import mlir_chainer.links.connection
+import mlir_chainer.links.normalization

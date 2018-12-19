@@ -1,3 +1,3 @@
-import chainer.mlir.functions.pooling.average_pooling_2d
-import chainer.mlir.functions.pooling.max_pooling_2d
-import chainer.mlir.functions.pooling.unpooling_2d
+import mlir_chainer.functions.pooling.average_pooling_2d
+import mlir_chainer.functions.pooling.max_pooling_2d
+import mlir_chainer.functions.pooling.unpooling_2d

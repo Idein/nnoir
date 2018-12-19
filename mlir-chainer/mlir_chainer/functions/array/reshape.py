@@ -1,5 +1,5 @@
 from chainer.functions.array.reshape import Reshape
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(Reshape, 'apply'):
     Reshape.apply = patched_function_apply(Reshape.apply)

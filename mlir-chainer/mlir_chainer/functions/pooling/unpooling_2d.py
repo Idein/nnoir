@@ -1,5 +1,5 @@
 from chainer.functions.pooling.unpooling_2d import Unpooling2D
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(Unpooling2D, 'apply'):
     Unpooling2D.apply = patched_function_apply(Unpooling2D.apply)

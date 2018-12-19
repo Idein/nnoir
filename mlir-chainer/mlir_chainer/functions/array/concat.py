@@ -1,5 +1,5 @@
 from chainer.functions.array.concat import Concat
-from chainer.mlir.patch import patched_function_apply, patched_function_call
+from mlir_chainer.patch import patched_function_apply, patched_function_call
 
 if hasattr(Concat, 'apply'):
     Concat.apply = patched_function_apply(Concat.apply)

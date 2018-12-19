@@ -1,5 +1,5 @@
 from chainer.links import BatchNormalization
-from chainer.mlir.patch import encode_ndarray, patched_link_call
+from mlir_chainer.patch import encode_ndarray, patched_link_call
 
 BatchNormalization.__call__ = patched_link_call(BatchNormalization.__call__)
 
