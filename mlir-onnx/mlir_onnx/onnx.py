@@ -6,7 +6,7 @@ import numpy as np
 import onnx
 import onnxruntime
 from mlir import *
-from mlir.onnx.operators import *
+from mlir_onnx.operators import *
 from .operators.utils import UnsupportedONNXOperation, InvalidONNXData
 
 def tensor_to_narray(tensor):
