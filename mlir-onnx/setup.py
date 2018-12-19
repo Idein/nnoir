@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 setup(
-    name="onnx2mlir",
+    name="mlir-onnx",
     version="0.1",
     description='ONNX to MLIR Converter',
     author='Idein Inc.',
