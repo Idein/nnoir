@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import argparse
-from mlir.onnx import ONNX
+from mlir_onnx import ONNX
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ONNX to MLIR Converter')
