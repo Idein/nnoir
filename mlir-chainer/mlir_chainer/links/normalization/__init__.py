@@ -1,0 +1,1 @@
+import mlir_chainer.links.normalization.batch_normalization

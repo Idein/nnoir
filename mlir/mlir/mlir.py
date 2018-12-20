@@ -9,7 +9,7 @@ class InvalidMLIRData(Exception):
 
 class MLIR():
     def __init__(self, name, generator_name, generator_version, inputs, outputs, nodes, edges):
-        cident = re.compile(r'[_A-Za-z][_0-9A-Za-z]*')
+        cident = re.compile(rb'[_A-Za-z][_0-9A-Za-z]*')
         if not cident.match(name):
             raise InvalidMLIRData('graph name "{}" MUST be C identifier.'.format(name))
         self.name = name

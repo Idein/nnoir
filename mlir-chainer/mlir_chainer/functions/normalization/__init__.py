@@ -1,0 +1,2 @@
+import mlir_chainer.functions.normalization.batch_normalization
+import mlir_chainer.functions.normalization.local_response_normalization
