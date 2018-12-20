@@ -14,7 +14,7 @@ pip install .
 
 ```
 import chainer
-from chainer.links.mlir import MLIRFunction
+from mlir_chainer import MLIRFunction
 m = MLIRFunction('mlir_file_path')
 x = chainer.Variable(np_array)
 with chainer.using_config('train', False):

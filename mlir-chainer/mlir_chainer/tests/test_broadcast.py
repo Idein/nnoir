@@ -1,6 +1,6 @@
 import mlir
 import chainer
-from chainer.links.mlir import MLIRFunction
+from mlir_chainer import MLIRFunction
 import numpy as np
 import sys
 import chainer.functions as F
