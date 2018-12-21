@@ -112,10 +112,10 @@ class Graph(object):
                      b'dtype': node.node.dtype.str, # TODO: エンディアンとかが入り込むのでfloatとかでいい
                      b'shape': node.node.shape }
         def _function(node):
-            params = node.node.to_mlir_node()
-            params[b'inputs'] = list(map(self._variable_elem_name, reversed(node.in_edges)))
-            params[b'outputs'] = list(map(self._variable_elem_name, node.out_edges))
-            return params
+            return node.node.to_mlir_node(
+                list(map(self._variable_elem_name, reversed(node.in_edges))),
+                list(map(self._variable_elem_name, node.out_edges))
+            ).dump()
 
         sorted_nodes = sorted(self.nodes, key=lambda n: n.no)
         inputs = map(_node, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))
