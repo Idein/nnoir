@@ -14,7 +14,7 @@ def test_scale():
     b = np.random.randn(10)
     params={'axis': 1,
             'W': W,
-            'bias.b' : b}
+            'b' : b}
     function = mlir.edges.Scale(input_names, output_names, **params)
     result = mlir.MLIR(b'Scale', b'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
     result.dump('scale.mlir')
