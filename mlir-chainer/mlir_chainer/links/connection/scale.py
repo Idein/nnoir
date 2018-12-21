@@ -11,7 +11,7 @@ def to_mlir_node(self):
         b'params': {
             b'axis': self.axis,
             b'W': encode_ndarray(self.W.data),
-            b'bias.b': bias_b,
+            b'b': bias_b,
         }
     }
 Scale.to_mlir_node = to_mlir_node
