@@ -1,12 +1,14 @@
 import numpy
 import six
+import chainer
 import chainer.links as L
 import chainer.functions as F
 import chainer.utils
 
-class ConvertConvolution2D():
+class ConvertConvolution2D(chainer.Chain):
 
     def __init__(self, edge, inputs, outputs):
+        super(ConvertConvolution2D, self).__init__()
         [kh, kw] = edge.params['W'].shape[2:]
         [sy, sx] = edge.params['stride']
         [in_h, in_w] = inputs[0].shape[2:]
@@ -17,16 +19,17 @@ class ConvertConvolution2D():
         pw_post = max(pw_post - ((pw_pre + in_w + pw_post) - ((out_w - 1) * sx + kw)), 0)
         padding = [(0,0),(0,0),(ph_pre,ph_post),(pw_pre,pw_post)]
         self.pad = lambda x: F.pad(x, padding, mode='constant', constant_values=0.0)
-        self.conv = L.Convolution2D(in_channels = edge.params['W'].shape[1] * edge.params['groups'],
-                                    out_channels = edge.params['W'].shape[0],
-                                    ksize = tuple(edge.params['W'].shape[2:]),
-                                    stride = tuple(edge.params['stride']),
-                                    pad = 0,
-                                    nobias = (edge.params['b'] is None),
-                                    initialW = edge.params['W'],
-                                    initial_bias = edge.params['b'],
-                                    dilate = tuple(edge.params['dilate']),
-                                    groups = edge.params['groups'])
+        with self.init_scope():
+            self.conv = L.Convolution2D(in_channels = edge.params['W'].shape[1] * edge.params['groups'],
+                                        out_channels = edge.params['W'].shape[0],
+                                        ksize = tuple(edge.params['W'].shape[2:]),
+                                        stride = tuple(edge.params['stride']),
+                                        pad = 0,
+                                        nobias = (edge.params['b'] is None),
+                                        initialW = edge.params['W'],
+                                        initial_bias = edge.params['b'],
+                                        dilate = tuple(edge.params['dilate']),
+                                        groups = edge.params['groups'])
 
     def __call__(self, x):
         return self.conv(self.pad(x))
