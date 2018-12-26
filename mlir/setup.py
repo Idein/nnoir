@@ -9,4 +9,5 @@ setup(
     keywords='mlir machine learning',
     packages=find_packages(),
     install_requires=['numpy', 'msgpack-python'],
+    scripts=['mlir2dot']
 )
