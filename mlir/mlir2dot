@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import msgpack
 import sys
 import six
 import numpy
+import argparse
 
 def function_label(edge):
     ret = '{{%s|' % edge[b'name'].decode()
@@ -19,9 +21,9 @@ def function_label(edge):
                 yield k.decode() + " shape: " + str(array.shape)
             else:
                 yield k.decode() + ": " + str(v)
-    params_str = '&#92;n'.join(find_params(edge[b'params']))
+    params_str = '&#92;l'.join(find_params(edge[b'params']))
     if params_str != "":
-        ret += '|{%s}' % params_str
+        ret += '|{%s&#92;l}' % params_str
     ret += '|{%s}}' % '|'.join(map(lambda v: '<' + v.decode() + '>', reversed(edge[b'outputs'])))
     return ret
 
@@ -103,11 +105,11 @@ def to_dot(mlir, rankdir = 'TB'):
     return ret
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("usage: python mlir_drawer.py mlir_file")
-        exit()
-    mlir_file = sys.argv[1]
-    with open(mlir_file, 'rb') as f:
+    parser = argparse.ArgumentParser(description='MLIR to Graphviz(dot) Converter')
+    parser.add_argument(dest='input', type=str,
+                        metavar='MLIR', help='input(MLIR) file path')
+    args = parser.parse_args()
+    with open(args.input, 'rb') as f:
         mlir = msgpack.unpackb(f.read())
         result = to_dot(mlir)
         six.print_(result)
