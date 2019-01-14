@@ -1,6 +1,5 @@
 from chainer.functions.array.pad import Pad
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-from numpy.lib.arraypad import _validate_lengths # dirty
 import mlir.edges as MLIR
 
 if hasattr(Pad, 'apply'):
@@ -10,6 +9,11 @@ else:
 
 def to_mlir_node(self, inputs, outputs):
     [var] = self.chainer_input_variables
+    zero_padded_ones = np.pad(np.ones(var.shape, dtype=np.int32), self.pad_width, mode='constant', constant_values=0)
+    ones_positions = np.transpose(np.where(zero_padded_ones > 0))
+    pad_befores = ones_positions[0]
+    pad_afters = np.array(zero_padded_ones.shape) - ones_positions[-1] - 1
+    pad_width = list(map(tuple, np.stack([pad_befores,pad_afters]).T))
     if self.mode == 'constant':
         if type(self.keywords['constant_values']) == int:
             value = float(self.keywords['constant_values'])
@@ -23,7 +27,7 @@ def to_mlir_node(self, inputs, outputs):
         return MLIR.ConstantPadding(
             inputs,
             outputs,
-            pads=_validate_lengths(var.data, self.pad_width),
+            pads=pad_width,
             value=value
         )
     else:
