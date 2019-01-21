@@ -14,7 +14,7 @@ def to_mlir_node(self, inputs, outputs):
     ones_positions = np.transpose(np.where(zero_padded_ones > 0))
     pad_befores = ones_positions[0]
     pad_afters = np.array(zero_padded_ones.shape) - ones_positions[-1] - 1
-    pad_width = list(map(tuple, np.stack([pad_befores,pad_afters]).T))
+    pad_width = list(map(lambda x: (int(x[0]), int(x[1])), np.stack([pad_befores,pad_afters]).T))
     if self.mode == 'constant':
         if type(self.keywords['constant_values']) == int:
             value = float(self.keywords['constant_values'])
