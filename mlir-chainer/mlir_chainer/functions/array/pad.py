@@ -1,6 +1,7 @@
 from chainer.functions.array.pad import Pad
 from mlir_chainer.patch import patched_function_apply, patched_function_call
 import mlir.edges as MLIR
+import numpy as np
 
 if hasattr(Pad, 'apply'):
     Pad.apply = patched_function_apply(Pad.apply)
