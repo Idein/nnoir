@@ -7,6 +7,7 @@ from .bilinear_2d import Bilinear2D
 from .broadcast import BroadcastTo
 from .clipped_relu import ClippedReLU
 from .concat import Concat
+from .constant import Constant
 from .convolution_2d_function import Convolution2DFunction
 from .convolution_2d import Convolution2D
 from .depthwise_convolution_2d import DepthwiseConvolution2D

@@ -7,8 +7,7 @@ import numpy
 import argparse
 
 def function_label(edge):
-    ret = '{{%s|' % edge[b'name'].decode()
-    ret += '|'.join(map(lambda v: '<' + v.decode() + '>', reversed(edge[b'inputs'])))
+    ret = '{{' + ('|'.join([edge[b'name'].decode()] + list(map(lambda v: '<' + v.decode() + '>', reversed(edge[b'inputs'])))))
     if (b'W' in edge[b'params']):
         ret += '|W'
     if (b'b' in edge[b'params']):

@@ -5,22 +5,22 @@ import numpy as np
 from chainer import variable
 from chainer import function_node
 import chainer.functions as F
+import mlir.edges as MLIR
+from .patch import encode_ndarray
 
 class Node(object):
     def __init__(self, node, no = None):
         self.no = no
         self.node = node
-        self.in_edges = None
-        self.out_edges = None
+        self.in_edges = []
+        self.out_edges = []
     def __hash__(self):
         return id(self.node).__hash__()
     def __eq__(self, r):
         return self.node is r.node
     def add_in_edge(self, from_node):
-        if self.in_edges is None: self.in_edges = []
         self.in_edges.append(from_node)
     def add_out_edge(self, to_node):
-        if self.out_edges is None: self.out_edges = []
         self.out_edges.append(to_node)
     def is_type_of(self, cls):
         return isinstance(self.node, cls)
@@ -70,6 +70,13 @@ class Graph(object):
                     creator = candidate.creator
                 if hasattr(creator, 'caller') and creator.caller is not None:
                     creator = creator.caller
+                if creator is None and id(candidate) not in map(id, input_variables): # Constant Param
+                    class Constant:
+                        def __init__(self, value):
+                            self.value = value
+                        def to_mlir_node(self, inputs, outputs):
+                            return MLIR.Constant(inputs, outputs, value=encode_ndarray(self.value))
+                    creator = Constant(candidate.data)
                 if creator is not None and (id(creator), id(candidate)) not in seen_edges:
                     add_candidate(creator)
                     seen_edges.add((id(creator), id(candidate)))
@@ -79,15 +86,16 @@ class Graph(object):
                     creator_node.add_out_edge(candidate_node)
                     self.nodes.add(creator_node)
             else:
-                for input_ in reversed(candidate.chainer_input_variables):
-                    if input_ is not candidate and (id(input_), id(candidate)) not in seen_edges:
-                        add_candidate(input_)
-                        seen_edges.add((id(input_), id(candidate)))
-                        input_node = create_node(input_)
-                        candidate_node = create_node(candidate)
-                        candidate_node.add_in_edge(input_node)
-                        input_node.add_out_edge(candidate_node)
-                        self.nodes.add(input_node)
+                if hasattr(candidate, 'chainer_input_variables'):
+                    for input_ in reversed(candidate.chainer_input_variables):
+                        if input_ is not candidate and (id(input_), id(candidate)) not in seen_edges:
+                            add_candidate(input_)
+                            seen_edges.add((id(input_), id(candidate)))
+                            input_node = create_node(input_)
+                            candidate_node = create_node(candidate)
+                            candidate_node.add_in_edge(input_node)
+                            input_node.add_out_edge(candidate_node)
+                            self.nodes.add(input_node)
         for i in input_variables:
             self.input_variables.append(create_node(i))
 
