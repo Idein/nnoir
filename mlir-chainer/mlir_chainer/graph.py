@@ -5,7 +5,7 @@ import numpy as np
 from chainer import variable
 from chainer import function_node
 import chainer.functions as F
-import mlir.edges as MLIR
+import mlir
 from .patch import encode_ndarray
 
 class Node(object):
@@ -75,7 +75,7 @@ class Graph(object):
                         def __init__(self, value):
                             self.value = value
                         def to_mlir_node(self, inputs, outputs):
-                            return MLIR.Constant(inputs, outputs, value=encode_ndarray(self.value))
+                            return mlir.edges.Constant(inputs, outputs, value=encode_ndarray(self.value))
                     creator = Constant(candidate.data)
                 if creator is not None and (id(creator), id(candidate)) not in seen_edges:
                     add_candidate(creator)
@@ -115,127 +115,27 @@ class Graph(object):
             node.no = no
 
     def to_mlir(self, name=None):
+
         def _node(node):
-            return { b'name': self._variable_elem_name(node),
-                     b'dtype': node.node.dtype.str, # TODO: エンディアンとかが入り込むのでfloatとかでいい
-                     b'shape': node.node.shape }
+            return mlir.Node(_variable_elem_name(node), node.node.dtype.str, node.node.shape)
+
         def _function(node):
             return node.node.to_mlir_node(
-                list(map(self._variable_elem_name, reversed(node.in_edges))),
-                list(map(self._variable_elem_name, node.out_edges))
-            ).dump()
+                list(map(_variable_elem_name, reversed(node.in_edges))),
+                list(map(_variable_elem_name, node.out_edges))
+            )
 
         sorted_nodes = sorted(self.nodes, key=lambda n: n.no)
-        inputs = map(_node, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))
-        nodes = map(_node, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))
-        edges = map(_function, filter(lambda node: not isinstance(node.node, variable.Variable), sorted_nodes))
-        mlir = { b'mlir':
-                 { b'version' : 0,
-                   b'model' :
-                   { b'name': name or self.model.__class__.__name__,
-                     b'generator':
-                     { b'name' : 'chainer',
-                       b'version': chainer.__version__ },
-                     b'inputs': list(map(self._variable_elem_name, self.input_variables)),
-                     b'outputs': list(map(self._variable_elem_name, self.output_variables)),
-                     b'nodes': list(nodes),
-                     b'edges': list(edges) } } }
-        return msgpack.packb(mlir)
 
-    def _variable_elem_name(self, node):
-        return "v%s%d" % ('' if node.node.name is None else node.node.name, node.no)
+        return mlir.MLIR(
+            (name or self.model.__class__.__name__).encode(),
+            b'chainer',
+            chainer.__version__,
+            list(map(_variable_elem_name, self.input_variables)),
+            list(map(_variable_elem_name, self.output_variables)),
+            list(map(_node, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))),
+            list(map(_function, filter(lambda node: not isinstance(node.node, variable.Variable), sorted_nodes)))
+        ).pack()
 
-    def _variable_name(self, node):
-        return "v%s%d %s" % ('' if node.node.name is None else node.node.name, node.no, node.node.shape)
-
-    def _function_name(self, node):
-        in_edges = '|'.join(map(lambda v: '<' + self._variable_elem_name(v) + '>', reversed(node.in_edges)))
-        out_edges = '|'.join(map(lambda v: '<' + self._variable_elem_name(v) + '>', reversed(node.out_edges)))
-        params = node.node.to_mlir_node()[b'params']
-        aps = params.keys()
-        def find_params(params):
-            for k,v in params.items():
-                if type(v) is dict and b'ndarray' in v:
-                    yield k.decode()
-                elif type(v) is dict:
-                    yield k.decode()
-                else:
-                    yield str(v)
-        return "{{%s}|%s %s|{%s}}" % (in_edges, type(node.node).__name__, ' '.join(find_params(params)), out_edges)
-
-    def to_dot(self, variable_style = None, function_style = None, rankdir = 'TB'):
-        ret = 'digraph graphname { rankdir=%s;\n' % rankdir
-        ret += '  subgraph input {\n'
-        for i, node in enumerate(self.input_variables):
-            attribute = { 'xlabel' : 'input%d = %s' % (i, self._variable_name(node)),
-                          'shape' : 'point' }
-            attributes = ["%s=\"%s\"" % (k, v) for (k, v)
-                          in attribute.items()]
-            ret += "    %s [%s];\n" % (id(node.node), ",".join(attributes))
-        ret += '  }\n'
-        ret += '  subgraph output {\n'
-        for i, node in enumerate(self.output_variables):
-            attribute = { 'xlabel' : 'output%d = %s' % (i, self._variable_name(node)),
-                          'shape' : 'point' }
-            attributes = ["%s=\"%s\"" % (k, v) for (k, v)
-                          in attribute.items()]
-            ret += "    %s [%s];\n" % (id(node.node), ",".join(attributes))
-        ret += '  }\n'
-        for node in self.nodes:
-            if node in self.input_variables:
-                continue
-            if node in self.output_variables:
-                continue
-            # assert isinstance(node.node, (variable.Variable, function.Function))
-            if isinstance(node.node, variable.Variable):
-                attribute = { 'xlabel' : self._variable_name(node),
-                              'shape' : 'point' }
-                attributes = ["%s=\"%s\"" % (k, v) for (k, v)
-                              in attribute.items()]
-                ret += "  %s [%s];\n" % (id(node.node), ",".join(attributes))
-            elif isinstance(node.node, function_node.FunctionNode):
-                attribute = { 'label' : self._function_name(node),
-                              'shape': 'record',
-                              'style' : 'filled',
-                              'fillcolor' : 'aquamarine' }
-                attributes = ["%s=\"%s\"" % (k, v) for (k, v)
-                              in attribute.items()]
-                ret += "  %s [%s];\n" % (id(node.node), ",".join(attributes))
-            else:
-                attribute = { 'label' : self._function_name(node),
-                              'shape': 'record',
-                              'style' : 'filled',
-                              'fillcolor' : 'cyan' }
-                attributes = ["%s=\"%s\"" % (k, v) for (k, v)
-                              in attribute.items()]
-                ret += "  %s [%s];\n" % (id(node.node), ",".join(attributes))
-        for from_node in self.nodes:
-            if from_node.out_edges is None: continue
-            for to_node in from_node.out_edges:
-                if isinstance(from_node.node, variable.Variable):
-                    ret += '  %s -> %s:%s;\n' % (id(from_node.node), id(to_node.node), self._variable_elem_name(from_node))
-                else:
-                    ret += '  %s:%s -> %s;\n' % (id(from_node.node), self._variable_elem_name(to_node), id(to_node.node))
-
-
-        ret += '  { rank = same; \n'
-        for node in self.input_variables:
-            attribute = { 'xlabel' : self._variable_name(node),
-                          'shape' : 'point' }
-            attributes = ["%s=\"%s\"" % (k, v) for (k, v)
-                          in attribute.items()]
-            ret += "    %s;\n" % (id(node.node))
-        ret += '  }\n'
-        ret += '  { rank = same; \n'
-        for node in self.output_variables:
-            attribute = { 'xlabel' : self._variable_name(node),
-                          'shape' : 'point' }
-            attributes = ["%s=\"%s\"" % (k, v) for (k, v)
-                          in attribute.items()]
-            ret += "    %s;\n" % (id(node.node))
-        ret += '  }\n'
-        ret += "}"
-        return ret
-
-    def _variable_elem_name(self, node):
-        return "v%s%d" % ('' if node.node.name is None else node.node.name, node.no)
+def _variable_elem_name(node):
+    return 'v{:d}'.format(node.no).encode()
