@@ -18,12 +18,12 @@ def test_batch_normalization():
     avg_mean[:] = 0.2
     avg_var[:] = 0.8
 
-    inputs  = [mlir.Node(b'v0', 'float', shape)]
-    outputs = [mlir.Node(b'v2', 'float', shape)]
+    inputs  = [mlir.Value(b'v0', 'float', shape)]
+    outputs = [mlir.Value(b'v2', 'float', shape)]
     nodes = inputs + outputs
     input_names = [ x.name for x in inputs ]
     output_names = [ x.name for x in outputs ]
-    function = mlir.edges.BatchNormalization(input_names, output_names,
+    function = mlir.functions.BatchNormalization(input_names, output_names,
                                              eps=eps,
                                              avg_mean=avg_mean,
                                              avg_var=avg_var,

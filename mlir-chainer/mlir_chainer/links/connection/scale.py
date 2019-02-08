@@ -1,6 +1,6 @@
 from chainer.links import Scale
 from mlir_chainer.patch import encode_ndarray, patched_link_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 Scale.__call__ = patched_link_call(Scale.__call__)
 

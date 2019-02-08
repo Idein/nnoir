@@ -1,6 +1,6 @@
 from chainer.functions.array.concat import Concat
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(Concat, 'apply'):
     Concat.apply = patched_function_apply(Concat.apply)

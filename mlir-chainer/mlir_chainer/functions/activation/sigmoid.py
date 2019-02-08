@@ -1,6 +1,6 @@
 from chainer.functions.activation.sigmoid import Sigmoid
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(Sigmoid, 'apply'):
     Sigmoid.apply = patched_function_apply(Sigmoid.apply)

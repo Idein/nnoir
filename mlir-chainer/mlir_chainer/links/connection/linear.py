@@ -1,6 +1,6 @@
 from chainer.links import Linear
 from mlir_chainer.patch import encode_ndarray, patched_link_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 Linear.__call__ = patched_link_call(Linear.__call__)
 

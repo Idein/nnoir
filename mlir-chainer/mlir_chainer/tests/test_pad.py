@@ -5,13 +5,13 @@ import numpy as np
 import util
 
 def test_pad():
-    inputs  = [mlir.Node(b'v0', 'float', (2,3,4,5))]
-    outputs = [mlir.Node(b'v2', 'float', (3,5,7,10))]
+    inputs  = [mlir.Value(b'v0', 'float', (2,3,4,5))]
+    outputs = [mlir.Value(b'v2', 'float', (3,5,7,10))]
     pads = ((1,0), (1,1), (1,2), (0,5))
     nodes = inputs + outputs
     input_names = [ x.name for x in inputs ]
     output_names = [ x.name for x in outputs ]
-    function = mlir.edges.ConstantPadding(input_names, output_names, pads=pads, value=1)
+    function = mlir.functions.ConstantPadding(input_names, output_names, pads=pads, value=1)
     result = mlir.MLIR(b'ConstantPadding', b'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
     result.dump('pad.mlir')
 

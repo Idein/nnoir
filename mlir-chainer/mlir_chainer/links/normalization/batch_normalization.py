@@ -1,6 +1,6 @@
 from chainer.links import BatchNormalization
 from mlir_chainer.patch import encode_ndarray, patched_link_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 BatchNormalization.__call__ = patched_link_call(BatchNormalization.__call__)
 

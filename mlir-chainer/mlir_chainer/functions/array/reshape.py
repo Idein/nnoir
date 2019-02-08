@@ -1,6 +1,6 @@
 from chainer.functions.array.reshape import Reshape
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(Reshape, 'apply'):
     Reshape.apply = patched_function_apply(Reshape.apply)

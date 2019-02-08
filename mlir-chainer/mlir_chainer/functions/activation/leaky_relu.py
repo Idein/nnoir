@@ -1,6 +1,6 @@
 from chainer.functions.activation.leaky_relu import LeakyReLU
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(LeakyReLU, 'apply'):
     LeakyReLU.apply = patched_function_apply(LeakyReLU.apply)

@@ -1,6 +1,6 @@
 from chainer.functions.connection.convolution_2d import Convolution2DFunction
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(Convolution2DFunction, 'apply'):
     Convolution2DFunction.apply = patched_function_apply(Convolution2DFunction.apply)

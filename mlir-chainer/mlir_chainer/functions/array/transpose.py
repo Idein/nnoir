@@ -1,6 +1,6 @@
 from chainer.functions.array.transpose import Transpose
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(Transpose, 'apply'):
     Transpose.apply = patched_function_apply(Transpose.apply)

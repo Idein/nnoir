@@ -75,7 +75,7 @@ class Graph(object):
                         def __init__(self, value):
                             self.value = value
                         def to_mlir_node(self, inputs, outputs):
-                            return mlir.edges.Constant(inputs, outputs, value=encode_ndarray(self.value))
+                            return mlir.functions.Constant(inputs, outputs, value=encode_ndarray(self.value))
                     creator = Constant(candidate.data)
                 if creator is not None and (id(creator), id(candidate)) not in seen_edges:
                     add_candidate(creator)
@@ -116,8 +116,8 @@ class Graph(object):
 
     def to_mlir(self, name=None):
 
-        def _node(node):
-            return mlir.Node(_variable_elem_name(node), node.node.dtype.str, node.node.shape)
+        def _value(node):
+            return mlir.Value(_variable_elem_name(node), node.node.dtype.str, node.node.shape)
 
         def _function(node):
             return node.node.to_mlir_node(
@@ -133,7 +133,7 @@ class Graph(object):
             chainer.__version__,
             list(map(_variable_elem_name, self.input_variables)),
             list(map(_variable_elem_name, self.output_variables)),
-            list(map(_node, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))),
+            list(map(_value, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))),
             list(map(_function, filter(lambda node: not isinstance(node.node, variable.Variable), sorted_nodes)))
         ).pack()
 
