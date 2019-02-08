@@ -9,7 +9,7 @@ class InvalidMLIRData(Exception):
 
 class MLIR():
 
-    def __init__(self, name, generator_name, generator_version, inputs, outputs, nodes, edges):
+    def __init__(self, name, generator_name, generator_version, inputs, outputs, values, functions):
         cident = re.compile(rb'[_A-Za-z][_0-9A-Za-z]*') # TODO: remove C keywords
         if not cident.match(name):
             raise InvalidMLIRData('graph name "{}" MUST be C identifier.'.format(name))
@@ -18,11 +18,12 @@ class MLIR():
         self.generator_version = generator_version
         self.inputs = inputs
         self.outputs = outputs
-        self.edges = edges
-        self.nodes = nodes
-        for n in self.nodes:
-            if not cident.match(n.name):
-                raise InvalidMLIRData('node name "{}" MUST be C identifier.'.format(n.name))
+        self.functions = functions
+        self.values = values
+        vident = re.compile(rb'v[_0-9A-Za-z]*') # 'v' prefixed
+        for v in self.values:
+            if not vident.match(v.name):
+                raise InvalidMLIRData('value name "{}" MUST be "v" prefixed C identifier.'.format(v.name))
 
     def pack(self):
         return msgpack.packb(
@@ -35,8 +36,8 @@ class MLIR():
                   b'version': self.generator_version },
                   b'inputs': self.inputs,
                   b'outputs': self.outputs,
-                  b'nodes': [ n.dump() for n in self.nodes],
-                  b'edges': [ e.dump() for e in self.edges]
+                  b'values': [ n.dump() for n in self.values],
+                  b'functions': [ e.dump() for e in self.functions]
                 }
               }
             }
