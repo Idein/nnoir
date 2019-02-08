@@ -86,8 +86,8 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
     def to_MLIR(self):
         inputs = list(map(lambda x: x.name, self.sess.get_inputs()))
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
-        edges = self._to_MLIR_edges()
-        nodes = [ Node(n, self.nodes[n].dtype.str, list(self.nodes[n].shape)) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, edges))) ]
+        functions = self._to_MLIR_functions()
+        nodes = [ Value(n, self.nodes[n].dtype.str, list(self.nodes[n].shape)) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions))) ]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
         renaming_table = dict([ (n.name, 'v{}'.format(i).encode('utf-8')) for i,n in enumerate(nodes) ])
@@ -95,11 +95,11 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
             return renaming_table[x]
         inputs = list(map(rename, inputs))
         outputs = list(map(rename, outputs))
-        def rename_edge(e):
+        def rename_function(e):
             e.inputs = list(map(rename, e.inputs))
             e.outputs = list(map(rename, e.outputs))
             return e
-        edges = list(map(rename_edge, edges))
+        functions = list(map(rename_function, functions))
         def rename_node(n):
             n.name = rename(n.name)
             return n
@@ -112,7 +112,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
             inputs,
             outputs,
             nodes,
-            edges
+            functions
         )
 
     def _eval_nodes(self, nodes):
@@ -144,10 +144,10 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
             outputs = [ x.name for x in sess.get_inputs() ]
             results = sess.run(outputs, inputs)
 
-    def _to_MLIR_edges(self):
+    def _to_MLIR_functions(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
         visited = []
-        edges = []
+        functions = []
         while outputs != []:
             o = outputs.pop(0)
             if o in visited:
@@ -155,16 +155,14 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
             visited.append(o)
             generator = self._find_generator(o)
             if generator is not None:
-                edge = op_for_node(generator).to_Edge(self.nodes, self.constant_nodes)
-                inputs = list(chain.from_iterable(map(lambda x: x.inputs, edge)))
+                function = op_for_node(generator).to_function(self.nodes, self.constant_nodes)
+                inputs = list(chain.from_iterable(map(lambda x: x.inputs, function)))
                 outputs += inputs
-                edges += edge
+                functions += function
             initializer = self._find_initializer(o)
             if initializer is not None:
                 raise UnsupportedONNXOperation(node, 'converting from Constant is undefined')
-                edge = self._from_initializer_to_edge(initializer)
-                edges += edge
-        return edges
+        return functions
 
     def _list_constant_nodes(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))

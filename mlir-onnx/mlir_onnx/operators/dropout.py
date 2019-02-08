@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpDropout(Op):
@@ -10,7 +10,7 @@ class OpDropout(Op):
         [x] = self.node.input
         return env[x]
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         return [
             Transpose(
                 list(self.node.input),

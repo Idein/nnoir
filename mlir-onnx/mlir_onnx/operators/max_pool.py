@@ -1,5 +1,5 @@
 import numpy as np
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpMaxPool(Op):
@@ -52,7 +52,7 @@ class OpMaxPool(Op):
 
         return np.zeros((batch, channel, out_h, out_w), dtype=env[x].dtype)
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         [x] = self.node.input
 
         _input = env[x]

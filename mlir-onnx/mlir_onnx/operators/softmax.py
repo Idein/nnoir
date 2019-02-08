@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpSoftmax(Op):
@@ -15,7 +15,7 @@ class OpSoftmax(Op):
         [x] = self.node.input
         return env[x]
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         return [
             Softmax(
                 list(self.node.input),

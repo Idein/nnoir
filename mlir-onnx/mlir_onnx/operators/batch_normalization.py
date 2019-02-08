@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpBatchNormalization(Op):
@@ -10,7 +10,7 @@ class OpBatchNormalization(Op):
         [x,_,_,_,_] = self.node.input
         return env[x]
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         [x,gamma,beta,mean,var] = self.node.input
         if gamma not in constants:
             raise UnsupportedONNXOperation(self.node, 'missing gamma')

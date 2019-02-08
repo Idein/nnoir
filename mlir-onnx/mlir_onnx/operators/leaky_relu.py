@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpLeakyRelu(Op):
@@ -15,5 +15,5 @@ class OpLeakyRelu(Op):
         [x] = self.node.input
         return env[x]
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         return [ LeakyReLU(list(self.node.input), list(self.node.output), slope=self.alpha) ]

@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpGemm(Op):
@@ -30,7 +30,7 @@ class OpGemm(Op):
             b = b.T
         return a.dot(b)+env[C]
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         [A,B,C] = self.node.input
 
         if B not in constants:

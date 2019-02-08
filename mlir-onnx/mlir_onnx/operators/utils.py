@@ -20,7 +20,7 @@ class Op:
     def get_dummy_output(self, env):
         raise UnsupportedONNXOperation(self.node, "not implemented")
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         raise UnsupportedONNXOperation(self.node, "not implemented")
 
 def encode_ndarray(obj):

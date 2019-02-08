@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpMatMul(Op):
@@ -10,7 +10,7 @@ class OpMatMul(Op):
         [x,W] = self.node.input
         return env[x].dot(env[W])
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         [x,W] = self.node.input
         if W in constants:
             return [
