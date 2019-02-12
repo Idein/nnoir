@@ -1,6 +1,6 @@
 from chainer.functions.activation.clipped_relu import ClippedReLU
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(ClippedReLU, 'apply'):
     ClippedReLU.apply = patched_function_apply(ClippedReLU.apply)

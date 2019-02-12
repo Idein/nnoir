@@ -1,6 +1,6 @@
 from chainer.functions.pooling.average_pooling_2d import AveragePooling2D
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(AveragePooling2D, 'apply'):
     AveragePooling2D.apply = patched_function_apply(AveragePooling2D.apply)

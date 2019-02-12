@@ -1,6 +1,6 @@
 from chainer.functions.pooling.max_pooling_2d import MaxPooling2D
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(MaxPooling2D, 'apply'):
     MaxPooling2D.apply = patched_function_apply(MaxPooling2D.apply)

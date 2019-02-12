@@ -10,12 +10,12 @@ def test_average_pooling_2d():
     stride = (1,2)
     pad = (0,1)
 
-    inputs  = [mlir.Node(b'v0', 'float', (2,3,4,5))]
-    outputs = [mlir.Node(b'v2', 'float', (2,3,3,3))]
+    inputs  = [mlir.Value(b'v0', 'float', (2,3,4,5))]
+    outputs = [mlir.Value(b'v2', 'float', (2,3,3,3))]
     nodes = inputs + outputs
     input_names = [ x.name for x in inputs ]
     output_names = [ x.name for x in outputs ]
-    function = mlir.edges.AveragePooling2D(input_names, output_names,
+    function = mlir.functions.AveragePooling2D(input_names, output_names,
                                            kernel=list(ksize),
                                            stride=list(stride),
                                            pad_h=[pad[0],pad[0]+stride[0]-1],

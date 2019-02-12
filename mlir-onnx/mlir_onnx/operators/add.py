@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpAdd(Op):
@@ -10,7 +10,7 @@ class OpAdd(Op):
         [a,b] = self.node.input
         return env[a] + env[b]
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         [a, b] = self.node.input
         if a in constants and b not in constants:
             return [ Bias([b], list(self.node.output), axis=0,b=encode_ndarray(constants[a])) ]

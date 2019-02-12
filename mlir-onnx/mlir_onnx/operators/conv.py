@@ -1,5 +1,5 @@
 import numpy as np
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpConv(Op):
@@ -64,7 +64,7 @@ class OpConv(Op):
 
         return np.zeros((batch, out_ch, out_h, out_w), dtype=env[x].dtype)
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         b = None
         if len(self.node.input) == 2:
             [x, W] = self.node.input

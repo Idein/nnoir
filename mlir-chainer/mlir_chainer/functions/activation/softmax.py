@@ -1,6 +1,6 @@
 from chainer.functions.activation.softmax import Softmax
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(Softmax, 'apply'):
     Softmax.apply = patched_function_apply(Softmax.apply)

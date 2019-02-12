@@ -1,6 +1,6 @@
 from chainer.links import DepthwiseConvolution2D
 from mlir_chainer.patch import encode_ndarray, patched_link_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 DepthwiseConvolution2D.__call__ = patched_link_call(DepthwiseConvolution2D.__call__)
 

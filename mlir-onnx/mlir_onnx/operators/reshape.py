@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpReshape(Op):
@@ -10,7 +10,7 @@ class OpReshape(Op):
         [x,shape] = self.node.input
         return env[x].reshape(list(env[shape]))
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         [x,_] = self.node.input
         [y] = self.node.output
         return [

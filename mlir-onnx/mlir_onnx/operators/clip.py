@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpClip(Op):
@@ -10,7 +10,7 @@ class OpClip(Op):
         [x] = self.node.input
         return env[x]
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         _min = -3.4028234663852886e+38
         _max =  3.4028234663852886e+38
         for attr in self.node.attribute:

@@ -1,5 +1,5 @@
 import functools
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpSum(Op):
@@ -11,7 +11,7 @@ class OpSum(Op):
         xs = map(lambda x: env[x], self.node.input)
         return functools.reduce(lambda a,b: a+b, xs)
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         if len(self.node.input) != 2:
             raise UnsupportedONNXOperation(self.node, '# of inputs must be 2')
         return [ Add(list(self.node.input), list(self.node.output)) ]

@@ -1,6 +1,6 @@
 from chainer.functions.math.basic_math import Add, AddConstant, Mul, MulConstant
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(Add, 'apply'):
     Add.apply = patched_function_apply(Add.apply)

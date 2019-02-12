@@ -1,12 +1,12 @@
 import numpy
+import io
 import inspect
 from chainer.link import Link
 from chainer.variable import Variable
-import six
 
 def encode_ndarray(obj):
     x = None
-    with six.BytesIO() as out:
+    with io.BytesIO() as out:
         numpy.save(out, obj.copy())
         x = out.getvalue()
     return { b'ndarray': x }

@@ -1,6 +1,6 @@
 from chainer.functions.pooling.unpooling_2d import Unpooling2D
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(Unpooling2D, 'apply'):
     Unpooling2D.apply = patched_function_apply(Unpooling2D.apply)

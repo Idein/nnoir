@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpLRN(Op):
@@ -24,7 +24,7 @@ class OpLRN(Op):
         [x] = self.node.input
         return env[x]
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         return [
             LocalResponseNormalization(
                 list(self.node.input),

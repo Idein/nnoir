@@ -1,6 +1,6 @@
 from chainer.functions.activation.elu import ELU
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(ELU, 'apply'):
     ELU.apply = patched_function_apply(ELU.apply)

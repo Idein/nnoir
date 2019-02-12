@@ -1,4 +1,4 @@
 from .mlir import MLIR
 from .load import load
-from .node import Node
-from . import edges
+from .value import Value
+from . import functions

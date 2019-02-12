@@ -1,6 +1,6 @@
 from chainer.functions.array.resize_images import ResizeImages
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(ResizeImages, 'apply'):
     ResizeImages.apply = patched_function_apply(ResizeImages.apply)

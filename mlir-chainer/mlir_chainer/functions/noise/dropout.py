@@ -1,6 +1,6 @@
 from chainer.functions.noise.dropout import Dropout
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(Dropout, 'apply'):
     Dropout.apply = patched_function_apply(Dropout.apply)

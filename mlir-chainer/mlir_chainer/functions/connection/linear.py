@@ -1,6 +1,6 @@
 from chainer.functions.connection.linear import LinearFunction
 from mlir_chainer.patch import patched_function_apply, patched_function_call
-import mlir.edges as MLIR
+import mlir.functions as MLIR
 
 if hasattr(LinearFunction, 'apply'):
     LinearFunction.apply = patched_function_apply(LinearFunction.apply)

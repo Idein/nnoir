@@ -8,27 +8,27 @@ class MLIRFunction(chainer.Chain):
     def __init__(self, mlir_file):
         super(MLIRFunction, self).__init__()
         self.mlir = load(mlir_file)
-        self._init_edges()
+        self._init_functions()
 
-    def _init_edges(self):
-        self.edges = {}
-        nodes = { n.name: n for n in self.mlir.nodes }
-        for edge in self.mlir.edges:
-            inputs = [ nodes[x] for x in edge.inputs ]
-            outputs = [ nodes[x] for x in edge.outputs ]
-            self.edges[id(edge)] = globals()["Convert" + edge.__class__.__name__](edge, inputs, outputs)
+    def _init_functions(self):
+        self.functions = {}
+        nodes = { n.name: n for n in self.mlir.values }
+        for function in self.mlir.functions:
+            inputs = [ nodes[x] for x in function.inputs ]
+            outputs = [ nodes[x] for x in function.outputs ]
+            self.functions[id(function)] = globals()["Convert" + function.__class__.__name__](function, inputs, outputs)
 
     def __call__(self, *xs):
         if len(self.mlir.inputs) != len(xs):
             raise Exception("the number of input variables and the expected number of inputs do not match.")
         variable_dict = { inp:x for inp,x in zip(self.mlir.inputs, xs) }
         done = set()
-        while len(done) < len(self.mlir.edges):
+        while len(done) < len(self.mlir.functions):
             found = True
-            for edge in self.mlir.edges:
-                if id(edge) not in done and set(edge.inputs).issubset(variable_dict.keys()):
-                    variable_dict[edge.outputs[0]] = self.edges[id(edge)](*[ variable_dict[x] for x in edge.inputs ])
-                    done.add(id(edge))
+            for function in self.mlir.functions:
+                if id(function) not in done and set(function.inputs).issubset(variable_dict.keys()):
+                    variable_dict[function.outputs[0]] = self.functions[id(function)](*[ variable_dict[x] for x in function.inputs ])
+                    done.add(id(function))
                     found = True
                     break
             if not found:

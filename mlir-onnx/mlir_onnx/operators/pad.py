@@ -1,5 +1,5 @@
 import numpy as np
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpPad(Op):
@@ -26,7 +26,7 @@ class OpPad(Op):
         n = len(self.pads) // 2
         return np.pad(env[x], list(zip(self.pads[:n], self.pads[n:])), mode='constant', constant_values=self.value)
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         n = len(self.pads) // 2
         return [
             ConstantPadding(

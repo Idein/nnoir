@@ -1,5 +1,5 @@
 import numpy as np
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpTranspose(Op):
@@ -16,7 +16,7 @@ class OpTranspose(Op):
         [x] = self.node.input
         return np.transpose(env[x], self.perm)
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         return [
             Transpose(
                 list(self.node.input),

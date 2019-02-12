@@ -1,5 +1,5 @@
 import numpy as np
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpConcat(Op):
@@ -15,7 +15,7 @@ class OpConcat(Op):
     def get_dummy_output(self, env):
         return np.concatenate(list(map(lambda x: env[x], self.node.input)), axis=self.axis)
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         return [
             Concat(
                 list(self.node.input),

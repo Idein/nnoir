@@ -1,4 +1,4 @@
-from mlir.edges import *
+from mlir.functions import *
 from .utils import *
 
 class OpRelu(Op):
@@ -10,5 +10,5 @@ class OpRelu(Op):
         [x] = self.node.input
         return env[x]
 
-    def to_Edge(self, env, constants):
+    def to_function(self, env, constants):
         return [ ReLU(list(self.node.input), list(self.node.output)) ]
