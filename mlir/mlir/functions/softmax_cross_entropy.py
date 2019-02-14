@@ -1,6 +1,7 @@
 import chainer.functions as F
 from .function import Function
 
+
 class SoftmaxCrossEntropy(Function):
     def __init__(self, inputs, outputs, **params):
         required_params = {'normalize',

@@ -2,6 +2,7 @@ import numpy as np
 from mlir.functions import *
 from .utils import *
 
+
 class OpAveragePool(Op):
 
     def __init__(self, node):
@@ -11,7 +12,7 @@ class OpAveragePool(Op):
         self.auto_pad = b'NOTSET'
         self.pads = None
         self.storage_order = 0
-        self.strides = (1,1)
+        self.strides = (1, 1)
         self.count_include_pad = 0
         for attr in node.attribute:
             if attr.name == 'kernel_shape':
@@ -86,6 +87,6 @@ class OpAveragePool(Op):
                 stride=(sy, sx),
                 pad_h=pad_h,
                 pad_w=pad_w,
-                count_exclude_pad=self.count_include_pad==0,
+                count_exclude_pad=self.count_include_pad == 0,
             )
         ]

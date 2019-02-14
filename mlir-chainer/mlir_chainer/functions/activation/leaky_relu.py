@@ -7,6 +7,9 @@ if hasattr(LeakyReLU, 'apply'):
 else:
     LeakyReLU.__call__ = patched_function_call(LeakyReLU.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.LeakyReLU(inputs, outputs, slope=self.slope)
+
+
 LeakyReLU.to_mlir_node = to_mlir_node

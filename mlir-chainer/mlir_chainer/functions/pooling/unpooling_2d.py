@@ -7,6 +7,7 @@ if hasattr(Unpooling2D, 'apply'):
 else:
     Unpooling2D.__call__ = patched_function_call(Unpooling2D.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.Unpooling2D(
         inputs,
@@ -21,4 +22,6 @@ def to_mlir_node(self, inputs, outputs):
         outh=self.outh,
         outw=self.outw,
     )
+
+
 Unpooling2D.to_mlir_node = to_mlir_node

@@ -7,6 +7,9 @@ if hasattr(ELU, 'apply'):
 else:
     ELU.__call__ = patched_function_call(ELU.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.ELU(inputs, outputs, alpha=self.alpha)
+
+
 ELU.to_mlir_node = to_mlir_node

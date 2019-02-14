@@ -3,6 +3,7 @@ import chainer.links as L
 import numpy as np
 from . import util
 
+
 class Convolution2D(Function):
     def __init__(self, inputs, outputs, **params):
         required_params = {'W',
@@ -14,6 +15,7 @@ class Convolution2D(Function):
                            'groups'}
         optional_params = set()
         super(Convolution2D, self).__init__(inputs, outputs, params, required_params, optional_params)
+
     def run(self, x):
         kernel = (self.params['W'].shape[2], self.params['W'].shape[3])
         img, col = util.im2col_cpu(x, kernel, self.params['stride'],

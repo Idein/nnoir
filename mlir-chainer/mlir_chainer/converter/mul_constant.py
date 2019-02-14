@@ -1,5 +1,6 @@
 import chainer.functions as F
 
+
 class ConvertMulConstant():
 
     def __init__(self, function, inputs, outputs):

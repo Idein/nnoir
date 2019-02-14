@@ -5,6 +5,7 @@ import mlir.functions as MLIR
 
 DilatedConvolution2D.__call__ = patched_link_call(DilatedConvolution2D.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     b = encode_ndarray(self.b.data) if (hasattr(self, 'b') and self.b is not None) else None
     return MLIR.Convolution2D(
@@ -18,4 +19,6 @@ def to_mlir_node(self, inputs, outputs):
         dilate=self.dilate,
         groups=1
     )
+
+
 DilatedConvolution2D.to_mlir_node = to_mlir_node

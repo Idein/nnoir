@@ -7,6 +7,9 @@ if hasattr(Softmax, 'apply'):
 else:
     Softmax.__call__ = patched_function_call(Softmax.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.Softmax(inputs, outputs, axis=self.axis)
+
+
 Softmax.to_mlir_node = to_mlir_node

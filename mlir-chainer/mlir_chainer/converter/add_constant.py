@@ -1,5 +1,6 @@
 import chainer.functions as F
 
+
 class ConvertAddConstant():
 
     def __init__(self, function, inputs, outputs):

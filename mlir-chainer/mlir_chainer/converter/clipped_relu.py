@@ -1,5 +1,6 @@
 import chainer.functions as F
 
+
 class ConvertClippedReLU():
 
     def __init__(self, function, inputs, outputs):

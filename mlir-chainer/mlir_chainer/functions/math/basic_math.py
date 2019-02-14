@@ -7,8 +7,11 @@ if hasattr(Add, 'apply'):
 else:
     Add.__call__ = patched_function_call(Add.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.Add(inputs, outputs)
+
+
 Add.to_mlir_node = to_mlir_node
 
 if hasattr(AddConstant, 'apply'):
@@ -16,8 +19,11 @@ if hasattr(AddConstant, 'apply'):
 else:
     AddConstant.__call__ = patched_function_call(AddConstant.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.AddConstant(inputs, outputs, value=float(self.value))
+
+
 AddConstant.to_mlir_node = to_mlir_node
 
 if hasattr(Mul, 'apply'):
@@ -25,8 +31,11 @@ if hasattr(Mul, 'apply'):
 else:
     Mul.__call__ = patched_function_call(Mul.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.Mul(inputs, outputs)
+
+
 Mul.to_mlir_node = to_mlir_node
 
 if hasattr(MulConstant, 'apply'):
@@ -34,6 +43,9 @@ if hasattr(MulConstant, 'apply'):
 else:
     MulConstant.__call__ = patched_function_call(MulConstant.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.MulConstant(inputs, outputs, value=float(self.value))
+
+
 MulConstant.to_mlir_node = to_mlir_node

@@ -7,6 +7,9 @@ if hasattr(ClippedReLU, 'apply'):
 else:
     ClippedReLU.__call__ = patched_function_call(ClippedReLU.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.ClippedReLU(inputs, outputs, upper=self.cap)
+
+
 ClippedReLU.to_mlir_node = to_mlir_node

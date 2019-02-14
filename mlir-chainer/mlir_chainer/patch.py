@@ -4,12 +4,14 @@ import inspect
 from chainer.link import Link
 from chainer.variable import Variable
 
+
 def encode_ndarray(obj):
     x = None
     with io.BytesIO() as out:
         numpy.save(out, obj.copy())
         x = out.getvalue()
-    return { b'ndarray': x }
+    return {b'ndarray': x}
+
 
 def patched_link_call(orig_link_call):
     def call(self, *inputs, **d):
@@ -21,6 +23,7 @@ def patched_link_call(orig_link_call):
             self.chainer_output_variables = list(outputs)
         return outputs
     return call
+
 
 def patched_function_apply(orig_function_apply):
     def apply(self, inputs):
@@ -37,6 +40,7 @@ def patched_function_apply(orig_function_apply):
         return outputs
     return apply
 
+
 def patched_function_call(orig_function_call):
     def call(self, *inputs, **d):
         if isinstance(inputs, Variable):
@@ -51,6 +55,7 @@ def patched_function_call(orig_function_call):
         self.caller = caller_link()
         return outputs
     return call
+
 
 def caller_link():
     framerecords = inspect.stack()

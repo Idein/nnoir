@@ -2,6 +2,7 @@ import numpy as np
 from mlir.functions import *
 from .utils import *
 
+
 class OpTranspose(Op):
 
     def __init__(self, node):

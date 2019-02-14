@@ -1,6 +1,7 @@
 from mlir.functions import *
 from .utils import *
 
+
 class OpGemm(Op):
 
     def __init__(self, node):
@@ -21,7 +22,7 @@ class OpGemm(Op):
                 self.transB = attr.i
 
     def get_dummy_output(self, env):
-        [A,B,C] = self.node.input
+        [A, B, C] = self.node.input
         a = env[A]
         if self.transA == 1:
             a = a.T
@@ -31,7 +32,7 @@ class OpGemm(Op):
         return a.dot(b)+env[C]
 
     def to_function(self, env, constants):
-        [A,B,C] = self.node.input
+        [A, B, C] = self.node.input
 
         if B not in constants:
             raise UnsupportedONNXOperation(self.node, 'B must be constant')
@@ -53,7 +54,7 @@ class OpGemm(Op):
                 Transpose(
                     [A],
                     [internal_node],
-                    axes=[1,0]
+                    axes=[1, 0]
                 ),
                 Linear(
                     [internal_node],

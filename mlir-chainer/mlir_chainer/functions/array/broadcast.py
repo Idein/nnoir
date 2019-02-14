@@ -7,6 +7,9 @@ if hasattr(BroadcastTo, 'apply'):
 else:
     BroadcastTo.__call__ = patched_function_call(BroadcastTo.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.BroadcastTo(inputs, outputs)
+
+
 BroadcastTo.to_mlir_node = to_mlir_node

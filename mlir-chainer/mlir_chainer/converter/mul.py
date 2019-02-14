@@ -1,5 +1,6 @@
 import chainer.functions as F
 
+
 class ConvertMul():
 
     def __init__(self, function, inputs, outputs):

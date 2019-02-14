@@ -7,6 +7,7 @@ if hasattr(LocalResponseNormalization, 'apply'):
 else:
     LocalResponseNormalization.__call__ = patched_function_call(LocalResponseNormalization.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.LocalResponseNormalization(
         inputs,
@@ -16,4 +17,6 @@ def to_mlir_node(self, inputs, outputs):
         alpha=self.alpha,
         beta=self.beta
     )
+
+
 LocalResponseNormalization.to_mlir_node = to_mlir_node

@@ -7,6 +7,9 @@ if hasattr(FixedBatchNormalization, 'apply'):
 else:
     FixedBatchNormalization.__call__ = patched_function_call(FixedBatchNormalization.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.FixedBatchNormalization(inputs, outputs)
+
+
 FixedBatchNormalization.to_mlir_node = to_mlir_node

@@ -2,6 +2,7 @@ import numpy as np
 from mlir.functions import *
 from .utils import *
 
+
 class OpConv(Op):
 
     def __init__(self, node):
@@ -10,8 +11,8 @@ class OpConv(Op):
         self.kernel_shape = None
         self.auto_pad = b'NOTSET'
         self.pads = None
-        self.strides = (1,1)
-        self.dilations = (1,1)
+        self.strides = (1, 1)
+        self.dilations = (1, 1)
         self.group = 1
         for attr in node.attribute:
             if attr.name == 'kernel_shape':
@@ -30,9 +31,9 @@ class OpConv(Op):
     def get_dummy_output(self, env):
 
         if len(self.node.input) == 3:
-            [x,W,b] = self.node.input
+            [x, W, b] = self.node.input
         else:
-            [x,W] = self.node.input
+            [x, W] = self.node.input
             b = None
 
         _input = env[x]
@@ -103,13 +104,13 @@ class OpConv(Op):
             pad_w = auto_pad_to_manual_pad(in_w, kw, sx, dx, self.auto_pad)
 
         is_depthwise = False
-        out_channels,in_channels_per_groups = W.shape[:2]
+        out_channels, in_channels_per_groups = W.shape[:2]
         if self.group > 1 and 1 == in_channels_per_groups:
             return [
                 DepthwiseConvolution2D(
                     [x],
                     list(self.node.output),
-                    W=encode_ndarray(np.rollaxis(W.reshape(self.group,out_channels//self.group,kh,kw),1,0)),
+                    W=encode_ndarray(np.rollaxis(W.reshape(self.group, out_channels//self.group, kh, kw), 1, 0)),
                     b=encode_ndarray(b),
                     stride=(sy, sx),
                     pad_h=pad_h,

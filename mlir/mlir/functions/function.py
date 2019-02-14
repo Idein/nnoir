@@ -1,6 +1,7 @@
 import numpy
 import six
 
+
 class Function(object):
     def __init__(self, inputs, outputs, params, required_params, optional_params):
         if required_params - set(params.keys()) != set():
@@ -19,9 +20,9 @@ class Function(object):
             with six.BytesIO() as out:
                 numpy.save(out, obj.copy())
                 x = out.getvalue()
-            return { b'ndarray': x }
+            return {b'ndarray': x}
         binary_params = {}
-        for k,v in self.params.items():
+        for k, v in self.params.items():
             if type(v) is numpy.ndarray:
                 binary_params[k.encode()] = encode_ndarray(v)
             else:

@@ -2,6 +2,7 @@ import chainer.links as L
 import numpy as np
 from .function import Function
 
+
 class BatchNormalization(Function):
     def __init__(self, inputs, outputs, **params):
         required_params = {'eps',
@@ -11,6 +12,7 @@ class BatchNormalization(Function):
                            'beta'}
         optional_params = set()
         super(BatchNormalization, self).__init__(inputs, outputs, params, required_params, optional_params)
+
     def run(self, x):
         shape = (1, self.params['gamma'].size, 1, 1)
         gamma = self.params['gamma'].reshape(shape)

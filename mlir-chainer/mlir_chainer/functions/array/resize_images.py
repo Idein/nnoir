@@ -7,6 +7,9 @@ if hasattr(ResizeImages, 'apply'):
 else:
     ResizeImages.__call__ = patched_function_call(ResizeImages.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.Bilinear2D(inputs, outputs, size=(self.out_H, self.out_W))
+
+
 ResizeImages.to_mlir_node = to_mlir_node

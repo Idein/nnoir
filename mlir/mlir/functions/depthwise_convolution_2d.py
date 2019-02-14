@@ -4,6 +4,7 @@ from .function import Function
 import chainer.links as L
 from . import util
 
+
 class DepthwiseConvolution2D(Function):
     def __init__(self, inputs, outputs, **params):
         required_params = {'W',
@@ -14,6 +15,7 @@ class DepthwiseConvolution2D(Function):
                            'dilate'}
         optional_params = set()
         super(DepthwiseConvolution2D, self).__init__(inputs, outputs, params, required_params, optional_params)
+
     def run(self, x):
         W = self.params['W']
         b = self.params['b']
