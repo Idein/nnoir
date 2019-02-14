@@ -4,6 +4,7 @@ import mlir.functions as MLIR
 
 BatchNormalization.__call__ = patched_link_call(BatchNormalization.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     gamma = encode_ndarray(self.gamma.data) if (hasattr(self, 'gamma') and self.gamma is not None) else None
     beta = encode_ndarray(self.beta.data) if (hasattr(self, 'beta') and self.beta is not None) else None
@@ -16,4 +17,6 @@ def to_mlir_node(self, inputs, outputs):
         gamma=gamma,
         beta=beta,
     )
+
+
 BatchNormalization.to_mlir_node = to_mlir_node

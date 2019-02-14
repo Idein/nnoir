@@ -1,6 +1,7 @@
 from mlir.functions import *
 from .utils import *
 
+
 class OpRelu(Op):
 
     def __init__(self, node):
@@ -11,4 +12,4 @@ class OpRelu(Op):
         return env[x]
 
     def to_function(self, env, constants):
-        return [ ReLU(list(self.node.input), list(self.node.output)) ]
+        return [ReLU(list(self.node.input), list(self.node.output))]

@@ -1,6 +1,7 @@
 from mlir.functions import *
 from .utils import *
 
+
 class OpSoftmax(Op):
 
     def __init__(self, node):

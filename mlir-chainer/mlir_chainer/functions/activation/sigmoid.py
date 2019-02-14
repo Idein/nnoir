@@ -7,6 +7,9 @@ if hasattr(Sigmoid, 'apply'):
 else:
     Sigmoid.__call__ = patched_function_call(Sigmoid.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.Sigmoid(inputs, outputs)
+
+
 Sigmoid.to_mlir_node = to_mlir_node

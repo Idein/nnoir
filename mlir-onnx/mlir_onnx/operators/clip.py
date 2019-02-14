@@ -1,6 +1,7 @@
 from mlir.functions import *
 from .utils import *
 
+
 class OpClip(Op):
 
     def __init__(self, node):
@@ -12,7 +13,7 @@ class OpClip(Op):
 
     def to_function(self, env, constants):
         _min = -3.4028234663852886e+38
-        _max =  3.4028234663852886e+38
+        _max = 3.4028234663852886e+38
         for attr in self.node.attribute:
             if attr.name == 'max':
                 _max = attr.f

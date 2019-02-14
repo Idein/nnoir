@@ -7,6 +7,7 @@ if hasattr(SoftmaxCrossEntropy, 'apply'):
 else:
     SoftmaxCrossEntropy.__call__ = patched_function_call(SoftmaxCrossEntropy.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.SoftmaxCrossEntropy(
         inputs,
@@ -14,4 +15,6 @@ def to_mlir_node(self, inputs, outputs):
         normalize=self.normalize,
         cache_score=self.cache_score,
     )
+
+
 SoftmaxCrossEntropy.to_mlir_node = to_mlir_node

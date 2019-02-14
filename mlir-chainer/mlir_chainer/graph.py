@@ -8,22 +8,29 @@ import chainer.functions as F
 import mlir
 from .patch import encode_ndarray
 
+
 class Node(object):
-    def __init__(self, node, no = None):
+    def __init__(self, node, no=None):
         self.no = no
         self.node = node
         self.in_edges = []
         self.out_edges = []
+
     def __hash__(self):
         return id(self.node).__hash__()
+
     def __eq__(self, r):
         return self.node is r.node
+
     def add_in_edge(self, from_node):
         self.in_edges.append(from_node)
+
     def add_out_edge(self, to_node):
         self.out_edges.append(to_node)
+
     def is_type_of(self, cls):
         return isinstance(self.node, cls)
+
 
 class Graph(object):
     def __init__(self, model, input_variables, output_variables):
@@ -34,12 +41,14 @@ class Graph(object):
 
         push_count = [0]
         candidates = []
+
         def add_candidate(candidate):
             heapq.heappush(candidates, (push_count[0], candidate))
             push_count[0] += 1
 
         n2N = {}
         created_order = [0]
+
         def create_node(node):
             if id(node) in n2N:
                 return n2N[id(node)]
@@ -70,10 +79,11 @@ class Graph(object):
                     creator = candidate.creator
                 if hasattr(creator, 'caller') and creator.caller is not None:
                     creator = creator.caller
-                if creator is None and id(candidate) not in map(id, input_variables): # Constant Param
+                if creator is None and id(candidate) not in map(id, input_variables):  # Constant Param
                     class Constant:
                         def __init__(self, value):
                             self.value = value
+
                         def to_mlir_node(self, inputs, outputs):
                             return mlir.functions.Constant(inputs, outputs, value=encode_ndarray(self.value))
                     creator = Constant(candidate.data)
@@ -102,6 +112,7 @@ class Graph(object):
         # Topological sorting
         visited = set()
         sorted_nodes = []
+
         def visit(node):
             if node not in visited:
                 visited.add(node)
@@ -136,6 +147,7 @@ class Graph(object):
             list(map(_value, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))),
             list(map(_function, filter(lambda node: not isinstance(node.node, variable.Variable), sorted_nodes)))
         ).pack()
+
 
 def _variable_elem_name(node):
     return 'v{:d}'.format(node.no).encode()

@@ -7,6 +7,9 @@ if hasattr(ReLU, 'apply'):
 else:
     ReLU.__call__ = patched_function_call(ReLU.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.ReLU(inputs, outputs)
+
+
 ReLU.to_mlir_node = to_mlir_node

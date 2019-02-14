@@ -7,6 +7,9 @@ if hasattr(Tanh, 'apply'):
 else:
     Tanh.__call__ = patched_function_call(Tanh.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.Tanh(inputs, outputs)
+
+
 Tanh.to_mlir_node = to_mlir_node

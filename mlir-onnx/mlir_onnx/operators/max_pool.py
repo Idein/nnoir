@@ -2,6 +2,7 @@ import numpy as np
 from mlir.functions import *
 from .utils import *
 
+
 class OpMaxPool(Op):
 
     def __init__(self, node):
@@ -11,7 +12,7 @@ class OpMaxPool(Op):
         self.auto_pad = b'NOTSET'
         self.pads = None
         self.storage_order = 0
-        self.strides = (1,1)
+        self.strides = (1, 1)
         for attr in node.attribute:
             if attr.name == 'kernel_shape':
                 self.kernel_shape = attr.ints

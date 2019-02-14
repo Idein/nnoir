@@ -2,11 +2,13 @@ import chainer.functions as F
 import numpy as np
 from .function import Function
 
+
 class Bilinear2D(Function):
     def __init__(self, inputs, outputs, **params):
         required_params = {'size'}
         optional_params = set()
         super(Bilinear2D, self).__init__(inputs, outputs, params, required_params, optional_params)
+
     def run(self, x):
         out_h = self.params['size'][0]
         out_w = self.params['size'][1]
@@ -23,10 +25,10 @@ class Bilinear2D(Function):
         W01 = (U - U0) * (V1 - V)
         W10 = (U1 - U) * (V - V0)
         W11 = (U - U0) * (V - V0)
-        x0 = x[:,:,V0.reshape(out_h),:]
-        x1 = x[:,:,V1.reshape(out_h),:]
-        result = W00 * x0[:,:,:,U0.reshape(out_w)] + \
-                 W01 * x0[:,:,:,U1.reshape(out_w)] + \
-                 W10 * x1[:,:,:,U0.reshape(out_w)] + \
-                 W11 * x1[:,:,:,U1.reshape(out_w)]
+        x0 = x[:, :, V0.reshape(out_h), :]
+        x1 = x[:, :, V1.reshape(out_h), :]
+        result = W00 * x0[:, :, :, U0.reshape(out_w)] + \
+            W01 * x0[:, :, :, U1.reshape(out_w)] + \
+            W10 * x1[:, :, :, U0.reshape(out_w)] + \
+            W11 * x1[:, :, :, U1.reshape(out_w)]
         return result

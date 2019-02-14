@@ -1,6 +1,7 @@
 from mlir.functions import *
 from .utils import *
 
+
 class OpLeakyRelu(Op):
 
     def __init__(self, node):
@@ -16,4 +17,4 @@ class OpLeakyRelu(Op):
         return env[x]
 
     def to_function(self, env, constants):
-        return [ LeakyReLU(list(self.node.input), list(self.node.output), slope=self.alpha) ]
+        return [LeakyReLU(list(self.node.input), list(self.node.output), slope=self.alpha)]

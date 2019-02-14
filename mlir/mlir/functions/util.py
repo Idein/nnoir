@@ -1,10 +1,12 @@
 import numpy as np
 
+
 def get_conv_outsize(size, k, s, pre_p, post_p, cover_all=False, d=1):
     dk = k + (k - 1) * (d - 1)
     return (size + pre_p + post_p - dk) // s + 1
 
-def im2col_cpu(img, kernel, stride, ph, pw, dilate=(1,1), pval=0, cover_all=False):
+
+def im2col_cpu(img, kernel, stride, ph, pw, dilate=(1, 1), pval=0, cover_all=False):
     n, c, h, w = img.shape
     kh, kw = kernel
     sy, sx = stride

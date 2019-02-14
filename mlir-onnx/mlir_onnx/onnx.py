@@ -9,6 +9,7 @@ from mlir import *
 from mlir_onnx.operators import *
 from .operators.utils import UnsupportedONNXOperation, InvalidONNXData
 
+
 def tensor_to_narray(tensor):
     arr = []
     storage = onnx.mapping.TENSOR_TYPE_TO_STORAGE_TENSOR_TYPE[tensor.data_type]
@@ -21,8 +22,10 @@ def tensor_to_narray(tensor):
     shape = tensor.dims if tensor.dims != [] else [1]
     return result.reshape(*shape)
 
+
 def narray_to_value_info(name, arr):
     return onnx.helper.make_tensor_value_info(name, onnx.mapping.NP_TYPE_TO_TENSOR_TYPE[arr.dtype], arr.shape)
+
 
 def op_for_node(node):
     op_name = 'Op{}'.format(node.op_type)
@@ -30,6 +33,7 @@ def op_for_node(node):
         return globals()[op_name](node)
     else:
         raise UnsupportedONNXOperation(node, 'converting from {} is undefined'.format(node.op_type))
+
 
 class ONNX:
     def __init__(self, path):
@@ -45,6 +49,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
 
     def _reconstruct_value_info(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
+
         def dfs(visited, nodes, result):
             for n in nodes:
                 _input = self._find_input(n)
@@ -57,7 +62,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                     generator = self._find_generator(n)
                     next_nodes = []
                     if hasattr(generator, 'input'):
-                        next_nodes = [ i for i in generator.input if i not in visited ]
+                        next_nodes = [i for i in generator.input if i not in visited]
                     dfs(visited, next_nodes, result)
                     result[n] = op_for_node(generator).get_dummy_output(result)
                 visited.append(n)
@@ -87,19 +92,23 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         inputs = list(map(lambda x: x.name, self.sess.get_inputs()))
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
         functions = self._to_MLIR_functions()
-        nodes = [ Value(n, self.nodes[n].dtype.str, list(self.nodes[n].shape)) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions))) ]
+        nodes = [Value(n, self.nodes[n].dtype.str, list(self.nodes[n].shape))
+                 for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
-        renaming_table = dict([ (n.name, 'v{}'.format(i).encode('utf-8')) for i,n in enumerate(nodes) ])
+        renaming_table = dict([(n.name, 'v{}'.format(i).encode('utf-8')) for i, n in enumerate(nodes)])
+
         def rename(x):
             return renaming_table[x]
         inputs = list(map(rename, inputs))
         outputs = list(map(rename, outputs))
+
         def rename_function(e):
             e.inputs = list(map(rename, e.inputs))
             e.outputs = list(map(rename, e.outputs))
             return e
         functions = list(map(rename_function, functions))
+
         def rename_node(n):
             n.name = rename(n.name)
             return n
@@ -122,7 +131,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         m.graph.output.extend(map(lambda n: narray_to_value_info(n, self.nodes[n]), nodes))
         onnx.save(m, '/tmp/tmp.onnx')
         dummy_sess = onnxruntime.InferenceSession('/tmp/tmp.onnx')
-        inputs = dict([ (x.name, self.nodes[x.name]) for x in dummy_sess.get_inputs() ])
+        inputs = dict([(x.name, self.nodes[x.name]) for x in dummy_sess.get_inputs()])
         output_names = list(map(lambda x: x.name, dummy_sess.get_outputs()))
         if output_names != []:
             result = dummy_sess.run(output_names, inputs)
@@ -140,8 +149,8 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                 m.graph.output.remove(n)
             onnx.save(m, tmpf.name)
             sess = onnxruntime.InferenceSession(tmpf.name)
-            inputs = { x.name: np.zeros(tuple(x.shape), dtype=np.float32) for x in sess.get_inputs() }
-            outputs = [ x.name for x in sess.get_inputs() ]
+            inputs = {x.name: np.zeros(tuple(x.shape), dtype=np.float32) for x in sess.get_inputs()}
+            outputs = [x.name for x in sess.get_inputs()]
             results = sess.run(outputs, inputs)
 
     def _to_MLIR_functions(self):
@@ -166,6 +175,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
 
     def _list_constant_nodes(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
+
         def dfs(visited, nodes, result):
             for n in nodes:
                 if self._has_initializer(n):
@@ -176,10 +186,10 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                     generator = self._find_generator(n)
                     next_nodes = []
                     if hasattr(generator, 'input'):
-                        next_nodes = [ i for i in generator.input if i not in visited ]
+                        next_nodes = [i for i in generator.input if i not in visited]
                     dfs(visited, next_nodes, result)
                     if hasattr(generator, 'input'):
-                        if all([ i in result for i in generator.input ]):
+                        if all([i in result for i in generator.input]):
                             for o in generator.output:
                                 result.append(o)
                     else:
@@ -189,6 +199,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         result = []
         dfs([], outputs, result)
         return result
+
 
 def to_dummy_input(x):
     if hasattr(x.type, 'tensor_type'):

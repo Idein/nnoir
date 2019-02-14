@@ -7,6 +7,9 @@ if hasattr(Transpose, 'apply'):
 else:
     Transpose.__call__ = patched_function_call(Transpose.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.Transpose(inputs, outputs, axes=self.axes)
+
+
 Transpose.to_mlir_node = to_mlir_node

@@ -4,6 +4,7 @@ import mlir.functions as MLIR
 
 DepthwiseConvolution2D.__call__ = patched_link_call(DepthwiseConvolution2D.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     b = encode_ndarray(self.b.data) if (hasattr(self, 'b') and self.b is not None) else None
     return MLIR.DepthwiseConvolution2D(
@@ -16,4 +17,6 @@ def to_mlir_node(self, inputs, outputs):
         pad_w=(self.pad[1], self.pad[1]),
         dilate=(1, 1)
     )
+
+
 DepthwiseConvolution2D.to_mlir_node = to_mlir_node

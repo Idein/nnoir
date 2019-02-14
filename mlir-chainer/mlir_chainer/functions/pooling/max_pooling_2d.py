@@ -7,6 +7,7 @@ if hasattr(MaxPooling2D, 'apply'):
 else:
     MaxPooling2D.__call__ = patched_function_call(MaxPooling2D.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.MaxPooling2D(
         inputs,
@@ -16,4 +17,6 @@ def to_mlir_node(self, inputs, outputs):
         pad_h=(self.ph, self.ph + self.sy - 1),
         pad_w=(self.pw, self.pw + self.sx - 1)
     )
+
+
 MaxPooling2D.to_mlir_node = to_mlir_node

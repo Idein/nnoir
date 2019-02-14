@@ -1,6 +1,7 @@
 from mlir.functions import *
 from .utils import *
 
+
 class OpLRN(Op):
 
     def __init__(self, node):

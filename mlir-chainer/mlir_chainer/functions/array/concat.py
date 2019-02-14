@@ -7,6 +7,9 @@ if hasattr(Concat, 'apply'):
 else:
     Concat.__call__ = patched_function_call(Concat.__call__)
 
+
 def to_mlir_node(self, inputs, outputs):
     return MLIR.Concat(inputs, outputs, axis=self.axis)
+
+
 Concat.to_mlir_node = to_mlir_node

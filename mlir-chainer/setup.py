@@ -17,8 +17,7 @@ setup(
     version='0.1.0',
 
     description='Chainer Model from/to MLIR Converter',
-    long_description=
-"""
+    long_description="""
 This library convert Chainer model from/to MLIR format.
 """,
 
