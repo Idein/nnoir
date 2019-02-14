@@ -28,6 +28,7 @@ from .scale import Scale
 from .sigmoid import Sigmoid
 from .softmax_cross_entropy import SoftmaxCrossEntropy
 from .softmax import Softmax
+from .tanh import Tanh
 from .transpose import Transpose
 from .unpooling_2d import Unpooling2D
 from .function import Function

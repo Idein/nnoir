@@ -15,4 +15,5 @@ from .relu import OpRelu
 from .reshape import OpReshape
 from .softmax import OpSoftmax
 from .sum import OpSum
+from .tanh import OpTanh
 from .transpose import OpTranspose
