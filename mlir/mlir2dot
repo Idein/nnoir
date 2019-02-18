@@ -15,7 +15,7 @@ def function_label(function):
     ret += '}'
     def find_params(params):
         for k,v in params.items():
-            if type(v) is dict: # assert W or b
+            if type(v) is dict:
                 array = numpy.load(io.BytesIO(v[b'ndarray']))
                 yield k.decode() + " shape: " + str(array.shape)
             else:
