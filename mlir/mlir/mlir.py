@@ -47,7 +47,7 @@ class MLIR():
     def pack(self):
         return msgpack.packb(
             {b'mlir':
-             {b'version': '1.0.0',
+             {b'version': 0,
               b'model':
               {b'name': self.name,
                b'generator':
