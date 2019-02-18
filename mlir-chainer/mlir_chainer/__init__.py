@@ -6,3 +6,7 @@ from .graph import Graph
 
 # MLIR to Chainer
 from .mlir_function import MLIRFunction
+
+from mlir_chainer import _version
+
+__version__ = _version.__version__
