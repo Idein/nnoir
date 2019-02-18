@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
     name="mlir-onnx",
-    version="0.1",
+    version="1.0.0",
     description='ONNX to MLIR Converter',
     author='Idein Inc.',
     author_email='n.ohkawa@idein.jp',
