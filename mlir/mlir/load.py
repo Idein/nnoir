@@ -1,6 +1,6 @@
+import io
 import msgpack
 import numpy
-import six
 from .mlir import MLIR
 from .functions import *
 from .value import Value
@@ -25,7 +25,7 @@ def _decode_function(function):
     params = {}
     for k, v in function[b'params'].items():
         if type(v) is dict:
-            params[k.decode()] = numpy.load(six.BytesIO(v[b'ndarray']))
+            params[k.decode()] = numpy.load(io.BytesIO(v[b'ndarray']))
         else:
             params[k.decode()] = v
     name = function[b'name'].decode()

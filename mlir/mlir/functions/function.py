@@ -1,5 +1,5 @@
+import io
 import numpy
-import six
 
 
 class Function(object):
@@ -17,7 +17,7 @@ class Function(object):
     def dump(self):
         def encode_ndarray(obj):
             x = None
-            with six.BytesIO() as out:
+            with io.BytesIO() as out:
                 numpy.save(out, obj.copy())
                 x = out.getvalue()
             return {b'ndarray': x}
