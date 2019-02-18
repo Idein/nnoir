@@ -1,5 +1,4 @@
 from .function import Function
-import chainer.functions as F
 from . import util
 
 

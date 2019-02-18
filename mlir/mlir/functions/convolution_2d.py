@@ -1,5 +1,4 @@
 from .function import Function
-import chainer.links as L
 import numpy as np
 from . import util
 

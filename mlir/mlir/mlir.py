@@ -1,5 +1,4 @@
 import msgpack
-import six
 import re
 
 
@@ -65,7 +64,4 @@ class MLIR():
     def dump(self, file_name):
         result = self.pack()
         with open(file_name, 'w') as f:
-            if six.PY2:
-                six.print_(result, file=f)
-            else:
-                f.buffer.write(result)
+            f.buffer.write(result)
