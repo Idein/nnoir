@@ -66,7 +66,7 @@ This library convert Chainer model from/to MLIR format.
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['chainer', 'msgpack-python'],
+    install_requires=['chainer', 'numpy', 'msgpack-python', 'mlir'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
