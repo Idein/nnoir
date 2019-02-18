@@ -1,7 +1,5 @@
 import numpy as np
-import six
 from .function import Function
-import chainer.links as L
 from . import util
 
 

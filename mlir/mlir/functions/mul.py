@@ -1,5 +1,3 @@
-
-import chainer.functions as F
 from .function import Function
 
 

@@ -1,4 +1,3 @@
-import chainer.links as L
 import numpy as np
 from .function import Function
 
