@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
-    name="mlir",
-    version="0.1",
+    name='mlir',
+    version='1.0.0',
     description='API for MLIR',
     author='Idein Inc.',
     author_email='fujii@idein.jp',

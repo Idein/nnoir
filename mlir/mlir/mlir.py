@@ -12,8 +12,25 @@ class InvalidMLIRData(Exception):
 class MLIR():
 
     def __init__(self, name, generator_name, generator_version, inputs, outputs, values, functions):
-        cident = re.compile(rb'[_A-Za-z][_0-9A-Za-z]*')  # TODO: remove C keywords
-        if not cident.match(name):
+        cident = re.compile(rb'[_A-Za-z][_0-9A-Za-z]*')
+        c_keywords = [
+            'auto', 'break', 'case',
+            'char', 'const', 'continue',
+            'default', 'do', 'double',
+            'else', 'enum', 'extern',
+            'float', 'for', 'goto',
+            'if', 'inline', 'int',
+            'long', 'register', 'restrict',
+            'return', 'short', 'signed',
+            'sizeof', 'static', 'struct',
+            'switch', 'typedef', 'union',
+            'unsigned', 'void', 'volatile',
+            'while', '_Alignas', '_Alignof',
+            '_Atomic', '_Bool', '_Complex',
+            '_Generic', '_Imaginary', '_Noreturn',
+            '_Static_assert', '_Thread_local'
+        ]
+        if not cident.match(name) or name.decode() in c_keywords:
             raise InvalidMLIRData('graph name "{}" MUST be C identifier.'.format(name))
         self.name = name
         self.generator_name = generator_name
@@ -24,7 +41,7 @@ class MLIR():
         self.values = values
         vident = re.compile(rb'v[_0-9A-Za-z]*')  # 'v' prefixed
         for v in self.values:
-            if not vident.match(v.name):
+            if not vident.match(v.name) or v.name.decode() in c_keywords:
                 raise InvalidMLIRData('value name "{}" MUST be "v" prefixed C identifier.'.format(v.name))
 
     def pack(self):
