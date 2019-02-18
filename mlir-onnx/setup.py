@@ -12,6 +12,6 @@ setup(
     license='MIT',
     keywords='mlir machine learning onnx',
     packages=find_packages(),
-    install_requires=['numpy', 'msgpack-python', 'onnx', 'onnxruntime'],
+    install_requires=['numpy', 'msgpack-python', 'onnx', 'onnxruntime', 'mlir'],
     scripts=['onnx2mlir']
 )
