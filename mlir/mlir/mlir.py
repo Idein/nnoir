@@ -56,9 +56,9 @@ class MLIR():
                b'outputs': self.outputs,
                b'values': [v.dump() for v in self.values],
                b'functions': [f.dump() for f in self.functions]
+               }
               }
              }
-            }
         )
 
     def dump(self, file_name):
