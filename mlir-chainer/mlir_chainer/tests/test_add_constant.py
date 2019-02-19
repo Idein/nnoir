@@ -6,8 +6,8 @@ import util
 
 
 def test_add_constant():
-    inputs  = [mlir.Value(b'v0', np.zeros((10,10)).astype('float32'))]
-    outputs = [mlir.Value(b'v2', np.zeros((10,10)).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros((10, 10)).astype('float32'))]
+    outputs = [mlir.Value(b'v2', np.zeros((10, 10)).astype('float32'))]
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]
     output_names = [x.name for x in outputs]

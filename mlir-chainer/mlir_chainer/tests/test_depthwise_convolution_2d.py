@@ -17,7 +17,7 @@ def test_depthwise_convolution_2d():
     out_ch = in_ch * ch_mul
     out_h = 5
     out_w = 4
-    inputs  = [mlir.Value(b'v0', np.zeros((batch, in_ch, in_h, in_w)).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros((batch, in_ch, in_h, in_w)).astype('float32'))]
     outputs = [mlir.Value(b'v1', np.zeros((batch, out_ch, out_h, out_w)).astype('float32'))]
     W = np.random.randn(ch_mul, in_ch, kh, kw).astype('float32')
     b = np.random.randn(out_ch).astype('float32')
@@ -51,7 +51,7 @@ def test_depthwise_convolution_2d_dilate():
     out_h = 5
     out_w = 4
     dy, dx = (2, 3)
-    inputs  = [mlir.Value(b'v0', np.zeros((batch, in_ch, in_h, in_w)).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros((batch, in_ch, in_h, in_w)).astype('float32'))]
     outputs = [mlir.Value(b'v1', np.zeros((batch, out_ch, out_h, out_w)).astype('float32'))]
     W = np.random.randn(ch_mul, in_ch, kh, kw).astype('float32')
     b = np.random.randn(out_ch).astype('float32')

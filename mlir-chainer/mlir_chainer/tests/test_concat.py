@@ -6,8 +6,8 @@ import util
 
 
 def test_concat():
-    inputs  = [mlir.Value(b'v0', np.zeros((10, 11)).astype('float32')),
-               mlir.Value(b'v1', np.zeros((10, 12)).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros((10, 11)).astype('float32')),
+              mlir.Value(b'v1', np.zeros((10, 12)).astype('float32'))]
     outputs = [mlir.Value(b'v2', np.zeros((10, 10)).astype('float32'))]
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]

@@ -19,7 +19,7 @@ def test_batch_normalization():
     avg_mean[:] = 0.2
     avg_var[:] = 0.8
 
-    inputs  = [mlir.Value(b'v0', np.zeros(shape).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros(shape).astype('float32'))]
     outputs = [mlir.Value(b'v2', np.zeros(shape).astype('float32'))]
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]

@@ -13,7 +13,7 @@ def test_unpooling_2d():
     in_h, in_w = 5, 6
     out_h, out_w = 4, 9
     ph, pw = 1, 2
-    inputs  = [mlir.Value(b'v0', np.zeros((batch, ch, in_h, in_w)).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros((batch, ch, in_h, in_w)).astype('float32'))]
     outputs = [mlir.Value(b'v2', np.zeros((batch, ch, out_h, out_w)).astype('float32'))]
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]

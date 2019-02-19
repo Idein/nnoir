@@ -9,7 +9,7 @@ def test_linear():
     batch = 2
     in_ch = 3
     out_ch = 4
-    inputs  = [mlir.Value(b'v0', np.zeros((batch, in_ch)).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros((batch, in_ch)).astype('float32'))]
     outputs = [mlir.Value(b'v2', np.zeros((batch, out_ch)).astype('float32'))]
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]

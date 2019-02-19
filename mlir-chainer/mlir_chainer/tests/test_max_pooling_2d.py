@@ -9,7 +9,7 @@ def test_max_pooling_2d():
     kh, kw = 2, 3
     sy, sx = 1, 2
     pad_h, pad_w = 1, 2
-    inputs  = [mlir.Value(b'v0', np.zeros((2, 3, 4, 5)).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros((2, 3, 4, 5)).astype('float32'))]
     outputs = [mlir.Value(b'v2', np.zeros((2, 3, 5, 4)).astype('float32'))]
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]

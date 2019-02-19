@@ -6,7 +6,7 @@ import util
 
 
 def test_pad():
-    inputs  = [mlir.Value(b'v0', np.zeros((2, 3, 4, 5)).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros((2, 3, 4, 5)).astype('float32'))]
     outputs = [mlir.Value(b'v2', np.zeros((3, 5, 7, 10)).astype('float32'))]
     pads = ((1, 0), (1, 1), (1, 2), (0, 5))
     nodes = inputs + outputs

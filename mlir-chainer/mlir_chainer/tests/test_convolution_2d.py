@@ -15,7 +15,7 @@ def test_convolution_2d():
     out_w = 3
     kh = 4
     kw = 3
-    inputs  = [mlir.Value(b'v0', np.zeros((batch, in_ch, in_h, in_w)).astype('float32'))]
+    inputs = [mlir.Value(b'v0', np.zeros((batch, in_ch, in_h, in_w)).astype('float32'))]
     outputs = [mlir.Value(b'v1', np.zeros((batch, out_ch, out_h, out_w)).astype('float32'))]
     W = np.random.randn(out_ch, in_ch, kh, kw).astype('float32')
     b = np.random.randn(out_ch).astype('float32')
