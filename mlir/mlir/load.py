@@ -33,4 +33,4 @@ def _decode_function(function):
 
 
 def _decode_value(value):
-    return Value(value[b'name'], value[b'dtype'], value[b'shape'])
+    return Value(value[b'name'], np_array=None, dtype=value[b'dtype'], shape=value[b'shape'])
