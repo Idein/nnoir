@@ -128,7 +128,7 @@ class Graph(object):
     def to_mlir(self, name=None):
 
         def _value(node):
-            return mlir.Value(_variable_elem_name(node), node.node.dtype.str, node.node.shape)
+            return mlir.Value(_variable_elem_name(node), node.node)
 
         def _function(node):
             return node.node.to_mlir_node(

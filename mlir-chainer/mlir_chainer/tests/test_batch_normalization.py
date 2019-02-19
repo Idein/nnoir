@@ -19,8 +19,8 @@ def test_batch_normalization():
     avg_mean[:] = 0.2
     avg_var[:] = 0.8
 
-    inputs = [mlir.Value(b'v0', 'float', shape)]
-    outputs = [mlir.Value(b'v2', 'float', shape)]
+    inputs = [mlir.Value(b'v0', np.zeros(shape).astype('float32'))]
+    outputs = [mlir.Value(b'v2', np.zeros(shape).astype('float32'))]
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]
     output_names = [x.name for x in outputs]
@@ -30,10 +30,10 @@ def test_batch_normalization():
                                                  avg_var=avg_var,
                                                  gamma=gamma,
                                                  beta=beta)
-    result = mlir.MLIR(b'BatchNormalization', b'mlir2chainer_test', 0.1, input_names, output_names, nodes, [function])
+    result = mlir.MLIR(b'BatchNormalization', b'mlir2chainer_test', '0.1', input_names, output_names, nodes, [function])
     result.dump('batch_normalization.mlir')
 
-    x = np.random.randn(2, 3, 4, 5).astype(np.float32)
+    x = np.random.randn(*shape).astype('float32')
     ref = function.run(x)
     with chainer.using_config('train', False):
         m = MLIRFunction('batch_normalization.mlir')

@@ -1,8 +1,12 @@
 class Value():
-    def __init__(self, name, dtype, shape):
+    def __init__(self, name, np_array=None, dtype=None, shape=None):
         self.name = name
-        self.dtype = dtype
-        self.shape = shape
+        if np_array is None:
+            self.dtype = dtype
+            self.shape = shape
+        else:
+            self.dtype = np_array.dtype.str.encode()
+            self.shape = np_array.shape
 
     def dump(self):
         return {

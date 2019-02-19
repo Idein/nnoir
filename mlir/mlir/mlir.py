@@ -54,8 +54,8 @@ class MLIR():
                 b'version': self.generator_version},
                b'inputs': self.inputs,
                b'outputs': self.outputs,
-                  b'values': [n.dump() for n in self.values],
-                  b'functions': [e.dump() for e in self.functions]
+               b'values': [v.dump() for v in self.values],
+               b'functions': [f.dump() for f in self.functions]
                }
               }
              }
