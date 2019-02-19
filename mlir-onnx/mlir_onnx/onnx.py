@@ -92,7 +92,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         inputs = list(map(lambda x: x.name, self.sess.get_inputs()))
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
         functions = self._to_MLIR_functions()
-        nodes = [Value(n, self.nodes[n].dtype.str, list(self.nodes[n].shape))
+        nodes = [Value(n, self.nodes[n])
                  for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
