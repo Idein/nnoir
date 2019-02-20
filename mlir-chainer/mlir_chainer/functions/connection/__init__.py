@@ -1,2 +1,0 @@
-import mlir_chainer.functions.connection.convolution_2d
-import mlir_chainer.functions.connection.linear
