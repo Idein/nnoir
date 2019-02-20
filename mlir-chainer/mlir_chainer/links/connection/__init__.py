@@ -1,6 +1,0 @@
-import mlir_chainer.links.connection.convolution_2d
-import mlir_chainer.links.connection.depthwise_convolution_2d
-import mlir_chainer.links.connection.dilated_convolution_2d
-import mlir_chainer.links.connection.linear
-import mlir_chainer.links.connection.scale
-import mlir_chainer.links.connection.bias
