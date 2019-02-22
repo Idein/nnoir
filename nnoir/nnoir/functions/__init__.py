@@ -8,14 +8,11 @@ from .broadcast import BroadcastTo
 from .clipped_relu import ClippedReLU
 from .concat import Concat
 from .constant import Constant
-from .convolution_2d_function import Convolution2DFunction
 from .convolution_2d import Convolution2D
 from .depthwise_convolution_2d import DepthwiseConvolution2D
 from .dropout import Dropout
 from .elu import ELU
-from .fixed_batch_normalization import FixedBatchNormalization
 from .leaky_relu import LeakyReLU
-from .linear_function import LinearFunction
 from .linear import Linear
 from .local_response_normalization import LocalResponseNormalization
 from .max_pooling_2d import MaxPooling2D
