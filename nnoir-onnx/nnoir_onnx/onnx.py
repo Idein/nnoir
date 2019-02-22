@@ -129,8 +129,9 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         for n in m.graph.output:
             m.graph.output.remove(n)
         m.graph.output.extend(map(lambda n: narray_to_value_info(n, self.nodes[n]), nodes))
-        onnx.save(m, '/tmp/tmp.onnx')
-        dummy_sess = onnxruntime.InferenceSession('/tmp/tmp.onnx')
+        with tempfile.NamedTemporaryFile() as f:
+            onnx.save(m, f.name)
+            dummy_sess = onnxruntime.InferenceSession(f.name)
         inputs = dict([(x.name, self.nodes[x.name]) for x in dummy_sess.get_inputs()])
         output_names = list(map(lambda x: x.name, dummy_sess.get_outputs()))
         if output_names != []:
