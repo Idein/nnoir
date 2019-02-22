@@ -15,6 +15,7 @@ from .elu import ELU
 from .leaky_relu import LeakyReLU
 from .linear import Linear
 from .local_response_normalization import LocalResponseNormalization
+from .lstm import LSTM
 from .max_pooling_2d import MaxPooling2D
 from .mul_constant import MulConstant
 from .mul import Mul
