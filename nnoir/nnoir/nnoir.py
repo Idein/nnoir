@@ -55,13 +55,12 @@ class NNOIR():
             b'functions': [f.dump() for f in self.functions]
         }
 
-
     def to_nnoir(self):
         return {
             b'nnoir':
             {b'version': 0,
              b'model': self.to_model()
-            }
+             }
         }
 
     def pack(self):
