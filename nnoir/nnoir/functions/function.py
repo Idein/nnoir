@@ -1,5 +1,6 @@
 import io
 import numpy
+import nnoir
 
 
 class Function(object):
@@ -25,6 +26,8 @@ class Function(object):
         for k, v in self.params.items():
             if type(v) is numpy.ndarray:
                 binary_params[k.encode()] = encode_ndarray(v)
+            elif type(v) is nnoir.NNOIR:
+                binary_params[k.encode()] = v.to_model()
             else:
                 binary_params[k.encode()] = v
         return {

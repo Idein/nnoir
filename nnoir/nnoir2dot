@@ -15,9 +15,11 @@ def function_label(function):
     ret += '}'
     def find_params(params):
         for k,v in params.items():
-            if type(v) is dict:
+            if type(v) is dict and b'ndarray' in v:
                 array = numpy.load(io.BytesIO(v[b'ndarray']))
                 yield k.decode() + " shape: " + str(array.shape)
+            elif type(v) is dict and b'nnoir' in v:
+                yield k.decode() + ": " + v[b'nnoir'][b'model'][b'name'].decode('utf-8')
             else:
                 yield k.decode() + ": " + str(v)
     params_str = '&#92;l'.join(find_params(function[b'params']))
