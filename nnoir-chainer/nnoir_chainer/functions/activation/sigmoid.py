@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Sigmoid(inputs, outputs)
+    return NNOIR.Sigmoid([x.name for x in inputs], [x.name for x in outputs])
 
 
 Sigmoid.to_nnoir_node = to_nnoir_node

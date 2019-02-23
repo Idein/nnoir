@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.ClippedReLU(inputs, outputs, upper=self.cap)
+    return NNOIR.ClippedReLU([x.name for x in inputs], [x.name for x in outputs], upper=self.cap)
 
 
 ClippedReLU.to_nnoir_node = to_nnoir_node

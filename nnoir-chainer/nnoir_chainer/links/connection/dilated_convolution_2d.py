@@ -9,8 +9,8 @@ DilatedConvolution2D.__call__ = patched_link_call(DilatedConvolution2D.__call__)
 def to_nnoir_node(self, inputs, outputs):
     b = encode_ndarray(self.b.data) if (hasattr(self, 'b') and self.b is not None) else None
     return NNOIR.Convolution2D(
-        inputs,
-        outputs,
+        [x.name for x in inputs],
+        [x.name for x in outputs],
         W=encode_ndarray(self.W.data),
         b=b,
         stride=self.stride,

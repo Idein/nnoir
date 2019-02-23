@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.ReLU(inputs, outputs)
+    return NNOIR.ReLU([x.name for x in inputs], [x.name for x in outputs])
 
 
 ReLU.to_nnoir_node = to_nnoir_node

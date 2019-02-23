@@ -10,8 +10,8 @@ else:
 
 def to_nnoir_node(self, inputs, outputs):
     return NNOIR.SoftmaxCrossEntropy(
-        inputs,
-        outputs,
+        [x.name for x in inputs],
+        [x.name for x in outputs],
         normalize=self.normalize,
         cache_score=self.cache_score,
     )

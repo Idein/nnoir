@@ -10,8 +10,8 @@ else:
 
 def to_nnoir_node(self, inputs, outputs):
     return NNOIR.AveragePooling2D(
-        inputs,
-        outputs,
+        [x.name for x in inputs],
+        [x.name for x in outputs],
         kernel=(self.kh, self.kw),
         stride=(self.sy, self.sx),
         pad_h=(self.ph, self.ph + self.sy - 1),

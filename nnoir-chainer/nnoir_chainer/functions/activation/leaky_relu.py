@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.LeakyReLU(inputs, outputs, slope=self.slope)
+    return NNOIR.LeakyReLU([x.name for x in inputs], [x.name for x in outputs], slope=self.slope)
 
 
 LeakyReLU.to_nnoir_node = to_nnoir_node

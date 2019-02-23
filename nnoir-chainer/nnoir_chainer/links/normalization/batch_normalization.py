@@ -9,8 +9,8 @@ def to_nnoir_node(self, inputs, outputs):
     gamma = encode_ndarray(self.gamma.data) if (hasattr(self, 'gamma') and self.gamma is not None) else None
     beta = encode_ndarray(self.beta.data) if (hasattr(self, 'beta') and self.beta is not None) else None
     return NNOIR.BatchNormalization(
-        inputs,
-        outputs,
+        [x.name for x in inputs],
+        [x.name for x in outputs],
         eps=self.eps,
         avg_mean=encode_ndarray(self.avg_mean),
         avg_var=encode_ndarray(self.avg_var),

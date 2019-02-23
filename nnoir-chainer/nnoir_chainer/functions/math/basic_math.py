@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Add(inputs, outputs)
+    return NNOIR.Add([x.name for x in inputs], [x.name for x in outputs])
 
 
 Add.to_nnoir_node = to_nnoir_node

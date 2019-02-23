@@ -10,8 +10,8 @@ else:
 
 def to_nnoir_node(self, inputs, outputs):
     return NNOIR.LocalResponseNormalization(
-        inputs,
-        outputs,
+        [x.name for x in inputs],
+        [x.name for x in outputs],
         n=self.n,
         k=self.k,
         alpha=self.alpha,
