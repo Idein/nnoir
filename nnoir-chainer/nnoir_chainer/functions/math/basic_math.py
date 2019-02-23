@@ -21,7 +21,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.AddConstant(inputs, outputs, value=float(self.value))
+    return NNOIR.AddConstant([x.name for x in inputs], [x.name for x in outputs], value=float(self.value))
 
 
 AddConstant.to_nnoir_node = to_nnoir_node
@@ -33,7 +33,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Mul(inputs, outputs)
+    return NNOIR.Mul([x.name for x in inputs], [x.name for x in outputs])
 
 
 Mul.to_nnoir_node = to_nnoir_node
@@ -45,7 +45,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.MulConstant(inputs, outputs, value=float(self.value))
+    return NNOIR.MulConstant([x.name for x in inputs], [x.name for x in outputs], value=float(self.value))
 
 
 MulConstant.to_nnoir_node = to_nnoir_node
