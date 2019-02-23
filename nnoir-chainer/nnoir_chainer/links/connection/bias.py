@@ -6,7 +6,7 @@ Bias.__call__ = patched_link_call(Bias.__call__)
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Bias(inputs, outputs, axis=self.axis, b=encode_ndarray(self.b.data))
+    return NNOIR.Bias([x.name for x in inputs], [x.name for x in outputs], axis=self.axis, b=encode_ndarray(self.b.data))
 
 
 Bias.to_nnoir_node = to_nnoir_node

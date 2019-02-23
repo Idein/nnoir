@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Tanh(inputs, outputs)
+    return NNOIR.Tanh([x.name for x in inputs], [x.name for x in outputs])
 
 
 Tanh.to_nnoir_node = to_nnoir_node

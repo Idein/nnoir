@@ -43,23 +43,28 @@ class NNOIR():
             if not vident.match(v.name) or v.name.decode() in c_keywords:
                 raise InvalidNNOIRData('value name "{}" MUST be "v" prefixed C identifier.'.format(v.name))
 
-    def pack(self):
-        return msgpack.packb(
-            {b'nnoir':
-             {b'version': 0,
-              b'model':
-              {b'name': self.name,
-               b'generator':
-               {b'name': self.generator_name,
-                b'version': self.generator_version},
-               b'inputs': self.inputs,
-               b'outputs': self.outputs,
-               b'values': [v.dump() for v in self.values],
-               b'functions': [f.dump() for f in self.functions]
-               }
-              }
+    def to_model(self):
+        return {
+            b'name': self.name,
+            b'generator':
+            {b'name': self.generator_name,
+             b'version': self.generator_version},
+            b'inputs': self.inputs,
+            b'outputs': self.outputs,
+            b'values': [v.dump() for v in self.values],
+            b'functions': [f.dump() for f in self.functions]
+        }
+
+    def to_nnoir(self):
+        return {
+            b'nnoir':
+            {b'version': 0,
+             b'model': self.to_model()
              }
-        )
+        }
+
+    def pack(self):
+        return msgpack.packb(self.to_nnoir())
 
     def dump(self, file_name):
         result = self.pack()

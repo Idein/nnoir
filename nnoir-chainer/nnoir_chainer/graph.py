@@ -130,13 +130,17 @@ class Graph(object):
         def _value(node):
             return nnoir.Value(_variable_elem_name(node), node.node)
 
-        def _function(node):
-            return node.node.to_nnoir_node(
-                list(map(_variable_elem_name, reversed(node.in_edges))),
-                list(map(_variable_elem_name, node.out_edges))
-            )
-
         sorted_nodes = sorted(self.nodes, key=lambda n: n.no)
+        values = list(map(_value, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes)))
+        dvalues = {x.name: x for x in values}
+
+        def _function(node):
+            inputs = list(map(_variable_elem_name, reversed(node.in_edges)))
+            outputs = list(map(_variable_elem_name, node.out_edges))
+            return node.node.to_nnoir_node(
+                [dvalues[x] for x in inputs],
+                [dvalues[x] for x in outputs]
+            )
 
         return nnoir.NNOIR(
             (name or self.model.__class__.__name__).encode(),
@@ -144,7 +148,7 @@ class Graph(object):
             chainer.__version__,
             list(map(_variable_elem_name, self.input_variables)),
             list(map(_variable_elem_name, self.output_variables)),
-            list(map(_value, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes))),
+            values,
             list(map(_function, filter(lambda node: not isinstance(node.node, variable.Variable), sorted_nodes)))
         ).pack()
 

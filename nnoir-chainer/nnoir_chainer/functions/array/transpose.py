@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Transpose(inputs, outputs, axes=self.axes)
+    return NNOIR.Transpose([x.name for x in inputs], [x.name for x in outputs], axes=self.axes)
 
 
 Transpose.to_nnoir_node = to_nnoir_node

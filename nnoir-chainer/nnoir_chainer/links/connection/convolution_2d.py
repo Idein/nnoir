@@ -14,8 +14,8 @@ def to_nnoir_node(self, inputs, outputs):
         is_depthwise = True
     if is_depthwise:
         return NNOIR.DepthwiseConvolution2D(
-            inputs,
-            outputs,
+            [x.name for x in inputs],
+            [x.name for x in outputs],
             W=encode_ndarray(np.rollaxis(self.W.data.reshape(self.groups, out_channels//self.groups, kh, kw), 1, 0)),
             b=b,
             stride=self.stride,
@@ -25,8 +25,8 @@ def to_nnoir_node(self, inputs, outputs):
         )
     else:
         return NNOIR.Convolution2D(
-            inputs,
-            outputs,
+            [x.name for x in inputs],
+            [x.name for x in outputs],
             W=encode_ndarray(self.W.data),
             b=b,
             stride=self.stride,

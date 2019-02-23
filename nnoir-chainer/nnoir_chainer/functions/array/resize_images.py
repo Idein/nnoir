@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Bilinear2D(inputs, outputs, size=(self.out_H, self.out_W))
+    return NNOIR.Bilinear2D([x.name for x in inputs], [x.name for x in outputs], size=(self.out_H, self.out_W))
 
 
 ResizeImages.to_nnoir_node = to_nnoir_node

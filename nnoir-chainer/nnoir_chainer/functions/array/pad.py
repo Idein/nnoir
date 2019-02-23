@@ -27,8 +27,8 @@ def to_nnoir_node(self, inputs, outputs):
         else:
             value = float(self.keywords['constant_values'][0])
         return NNOIR.ConstantPadding(
-            inputs,
-            outputs,
+            [x.name for x in inputs],
+            [x.name for x in outputs],
             pads=pad_width,
             value=value
         )

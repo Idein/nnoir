@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Concat(inputs, outputs, axis=self.axis)
+    return NNOIR.Concat([x.name for x in inputs], [x.name for x in outputs], axis=self.axis)
 
 
 Concat.to_nnoir_node = to_nnoir_node

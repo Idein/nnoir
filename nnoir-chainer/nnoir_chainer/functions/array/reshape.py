@@ -9,7 +9,7 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Reshape(inputs, outputs, shape=self.shape)
+    return NNOIR.Reshape([x.name for x in inputs], [x.name for x in outputs], shape=self.shape)
 
 
 Reshape.to_nnoir_node = to_nnoir_node
