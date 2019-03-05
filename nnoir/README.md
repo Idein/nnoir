@@ -1,14 +1,14 @@
 # NNOIR
 
-## install
+## Install
 
 ```
-pip install .
+pip install nnoir
 ```
 
-## example
+## Example
 
-### create & save
+### Create & Save
 
 ```
 inputs  = [nnoir.Value(b'v0', dtype='<f4', shape=(10,10)),
@@ -22,7 +22,7 @@ result = nnoir.NNOIR(b'Add', b'add_test', '0.1', input_names, output_names, node
 result.dump('add.nnoir')
 ```
 
-### load
+### Load
 
 ```
 add_nnoir = nnoir.load('add.nnoir')

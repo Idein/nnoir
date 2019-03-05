@@ -5,7 +5,7 @@ Chainer Model from/to NNOIR converter
 ## Install
 
 ```
-pip install .
+pip install nnoir-chainer
 ```
 
 ## Example
