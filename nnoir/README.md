@@ -11,9 +11,9 @@ pip install .
 ### create & save
 
 ```
-inputs  = [nnoir.Value(b'v0', 'float', (10,10)),
-           nnoir.Value(b'v1', 'float', (10,10))]
-outputs = [nnoir.Value(b'v2', 'float', (10,10))]
+inputs  = [nnoir.Value(b'v0', dtype='float', shape=(10,10)),
+           nnoir.Value(b'v1', dtype='float', shape=(10,10))]
+outputs = [nnoir.Value(b'v2', dtype='float', shape=(10,10))]
 nodes = inputs + outputs
 input_names = [ x.name for x in inputs ]
 output_names = [ x.name for x in outputs ]
