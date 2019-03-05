@@ -30,7 +30,7 @@ jobs:
           command: |
             cd nnoir
             python3 setup.py bdist_wheel
-            pip3 install dist/nnoir-1.0.0-py3-none-any.whl
+            pip3 install dist/nnoir-1.0.1-py3-none-any.whl
       - run:
           name: Test nnoir library
           command: |
