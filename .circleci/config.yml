@@ -15,9 +15,11 @@ jobs:
           name: Install dependencies
           command: |
             apt-get update
-            apt-get install -y python3-pip python3-setuptools python3-numpy python3-nose
+            apt-get install -y python3-pip python3-setuptools python3-nose wget
+            pip3 install numpy
             pip3 install chainer
             pip3 install autopep8
+            pip3 install onnxruntime
       - run:
           name: Check nnoir library code format
           command: |
@@ -45,6 +47,10 @@ jobs:
             cd nnoir-onnx
             python3 setup.py bdist_wheel
             pip3 install dist/nnoir_onnx-1.0.0-py3-none-any.whl
+      - run:
+          name: Test nnoir-onnx example
+          command: |
+            make -C nnoir-onnx/example/mobilenetv2
       - run:
           name: Check nnoir-chainer library code format
           command: |
