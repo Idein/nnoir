@@ -67,6 +67,10 @@ jobs:
           command: |
             cd nnoir-chainer
             nosetests3 -v nnoir_chainer
+      - run:
+          name: Test nnoir-chainer example
+          command: |
+            make -C nnoir-chainer/example/mnist
 
 workflows:
   version: 2
