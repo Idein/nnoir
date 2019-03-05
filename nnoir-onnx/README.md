@@ -33,6 +33,7 @@ A model must be runnable by [onnxruntime](https://pypi.org/project/onnxruntime/)
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
 * [Sum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sum)
     * 2 inputs
+* [Tanh](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tanh)
 * [Transpose](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Transpose)
 
 ## Example
