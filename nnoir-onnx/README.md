@@ -2,6 +2,12 @@
 
 onnx2nnoir is a converter from ONNX model to NNOIR model.
 
+## Install
+
+```
+pip install nnoir-onnx
+```
+
 ## Supported ONNX Model
 
 A model must be runnable by [onnxruntime](https://pypi.org/project/onnxruntime/).
