@@ -1,0 +1,69 @@
+version: 2
+references:
+  defaults: &defaults
+    docker:
+      - image: ubuntu:18.04
+    environment:
+      TZ: "/usr/share/zoneinfo/Asia/Tokyo"
+
+jobs:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apt-get update
+            apt-get install -y python3-pip python3-setuptools python3-numpy python3-nose
+            pip3 install chainer
+            pip3 install autopep8
+      - run:
+          name: Check nnoir library code format
+          command: |
+            cd nnoir
+            [ $(autopep8 --diff --max-line-length 128 -r nnoir | wc -l) = 0 ]
+      - run:
+          name: Install nnoir library
+          command: |
+            cd nnoir
+            python3 setup.py bdist_wheel
+            pip3 install dist/nnoir-1.0.0-py3-none-any.whl
+      - run:
+          name: Test nnoir library
+          command: |
+            cd nnoir
+            nosetests3 -v test
+      - run:
+          name: Check nnoir-onnx library code format
+          command: |
+            cd nnoir-onnx
+            [ $(autopep8 --diff --max-line-length 128 -r nnoir_onnx | wc -l) = 0 ]
+      - run:
+          name: Install nnoir-onnx library
+          command: |
+            cd nnoir-onnx
+            python3 setup.py bdist_wheel
+            pip3 install dist/nnoir_onnx-1.0.0-py3-none-any.whl
+      - run:
+          name: Check nnoir-chainer library code format
+          command: |
+            cd nnoir-chainer
+            [ $(autopep8 --diff --max-line-length 128 -r nnoir_chainer | wc -l) = 0 ]
+      - run:
+          name: Install nnoir-chainer library
+          command: |
+            cd nnoir-chainer
+            python3 setup.py bdist_wheel
+            pip3 install dist/nnoir_chainer-1.0.0-py3-none-any.whl
+      - run:
+          name: Test nnoir-chainer library
+          command: |
+            cd nnoir-chainer
+            nosetests3 -v nnoir_chainer
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
