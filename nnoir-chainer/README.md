@@ -1,6 +1,6 @@
 # nnoir-chainer
 
-Chainer from/to NNOIR converter
+Chainer Model from/to NNOIR converter
 
 ## Install
 

@@ -1,6 +1,6 @@
 # onnx2nnoir
 
-onnx2nnoir is a converter from onnx model to nnoir model.
+onnx2nnoir is a converter from ONNX model to NNOIR model.
 
 ## Supported ONNX Model
 
