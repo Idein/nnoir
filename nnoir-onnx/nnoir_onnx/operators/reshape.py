@@ -9,7 +9,12 @@ class OpReshape(Op):
 
     def get_dummy_output(self, env):
         [x, shape] = self.node.input
-        return env[x].reshape(list(env[shape]))
+        x = env[x]
+        shape = env[shape]
+        for i in shape:
+            if shape[i] == 0:
+                shape[i] = x.shape[i]
+        return x.reshape(shape)
 
     def to_function(self, env, constants):
         [x, _] = self.node.input
