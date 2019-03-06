@@ -1,4 +1,4 @@
-# nnoir-onnix
+# nnoir-onnx
 
 nnoir-onnx is a converter from ONNX model to NNOIR model.
 
