@@ -11,7 +11,7 @@ class OpReshape(Op):
         [x, shape] = self.node.input
         x = env[x]
         shape = env[shape]
-        for i in shape:
+        for i in range(len(shape)):
             if shape[i] == 0:
                 shape[i] = x.shape[i]
         return x.reshape(shape)
