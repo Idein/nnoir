@@ -29,8 +29,7 @@ jobs:
           name: Install nnoir library
           command: |
             cd nnoir
-            python3 setup.py bdist_wheel
-            pip3 install dist/nnoir-1.0.1-py3-none-any.whl
+            python3 setup.py develop
       - run:
           name: Test nnoir library
           command: |
@@ -45,8 +44,7 @@ jobs:
           name: Install nnoir-onnx library
           command: |
             cd nnoir-onnx
-            python3 setup.py bdist_wheel
-            pip3 install dist/nnoir_onnx-1.0.1-py3-none-any.whl
+            python3 setup.py develop
       - run:
           name: Test nnoir-onnx example
           command: |
@@ -60,8 +58,7 @@ jobs:
           name: Install nnoir-chainer library
           command: |
             cd nnoir-chainer
-            python3 setup.py bdist_wheel
-            pip3 install dist/nnoir_chainer-1.0.0-py3-none-any.whl
+            python3 setup.py develop
       - run:
           name: Test nnoir-chainer library
           command: |
