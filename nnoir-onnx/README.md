@@ -1,6 +1,6 @@
-# onnx2nnoir
+# nnoir-onnix
 
-onnx2nnoir is a converter from ONNX model to NNOIR model.
+nnoir-onnx is a converter from ONNX model to NNOIR model.
 
 ## Install
 
@@ -8,9 +8,13 @@ onnx2nnoir is a converter from ONNX model to NNOIR model.
 pip install nnoir-onnx
 ```
 
-## Supported ONNX Model
+## Example
 
-A model must be runnable by [onnxruntime](https://pypi.org/project/onnxruntime/).
+~~~~bash
+wget https://www.cntk.ai/OnnxModels/mnist/opset_7/mnist.tar.gz
+tar xvzf mnist.tar.gz
+onnx2nnoir -o model.nnoir mnist/model.onnx
+~~~~
 
 ## Supported ONNX Operators
 
@@ -41,11 +45,3 @@ A model must be runnable by [onnxruntime](https://pypi.org/project/onnxruntime/)
     * 2 inputs
 * [Tanh](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tanh)
 * [Transpose](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Transpose)
-
-## Example
-
-~~~~bash
-wget https://www.cntk.ai/OnnxModels/mnist/opset_7/mnist.tar.gz
-tar xvzf mnist.tar.gz
-onnx2nnoir -o model.nnoir mnist/model.onnx
-~~~~
