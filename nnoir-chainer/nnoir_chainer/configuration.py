@@ -12,7 +12,7 @@ def _patch__getattr__(self, name):
 
 def _patch__setattr__(self, name, value):
     if name == 'enable_backprop' and not value:
-        raise Exception('chainer.nnoir force enable_backprop')
+        raise Exception('nnoir_chainer force enable_backprop')
     setattr(self._local, name, value)
 
 
