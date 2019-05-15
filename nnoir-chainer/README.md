@@ -36,7 +36,7 @@ with chainer.using_config('train', False):
         f.buffer.write(result)
 ```
 
-These layers supported by nnoir-chainer exporter.
+These layers are supported by nnoir-chainer exporter.
 
 * chainer.links
     * BatchNormalization
