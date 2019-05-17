@@ -15,13 +15,13 @@ def test_broadcast():
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]
     output_names = [x.name for x in outputs]
-    function = nnoir.functions.BroadcastTo(input_names, output_names)
+    function = nnoir.functions.BroadcastTo(input_names, output_names, shape=out_shape)
 
     result = nnoir.NNOIR(b'BroadcastTo', b'nnoir2chainer_test', '0.1', input_names, output_names, nodes, [function])
     result.dump('broadcast.nnoir')
 
     x = np.random.randn(*in_shape).astype('float32')
-    ref = function.run(x, out_shape)
+    ref = function.run(x)
     with chainer.using_config('train', False):
         m = NNOIRFunction('broadcast.nnoir')
         y = m(x)
