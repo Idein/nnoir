@@ -63,7 +63,7 @@ jobs:
           name: Test nnoir-chainer library
           command: |
             cd nnoir-chainer
-            nosetests3 -v nnoir_chainer
+            nosetests3 -v test
       - run:
           name: Test nnoir-chainer example
           command: |
