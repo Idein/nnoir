@@ -13,8 +13,8 @@ def single_function_model(function, _inputs, _outputs, **kwargs):
     actual = nnoir.NNOIR(function.encode(), b'nnoir2chainer_test', "0.1", input_names, output_names, nodes, functions)
     expected = nnoir.load(os.path.join(os.path.abspath(os.path.dirname(__file__)), function + '.nnoir'))
     xs = [ np.random.randn(*x[1]).astype('<f4') for x in _inputs ]
-    actuals = actual.run(xs)
-    expecteds = expected.run(xs)
+    actuals = actual.run(*xs)
+    expecteds = expected.run(*xs)
     assert len(expecteds) == len(actuals)
     for a,e in zip(actuals, expecteds):
         assert (a == e).all()

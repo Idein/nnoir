@@ -71,7 +71,7 @@ class NNOIR():
         with open(file_name, 'w') as f:
             f.buffer.write(result)
 
-    def run(self, inputs):
+    def run(self, *inputs):
         env = dict(zip(self.inputs, inputs))
 
         def eval(n):
@@ -81,6 +81,12 @@ class NNOIR():
                         continue
                     inputs = [eval(i) for i in f.inputs]
                     outputs = f.run(*inputs)
+                    if type(outputs) == list:
+                        pass
+                    elif type(outputs) == tuple:
+                        outputs = list(outputs)
+                    else:
+                        outputs = [outputs]
                     env.update(dict(zip(f.outputs, outputs)))
                     break
             return env[n]
