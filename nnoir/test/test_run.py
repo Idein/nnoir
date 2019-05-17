@@ -3,18 +3,21 @@ import nnoir
 import numpy as np
 
 
-def single_function_model(function, inputs, outputs, **kwargs):
-    inputs = [ nnoir.Value(x[0], shape=x[1], dtype='<f4') for x in inputs ]
-    outputs = [ nnoir.Value(x[0], shape=x[1], dtype='<f4') for x in outputs ]
+def single_function_model(function, _inputs, _outputs, **kwargs):
+    inputs = [ nnoir.Value(x[0], shape=x[1], dtype='<f4') for x in _inputs ]
+    outputs = [ nnoir.Value(x[0], shape=x[1], dtype='<f4') for x in _outputs ]
     nodes = inputs + outputs
     input_names = [ x.name for x in inputs ]
     output_names = [ x.name for x in outputs ]
-    functions = [getattr(nnoir.functions, function)(input_names, output_names, **kwargs)]
-    actual = nnoir.NNOIR(function.encode(), b'nnoir2chainer_test', "0.1", input_names, output_names, nodes, functions).pack()
-    expected = nnoir.load(os.path.join(os.path.abspath(os.path.dirname(__file__)), function + '.nnoir')).pack()
-    print(actual)
-    print(expected)
-    assert expected == actual
+    functions = [getattr(nnoir.functions, function.partition('_')[0])(input_names, output_names, **kwargs)]
+    actual = nnoir.NNOIR(function.encode(), b'nnoir2chainer_test', "0.1", input_names, output_names, nodes, functions)
+    expected = nnoir.load(os.path.join(os.path.abspath(os.path.dirname(__file__)), function + '.nnoir'))
+    xs = [ np.random.randn(*x[1]).astype('<f4') for x in _inputs ]
+    actuals = actual.run(*xs)
+    expecteds = expected.run(*xs)
+    assert len(expecteds) == len(actuals)
+    for a,e in zip(actuals, expecteds):
+        assert (a == e).all()
 
 def test_Add():
     single_function_model(
@@ -76,6 +79,39 @@ def test_Bilinear2D():
         size=tuple(out_shape[2:]),
     )
 
+def test_Bilinear2D_align_none():
+    in_shape = (2, 3, 9, 10)
+    out_shape = (2, 3, 4, 5)
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b'v0', in_shape)],
+        [(b'v2', out_shape)],
+        size=tuple(out_shape[2:]),
+        mode=b'align_none'
+    )
+
+def test_Bilinear2D_align_corners():
+    in_shape = (2, 3, 9, 10)
+    out_shape = (2, 3, 4, 5)
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b'v0', in_shape)],
+        [(b'v2', out_shape)],
+        size=tuple(out_shape[2:]),
+        mode=b'align_corners'
+    )
+
+def test_Bilinear2D_align_centers():
+    in_shape = (2, 3, 9, 10)
+    out_shape = (2, 3, 4, 5)
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b'v0', in_shape)],
+        [(b'v2', out_shape)],
+        size=tuple(out_shape[2:]),
+        mode=b'align_centers'
+    )
+
 def test_BroadcastTo():
     in_shape = (1, 1, 4, 5)
     out_shape = (2, 3, 4, 5)
@@ -83,6 +119,7 @@ def test_BroadcastTo():
         sys._getframe().f_code.co_name[5:],
         [(b'v0', in_shape)],
         [(b'v2', out_shape)],
+        shape=out_shape
     )
 
 def test_ClippedReLU():

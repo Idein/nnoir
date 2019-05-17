@@ -14,6 +14,7 @@ from .max_pool import OpMaxPool
 from .pad import OpPad
 from .relu import OpRelu
 from .reshape import OpReshape
+from .resize import OpResize
 from .softmax import OpSoftmax
 from .sum import OpSum
 from .tanh import OpTanh
