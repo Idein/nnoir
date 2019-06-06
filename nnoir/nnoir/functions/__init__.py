@@ -25,6 +25,7 @@ from .reshape import Reshape
 from .scale import Scale
 from .sigmoid import Sigmoid
 from .softmax_cross_entropy import SoftmaxCrossEntropy
+from .swish import Swish
 from .softmax import Softmax
 from .tanh import Tanh
 from .transpose import Transpose
