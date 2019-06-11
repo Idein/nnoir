@@ -44,6 +44,7 @@ These layers are supported by nnoir-chainer exporter.
     * Linear
     * Convolution2D (DepthwiseConvolution2D, DilatedConvolution2D)
     * Scale
+    * Swish
 * chainer.function
     * Add
     * AddConstant

@@ -17,6 +17,7 @@ def single_function_model(function, _inputs, _outputs, **kwargs):
     expecteds = expected.run(*xs)
     assert len(expecteds) == len(actuals)
     for a,e in zip(actuals, expecteds):
+        print(a-e)
         assert (a == e).all()
 
 def test_Add():
@@ -307,6 +308,14 @@ def test_Softmax():
         [(b'v0', (10, 10))],
         [(b'v2', (10, 10))],
         axis=1,
+    )
+
+def test_Swish():
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b'v0', (10, 10, 3))],
+        [(b'v2', (10, 10, 3))],
+        beta=np.arange(10).astype(np.float32),
     )
 
 def test_Transpose():
