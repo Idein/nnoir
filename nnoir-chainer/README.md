@@ -49,6 +49,7 @@ These layers are supported by nnoir-chainer exporter.
     * Add
     * AddConstant
     * AveragePooling2D
+    * ClippedReLU
     * Concat
     * Dropout
     * ELU
