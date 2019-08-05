@@ -24,6 +24,7 @@ from .scale import ConvertScale
 from .sigmoid import ConvertSigmoid
 from .softmax_cross_entropy import ConvertSoftmaxCrossEntropy
 from .softmax import ConvertSoftmax
+from .sum import ConvertSum
 from .swish import ConvertSwish
 from .tanh import ConvertTanh
 from .transpose import ConvertTranspose

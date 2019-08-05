@@ -38,6 +38,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [MaxPool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MaxPool)
 * [Pad](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pad)
     * `mode` must be `"constant"`
+* [ReduceSum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#reducesum)
 * [Relu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Relu)
 * [Reshape](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Reshape)
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)

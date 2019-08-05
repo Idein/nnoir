@@ -12,6 +12,7 @@ from .lrn import OpLRN
 from .mat_mul import OpMatMul
 from .max_pool import OpMaxPool
 from .pad import OpPad
+from .reduce_sum import OpReduceSum
 from .relu import OpRelu
 from .reshape import OpReshape
 from .resize import OpResize
