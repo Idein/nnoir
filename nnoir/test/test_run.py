@@ -310,6 +310,15 @@ def test_Softmax():
         axis=1,
     )
 
+def test_Sum():
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b'v0', (2, 3, 4, 5))],
+        [(b'v2', (2, 1, 4, 1))],
+        axes=(1,3),
+        keepdims=True
+    )
+
 def test_Swish():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
