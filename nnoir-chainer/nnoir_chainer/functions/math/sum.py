@@ -12,4 +12,4 @@ def to_nnoir_node(self, inputs, outputs):
     return NNOIR.Sum([x.name for x in inputs], [x.name for x in outputs], axes=self.axis, keepdims=self.keepdims)
 
 
-Add.to_nnoir_node = to_nnoir_node
+Sum.to_nnoir_node = to_nnoir_node
