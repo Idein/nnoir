@@ -30,7 +30,7 @@ class NNOIR():
             '_Static_assert', '_Thread_local'
         ]
         if not cident.match(name) or name.decode() in c_keywords:
-            raise InvalidNNOIRData('graph name "{}" MUST be C identifier.'.format(name))
+            raise InvalidNNOIRData('graph name "{}" MUST NOT be C identifier.'.format(name))
         self.name = name
         self.generator_name = generator_name
         self.generator_version = generator_version
