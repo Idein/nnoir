@@ -11,6 +11,7 @@ from .leaky_relu import OpLeakyRelu
 from .lrn import OpLRN
 from .mat_mul import OpMatMul
 from .max_pool import OpMaxPool
+from .mul import OpMul
 from .pad import OpPad
 from .reduce_sum import OpReduceSum
 from .relu import OpRelu
