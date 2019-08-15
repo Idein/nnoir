@@ -25,5 +25,5 @@ setup(
     keywords='nnoir machine learning onnx',
     packages=find_packages(),
     install_requires=['numpy', 'msgpack-python', 'onnx', 'onnxruntime', 'nnoir'],
-    scripts=['onnx2nnoir']
+    scripts=['onnx2nnoir', "freeze_onnx"]
 )
