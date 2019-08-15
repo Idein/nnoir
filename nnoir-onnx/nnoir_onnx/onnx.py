@@ -45,6 +45,10 @@ class ONNX:
 see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.format(self.model.graph.name))
         self.sess = onnxruntime.InferenceSession(path)
         self.nodes = self._reconstruct_value_info()
+        variables = self._statically_unknown_variables()
+        if variables != []:
+            raise UnsupportedONNXOperation(
+                variables, "This onnx includes statically unknown sized variables. Try to remove them by assignment by `freeze_onnx`")
         self.constant_nodes = self._eval_nodes(self._list_constant_nodes())
 
     def _reconstruct_value_info(self):
@@ -200,6 +204,15 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         result = []
         dfs([], outputs, result)
         return result
+
+    def _statically_unknown_variables(self):
+        variables = []
+        for n in self.nodes:
+            _input = self._find_input(n)
+            if _input and hasattr(_input.type, 'tensor_type'):
+                dims = _input.type.tensor_type.shape.dim
+                variables += filter(lambda x: x.dim_param != '', dims)
+        return variables
 
 
 def to_dummy_input(x):
