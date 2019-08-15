@@ -48,7 +48,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         variables = self._statically_unknown_variables()
         if variables != []:
             raise UnsupportedONNXOperation(
-                variables, "This onnx includes statically unknown sized variables. Try to remove them by assignment by `freeze_onnx`")
+                variables, "This ONNX model includes dimension variables. Try to remove them by assignment by `freeze_onnx`")
         self.constant_nodes = self._eval_nodes(self._list_constant_nodes())
 
     def _reconstruct_value_info(self):
