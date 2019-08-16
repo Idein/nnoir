@@ -27,6 +27,7 @@ from .sigmoid import Sigmoid
 from .softmax_cross_entropy import SoftmaxCrossEntropy
 from .sum import Sum
 from .softmax import Softmax
+from .sub import Sub
 from .swish import Swish
 from .tanh import Tanh
 from .transpose import Transpose
