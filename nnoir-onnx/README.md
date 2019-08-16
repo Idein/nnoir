@@ -42,6 +42,8 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [Relu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Relu)
 * [Reshape](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Reshape)
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
+* [Sub](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sub)
+    * 1st input must not be `"constant"`
 * [Sum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sum)
     * 2 inputs
 * [Tanh](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tanh)
