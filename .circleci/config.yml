@@ -2,7 +2,7 @@ version: 2
 references:
   defaults: &defaults
     docker:
-      - image: ubuntu:18.04
+      - image: python:buster
     environment:
       TZ: "/usr/share/zoneinfo/Asia/Tokyo"
 
@@ -14,56 +14,52 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get update
-            apt-get install -y python3-pip python3-setuptools python3-nose wget
-            pip3 install numpy
-            pip3 install chainer
+            pip3 install nose
             pip3 install autopep8
-            pip3 install onnxruntime
       - run:
           name: Check nnoir library code format
+          working_directory: nnoir
           command: |
-            cd nnoir
             [ $(autopep8 --diff --max-line-length 128 -r nnoir | wc -l) = 0 ]
       - run:
           name: Install nnoir library
+          working_directory: nnoir
           command: |
-            cd nnoir
-            python3 setup.py develop
+            python3 setup.py install
       - run:
           name: Test nnoir library
+          working_directory: nnoir
           command: |
-            cd nnoir
-            nosetests3 -v test
+            nosetests -v test
       - run:
           name: Check nnoir-onnx library code format
+          working_directory: nnoir-onnx
           command: |
-            cd nnoir-onnx
             [ $(autopep8 --diff --max-line-length 128 -r nnoir_onnx | wc -l) = 0 ]
       - run:
           name: Install nnoir-onnx library
+          working_directory: nnoir-onnx
           command: |
-            cd nnoir-onnx
-            python3 setup.py develop
+            python3 setup.py install
       - run:
           name: Test nnoir-onnx example
           command: |
             make -C nnoir-onnx/example/mobilenetv2
       - run:
           name: Check nnoir-chainer library code format
+          working_directory: nnoir-chainer
           command: |
-            cd nnoir-chainer
             [ $(autopep8 --diff --max-line-length 128 -r nnoir_chainer | wc -l) = 0 ]
       - run:
           name: Install nnoir-chainer library
+          working_directory: nnoir-chainer
           command: |
-            cd nnoir-chainer
-            python3 setup.py develop
+            python3 setup.py install
       - run:
           name: Test nnoir-chainer library
+          working_directory: nnoir-chainer
           command: |
-            cd nnoir-chainer
-            nosetests3 -v test
+            nosetests -v test
       - run:
           name: Test nnoir-chainer example
           command: |
