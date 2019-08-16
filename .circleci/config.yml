@@ -22,15 +22,15 @@ jobs:
           command: |
             [ $(autopep8 --diff --max-line-length 128 -r nnoir | wc -l) = 0 ]
       - run:
-          name: Test nnoir library
-          working_directory: nnoir
-          command: |
-            nosetests -v test
-      - run:
           name: Install nnoir library
           working_directory: nnoir
           command: |
             python3 setup.py install
+      - run:
+          name: Test nnoir library
+          working_directory: nnoir
+          command: |
+            nosetests -v test
       - run:
           name: Check nnoir-onnx library code format
           working_directory: nnoir-onnx
@@ -51,15 +51,15 @@ jobs:
           command: |
             [ $(autopep8 --diff --max-line-length 128 -r nnoir_chainer | wc -l) = 0 ]
       - run:
-          name: Test nnoir-chainer library
-          working_directory: nnoir-chainer
-          command: |
-            nosetests -v test
-      - run:
           name: Install nnoir-chainer library
           working_directory: nnoir-chainer
           command: |
             python3 setup.py install
+      - run:
+          name: Test nnoir-chainer library
+          working_directory: nnoir-chainer
+          command: |
+            nosetests -v test
       - run:
           name: Test nnoir-chainer example
           command: |
