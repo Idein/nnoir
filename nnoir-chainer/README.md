@@ -62,6 +62,7 @@ These layers are supported by nnoir-chainer exporter.
     * Reshape
     * Sigmoid
     * Softmax
+    * Sub
     * Sum
     * Tanh
     * Transpose
