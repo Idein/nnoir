@@ -10,4 +10,7 @@ class Linear(Function):
         super(Linear, self).__init__(inputs, outputs, params, required_params, optional_params)
 
     def run(self, x):
-        return x.dot(np.transpose(self.params['W'])) + self.params['b']
+        result = x.reshape(x.shape[0], -1).dot(np.transpose(self.params['W']))
+        if self.params['b'] is not None:
+            result += self.params['b']
+        return result
