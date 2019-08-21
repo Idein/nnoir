@@ -13,7 +13,7 @@ class BatchNormalization(Function):
         super(BatchNormalization, self).__init__(inputs, outputs, params, required_params, optional_params)
 
     def run(self, x):
-        shape = (1, self.params['gamma'].size, 1, 1)
+        shape = (1, self.params['gamma'].size) + ((1,) * (len(x.shape) - 2))
         gamma = self.params['gamma'].reshape(shape)
         beta = self.params['beta'].reshape(shape)
         avg_mean = self.params['avg_mean'].reshape(shape)

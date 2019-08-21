@@ -20,6 +20,8 @@ class Convolution2D(Function):
         img, col = util.im2col_cpu(x, kernel, self.params['stride'],
                                    self.params['pad_h'],
                                    self.params['pad_w'], self.params['dilate'])
-        R = np.tensordot(col, self.params['W'], ((1, 2, 3), (1, 2, 3))) + self.params['b']
+        R = np.tensordot(col, self.params['W'], ((1, 2, 3), (1, 2, 3)))
+        if self.params['b'] is not None:
+            R += self.params['b']
         R = np.rollaxis(R, 3, 1)
         return R
