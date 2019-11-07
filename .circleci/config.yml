@@ -54,6 +54,7 @@ jobs:
           name: Install nnoir-chainer library
           working_directory: nnoir-chainer
           command: |
+            pip3 install chainer~=6.5.0
             python3 setup.py install
       - run:
           name: Test nnoir-chainer library
