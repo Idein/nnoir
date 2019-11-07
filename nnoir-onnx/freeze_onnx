@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # freeze
     parser_freeze = subparsers.add_parser('freeze', help='create freezed (statically sized) onnx')
     parser_freeze.add_argument('-o', '--output', dest='output', type=str, required=True,
-                               metavar='NNOIR', help='output(NNOIR) file path')
+                               metavar='ONNX', help='output(ONNX) file path')
     parser_freeze.add_argument('--fix-dimension', type=parse_assign, dest='fix_dimension', required=True,
                                help='assign statically unknown variables (like W=2,H=4. Cannot include spaces)')
     parser_freeze.add_argument(dest='input', type=str,
