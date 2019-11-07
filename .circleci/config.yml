@@ -2,7 +2,7 @@ version: 2
 references:
   defaults: &defaults
     docker:
-      - image: python:buster
+      - image: python:3.7-buster
     environment:
       TZ: "/usr/share/zoneinfo/Asia/Tokyo"
 
