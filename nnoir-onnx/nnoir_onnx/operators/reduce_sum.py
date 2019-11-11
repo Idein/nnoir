@@ -15,10 +15,6 @@ class OpReduceSum(Op):
             if attr.name == 'keepdims':
                 self.keepdims = attr.i > 0
 
-    def get_dummy_output(self, env):
-        [x] = self.node.input
-        return np.sum(env[x], axis=self.axes, keepdims=self.keepdims)
-
     def to_function(self, env, constants):
         [x] = self.node.input
         axes = self.axes

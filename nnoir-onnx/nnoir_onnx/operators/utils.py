@@ -20,9 +20,6 @@ class Op:
     def __init__(self, node):
         self.node = node
 
-    def get_dummy_output(self, env):
-        raise UnsupportedONNXOperation(self.node, "not implemented")
-
     def to_function(self, env, constants):
         raise UnsupportedONNXOperation(self.node, "not implemented")
 

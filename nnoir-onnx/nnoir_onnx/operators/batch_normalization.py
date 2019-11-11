@@ -7,10 +7,6 @@ class OpBatchNormalization(Op):
     def __init__(self, node):
         super(OpBatchNormalization, self).__init__(node)
 
-    def get_dummy_output(self, env):
-        [x, _, _, _, _] = self.node.input
-        return env[x]
-
     def to_function(self, env, constants):
         [x, gamma, beta, mean, var] = self.node.input
         if gamma not in constants:

@@ -4,6 +4,7 @@ from itertools import chain
 import re
 import numpy as np
 import onnx
+from onnx.shape_inference import infer_shapes
 import onnxruntime
 from nnoir import *
 from nnoir_onnx.operators import *
@@ -27,6 +28,13 @@ def narray_to_value_info(name, arr):
     return onnx.helper.make_tensor_value_info(name, onnx.mapping.NP_TYPE_TO_TENSOR_TYPE[arr.dtype], arr.shape)
 
 
+def value_info_to_zero_narray(vi):
+    return np.zeros(
+        list(map(lambda x: x.dim_value, vi.type.tensor_type.shape.dim)),
+        dtype=onnx.mapping.TENSOR_TYPE_TO_NP_TYPE[vi.type.tensor_type.elem_type]
+    )
+
+
 def op_for_node(node):
     op_name = 'Op{}'.format(node.op_type)
     if op_name in globals():
@@ -37,42 +45,38 @@ def op_for_node(node):
 
 class ONNX:
     def __init__(self, path):
-        self.model = onnx.load(path)
+        self.model = infer_shapes(onnx.load(path))
         onnx.checker.check_model(self.model)
         # All names MUST adhere to C identifier syntax rules.
         if not re.match(r'[_A-Za-z][_0-9A-Za-z]*', self.model.graph.name):
             raise InvalidONNXData('''graph name "{}" is not C identifier.
 see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.format(self.model.graph.name))
         self.sess = onnxruntime.InferenceSession(path)
-        self.nodes = self._reconstruct_value_info()
+        constant_nodes = self._list_constant_nodes()
+        self.nodes = self._try_run()
         variables = self._statically_unknown_variables()
         if variables != []:
             raise UnsupportedONNXOperation(
                 variables, "This ONNX model includes dimension variables. Try to remove them by assignment by `freeze_onnx`")
-        self.constant_nodes = self._eval_nodes(self._list_constant_nodes())
+        self.constant_nodes = self._eval_nodes(constant_nodes)
 
-    def _reconstruct_value_info(self):
-        outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
-
-        def dfs(visited, nodes, result):
-            for n in nodes:
-                _input = self._find_input(n)
-                initializer = self._find_initializer(n)
-                if initializer is not None:
-                    result[n] = tensor_to_narray(initializer)
-                elif _input is not None:
-                    result[n] = to_dummy_input(_input)
-                else:
-                    generator = self._find_generator(n)
-                    next_nodes = []
-                    if hasattr(generator, 'input'):
-                        next_nodes = [i for i in generator.input if i not in visited]
-                    dfs(visited, next_nodes, result)
-                    result[n] = op_for_node(generator).get_dummy_output(result)
-                visited.append(n)
-        result = {}
-        dfs([], outputs, result)
-        return result
+    def _try_run(self):
+        m = infer_shapes(copy.deepcopy(self.model))
+        values = [v.name for v in m.graph.value_info]
+        m.graph.output.extend(m.graph.input)
+        m.graph.output.extend(m.graph.value_info)
+        inits = [v.name for v in m.graph.initializer]
+        input_values = [v for v in m.graph.input if v.name not in inits]
+        outputs = [
+            *[v.name for v in m.graph.input],
+            *[v.name for v in m.graph.value_info],
+            *[v.name for v in m.graph.output],
+        ]
+        with tempfile.NamedTemporaryFile() as f:
+            onnx.save(m, f.name)
+            sess = onnxruntime.InferenceSession(f.name)
+            dummy_inputs = {i.name: value_info_to_zero_narray(i) for i in input_values}
+            return {name: value for name, value in zip(outputs, sess.run(outputs, dummy_inputs))}
 
     def _find(self, p, xs, default=None):
         return next(filter(p, xs), default)
@@ -189,17 +193,20 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                     pass
                 else:
                     generator = self._find_generator(n)
-                    next_nodes = []
-                    if hasattr(generator, 'input'):
-                        next_nodes = [i for i in generator.input if i not in visited]
-                    dfs(visited, next_nodes, result)
-                    if hasattr(generator, 'input'):
-                        if all([i in result for i in generator.input]):
+                    if generator.op_type == 'Shape':  # In nnoir, array shape is known information.
+                        result.append(n)
+                    else:
+                        next_nodes = []
+                        if hasattr(generator, 'input'):
+                            next_nodes = [i for i in generator.input if i not in visited]
+                        dfs(visited, next_nodes, result)
+                        if hasattr(generator, 'input'):
+                            if all([i in result for i in generator.input]):
+                                for o in generator.output:
+                                    result.append(o)
+                        else:
                             for o in generator.output:
                                 result.append(o)
-                    else:
-                        for o in generator.output:
-                            result.append(o)
                 visited.append(n)
         result = []
         dfs([], outputs, result)

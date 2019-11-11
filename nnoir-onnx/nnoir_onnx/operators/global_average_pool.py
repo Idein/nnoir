@@ -28,13 +28,6 @@ class OpGlobalAveragePool(Op):
             if attr.name == 'count_include_pad':
                 self.count_include_pad = attr.i
 
-    def get_dummy_output(self, env):
-        [x] = self.node.input
-        _input = env[x]
-        batch = _input.shape[0]
-        channel = _input.shape[1]
-        return np.zeros((batch, channel, 1, 1), dtype=env[x].dtype)
-
     def to_function(self, env, constants):
         [x] = self.node.input
 

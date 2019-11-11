@@ -7,10 +7,6 @@ class OpSub(Op):
     def __init__(self, node):
         super(OpSub, self).__init__(node)
 
-    def get_dummy_output(self, env):
-        [a, b] = self.node.input
-        return env[a] - env[b]
-
     def to_function(self, env, constants):
         [a, b] = self.node.input
         if a in constants and b not in constants:

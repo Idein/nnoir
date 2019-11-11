@@ -25,34 +25,6 @@ class OpMaxPool(Op):
             if attr.name == 'pads':
                 self.pads = attr.ints
 
-    def get_dummy_output(self, env):
-        [x] = self.node.input
-
-        _input = env[x]
-        batch = _input.shape[0]
-        channel = _input.shape[1]
-        in_h = _input.shape[2]
-        in_w = _input.shape[3]
-        kh = self.kernel_shape[0]
-        kw = self.kernel_shape[1]
-        sy = self.strides[0]
-        sx = self.strides[1]
-
-        if self.auto_pad == b'NOTSET':
-            pad_h = (0, 0)
-            pad_w = (0, 0)
-            if self.pads is not None:
-                pad_h = (self.pads[0], self.pads[2])
-                pad_w = (self.pads[1], self.pads[3])
-        else:
-            pad_h = auto_pad_to_manual_pad(in_h, kh, sy, 1, self.auto_pad)
-            pad_w = auto_pad_to_manual_pad(in_w, kw, sx, 1, self.auto_pad)
-
-        out_h = ((pad_h[0] + in_h + pad_h[1]) - ((kh - 1) * 1 + 1)) // sy + 1
-        out_w = ((pad_w[0] + in_w + pad_w[1]) - ((kw - 1) * 1 + 1)) // sx + 1
-
-        return np.zeros((batch, channel, out_h, out_w), dtype=env[x].dtype)
-
     def to_function(self, env, constants):
         [x] = self.node.input
 
