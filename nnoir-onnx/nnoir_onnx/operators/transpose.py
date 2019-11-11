@@ -13,10 +13,6 @@ class OpTranspose(Op):
             if attr.name == 'perm':
                 self.perm = list(attr.ints)
 
-    def get_dummy_output(self, env):
-        [x] = self.node.input
-        return np.transpose(env[x], self.perm)
-
     def to_function(self, env, constants):
         return [
             Transpose(
