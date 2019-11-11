@@ -21,10 +21,6 @@ class OpLRN(Op):
             if attr.name == 'size':
                 self.size = attr.i
 
-    def get_dummy_output(self, env):
-        [x] = self.node.input
-        return env[x]
-
     def to_function(self, env, constants):
         return [
             LocalResponseNormalization(

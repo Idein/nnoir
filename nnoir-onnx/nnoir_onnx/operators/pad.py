@@ -22,11 +22,6 @@ class OpPad(Op):
         if self.mode != b'constant':
             raise UnsupportedONNXOperation(self.node, 'mode must be "constant"')
 
-    def get_dummy_output(self, env):
-        [x] = self.node.input
-        n = len(self.pads) // 2
-        return np.pad(env[x], list(zip(self.pads[:n], self.pads[n:])), mode='constant', constant_values=self.value)
-
     def to_function(self, env, constants):
         n = len(self.pads) // 2
         return [

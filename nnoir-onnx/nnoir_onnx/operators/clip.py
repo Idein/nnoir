@@ -7,10 +7,6 @@ class OpClip(Op):
     def __init__(self, node):
         super(OpClip, self).__init__(node)
 
-    def get_dummy_output(self, env):
-        [x] = self.node.input
-        return env[x]
-
     def to_function(self, env, constants):
         _min = -3.4028234663852886e+38
         _max = 3.4028234663852886e+38
