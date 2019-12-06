@@ -2,6 +2,8 @@
 
 Chainer Model from/to NNOIR converter
 
+ATTENTION: This library goes into the maintenance phase [too](https://preferred.jp/en/news/pr20191205/).
+
 ## Install
 
 ```
