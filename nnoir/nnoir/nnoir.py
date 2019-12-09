@@ -11,7 +11,7 @@ class InvalidNNOIRData(Exception):
 class NNOIR():
 
     def __init__(self, name, generator_name, generator_version, inputs, outputs, values, functions):
-        cident = re.compile(rb'[_A-Za-z][_0-9A-Za-z]*')
+        cident = re.compile(rb'^[_A-Za-z][_0-9A-Za-z]*$')
         c_keywords = [
             'auto', 'break', 'case',
             'char', 'const', 'continue',
