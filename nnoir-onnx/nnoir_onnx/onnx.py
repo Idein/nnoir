@@ -49,7 +49,7 @@ class ONNX:
         self.model = infer_shapes(onnx.load(path))
         onnx.checker.check_model(self.model)
         # All names MUST adhere to C identifier syntax rules.
-        if not re.match(r'[_A-Za-z][_0-9A-Za-z]*', self.model.graph.name):
+        if not re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', self.model.graph.name):
             raise InvalidONNXData('''graph name "{}" is not C identifier.
 see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.format(self.model.graph.name))
         self._rename_to_c_ident()
@@ -70,11 +70,11 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
             rename_step = 0
             rename_prefix = 'v_from_initializer'
             rename_content = initializer.name
-            if re.match(r'[_A-Za-z][_0-9A-Za-z]*', rename_content):
+            if re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', rename_content):
+                rename_prefix += '_plain'
+            else:
                 rename_content = ''.join(map(lambda c: 'x{:02x}'.format(ord(c)), rename_content))
                 rename_prefix += '_encoded'
-            else:
-                rename_prefix += '_plain'
             rename_candidate = "{}_{}_{}".format(rename_prefix, rename_step, rename_content)
             while True:
                 if rename_candidate not in value_names:
