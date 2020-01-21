@@ -17,6 +17,7 @@ from .reduce_sum import OpReduceSum
 from .relu import OpRelu
 from .reshape import OpReshape
 from .resize import OpResize
+from .sigmoid import OpSigmoid
 from .softmax import OpSoftmax
 from .sub import OpSub
 from .sum import OpSum
