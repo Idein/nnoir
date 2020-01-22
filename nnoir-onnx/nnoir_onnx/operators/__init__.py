@@ -5,6 +5,7 @@ from .clip import OpClip
 from .concat import OpConcat
 from .conv import OpConv
 from .dropout import OpDropout
+from .elu import OpElu
 from .flatten import OpFlatten
 from .gemm import OpGemm
 from .global_average_pool import OpGlobalAveragePool
