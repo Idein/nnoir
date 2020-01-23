@@ -11,14 +11,18 @@ class OpResize(Op):
         for attr in node.attribute:
             if attr.name == 'mode':
                 if attr.s != b'linear':
-                    raise UnsupportedONNXOperation(self.node, '{} mode is not supported for Resize, only linear.'.format(attr.s.decode('utf-8')))
+                    raise UnsupportedONNXOperation(self.node, '{} mode is not supported for Resize, '
+                                                              'only linear.'.format(attr.s.decode('utf-8')))
             if attr.name == 'coordinate_transformation_mode':
                 if attr.s == b'pytorch_half_pixel':
                     self.mode = b'align_centers'
                 elif attr.s == b'align_corners':
                     self.mode = b'align_corners'
                 else:
-                    raise UnsupportedONNXOperation(self.node, '{} coordinate_transformation_mode is not supported for Resize, only "align_corners" and "pytorch_half_pixel"'.format(attr.s.decode('utf-8')))
+                    raise UnsupportedONNXOperation(
+                            self.node, '{} coordinate_transformation_mode '
+                                       'is not supported for Resize, only '
+                                       '"align_corners" and "pytorch_half_pixel"'.format(attr.s.decode('utf-8')))
 
         if self.mode == b'half_pixel':
             raise UnsupportedONNXOperation(self.node, 'default "half_pixel" coordinate_transformation_mode is unsupported')
