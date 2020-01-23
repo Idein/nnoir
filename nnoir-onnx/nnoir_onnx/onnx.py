@@ -53,6 +53,7 @@ class ONNX:
             raise InvalidONNXData('''graph name "{}" is not C identifier.
 see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.format(self.model.graph.name))
         self._rename_to_c_ident()
+        self._check_opset_compatibility()
         self.sess = onnxruntime.InferenceSession(path)
         constant_nodes = self._list_constant_nodes()
         self.nodes = self._try_run()
@@ -88,6 +89,17 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                     if n.input[i] == initializer.name:
                         n.input[i] = rename_candidate
             initializer.name = rename_candidate
+
+    def _check_opset_compatibility(self):
+        ops = set()
+        for op in self.model.graph.node:
+            ops.add(str(op.op_type))
+
+        opset_version = self.model.opset_import[0].version
+
+        # Resize is compatible only with opset >= 11
+        if 'Resize' in ops and opset_version < 11:
+            raise InvalidONNXData('Resize operator from opset version < 11 is not supported')
 
     def _try_run(self):
         m = infer_shapes(copy.deepcopy(self.model))

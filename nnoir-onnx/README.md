@@ -29,9 +29,12 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * `b` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
 * [Dropout](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Dropout)
     * equivalent identity function
+* [Elu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Elu)
+* [Flatten](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Flatten)
 * [Gemm](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Gemm)
     * `B` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `C` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
+* [GlobalAveragePool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#GlobalAveragePool)
 * [LRN](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LRN)
 * [MatMul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MatMul)
     * `B` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
@@ -41,6 +44,11 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [ReduceSum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#reducesum)
 * [Relu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Relu)
 * [Reshape](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Reshape)
+* [Resize](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Resize)
+    * must be from opset version >= 11
+    * `mode` must be `"linear"`
+    * `coordinate_transformation_mode` must be either `"pytorch_half_pixel"` or `"align_corners"`
+* [Sigmoid](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sigmoid)
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
 * [Sub](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sub)
     * 1st input must not be `"constant"`
