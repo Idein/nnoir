@@ -21,8 +21,8 @@ class OpResize(Op):
                 else:
                     raise UnsupportedONNXOperation(
                             self.node, '{} coordinate_transformation_mode '
-                                       'is not supported for Resize, only '
-                                       '"align_corners" and "pytorch_half_pixel"'.format(attr.s.decode('utf-8')))
+                            'is not supported for Resize, only '
+                            '"align_corners" and "pytorch_half_pixel"'.format(attr.s.decode('utf-8')))
 
         if self.mode == b'half_pixel':
             raise UnsupportedONNXOperation(self.node, 'default "half_pixel" coordinate_transformation_mode is unsupported')
