@@ -12,10 +12,10 @@ def to_nnoir_node(self, inputs, outputs):
     return NNOIR.LocalResponseNormalization(
         [x.name for x in inputs],
         [x.name for x in outputs],
-        n=self.n,
-        k=self.k,
-        alpha=self.alpha,
-        beta=self.beta
+        n=int(self.n),
+        k=float(self.k),
+        alpha=float(self.alpha),
+        beta=float(self.beta)
     )
 
 
