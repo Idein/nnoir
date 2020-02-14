@@ -14,10 +14,12 @@ class OpConcat(Op):
                 self.axis = attr.i
 
     def to_function(self, env, constants):
+        [y] = self.node.output
+        axis = len(env[y].shape) + self.axis if self.axis < 0 else self.axis
         return [
             Concat(
                 list(self.node.input),
                 list(self.node.output),
-                axis=self.axis
+                axis=int(axis)
             )
         ]

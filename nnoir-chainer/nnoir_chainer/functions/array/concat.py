@@ -9,7 +9,8 @@ else:
 
 
 def to_nnoir_node(self, inputs, outputs):
-    return NNOIR.Concat([x.name for x in inputs], [x.name for x in outputs], axis=self.axis)
+    self.axis = len(outputs[0].shape) + self.axis if self.axis < 0 else self.axis
+    return NNOIR.Concat([x.name for x in inputs], [x.name for x in outputs], axis=int(self.axis))
 
 
 Concat.to_nnoir_node = to_nnoir_node
