@@ -4,7 +4,6 @@ from itertools import chain
 import re
 import numpy as np
 import onnx
-from onnx.shape_inference import infer_shapes
 import onnxruntime
 from nnoir import *
 from nnoir_onnx.operators import *
@@ -46,7 +45,7 @@ def op_for_node(node):
 class ONNX:
 
     def __init__(self, path):
-        self.model = infer_shapes(onnx.load(path))
+        self.model = onnx.load(path)
         onnx.checker.check_model(self.model)
         # All names MUST adhere to C identifier syntax rules.
         if not re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', self.model.graph.name):
@@ -63,9 +62,12 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                 variables, "This ONNX model includes dimension variables. Try to remove them by assignment by `freeze_onnx`")
         self.constant_nodes = self._eval_nodes(constant_nodes)
 
+    def _internal_values_info(self, model):
+        return [onnx.helper.make_empty_tensor_value_info(o) for n in model.graph.node for o in n.output]
+
     def _rename_to_c_ident(self):
-        m = infer_shapes(copy.deepcopy(self.model))
-        value_names = [i.name for i in m.graph.input] + [v.name for v in m.graph.value_info]
+        m = copy.deepcopy(self.model)
+        value_names = [i.name for i in m.graph.input] + [v.name for v in self._internal_values_info(m)]
         # Initializer id is not restricted C identifier syntax rules.
         for initializer in self.model.graph.initializer:
             rename_step = 0
@@ -102,10 +104,10 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
             raise InvalidONNXData('Resize operator from opset version < 11 is not supported')
 
     def _try_run(self):
-        m = infer_shapes(copy.deepcopy(self.model))
+        m = copy.deepcopy(self.model)
         values = [v.name for v in m.graph.value_info]
         m.graph.output.extend(m.graph.input)
-        m.graph.output.extend(m.graph.value_info)
+        m.graph.output.extend(self._internal_values_info(m))
 
         def tensor_to_value_info(t):
             return onnx.helper.make_tensor_value_info(t.name, t.data_type, None)
