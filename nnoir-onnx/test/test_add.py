@@ -1,11 +1,9 @@
-import tempfile
 import numpy as np
 
 import onnx
 from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info
 from onnx import TensorProto
 
-from nnoir_onnx import ONNX
 from util import Tester
 
 info = make_tensor_value_info
