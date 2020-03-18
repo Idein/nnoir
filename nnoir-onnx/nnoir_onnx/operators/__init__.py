@@ -24,3 +24,4 @@ from .sub import OpSub
 from .sum import OpSum
 from .tanh import OpTanh
 from .transpose import OpTranspose
+from .prelu import OpPRelu
