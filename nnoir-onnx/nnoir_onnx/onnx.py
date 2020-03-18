@@ -257,7 +257,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                 functions += function
             initializer = self._find_initializer(o)
             if initializer is not None:
-                raise UnsupportedONNXOperation(node, 'converting from Constant is undefined')
+                raise UnsupportedONNXOperation(initializer, 'converting from Constant is undefined')
         return functions
 
     def _list_constant_nodes(self):
