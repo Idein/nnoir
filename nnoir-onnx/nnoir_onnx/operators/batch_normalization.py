@@ -26,9 +26,9 @@ class OpBatchNormalization(Op):
                 [x],
                 list(self.node.output),
                 eps=eps,
-                avg_mean=encode_ndarray(constants[mean]),
-                avg_var=encode_ndarray(constants[var]),
-                gamma=encode_ndarray(constants[gamma]),
-                beta=encode_ndarray(constants[beta]),
+                avg_mean=constants[mean],
+                avg_var=constants[var],
+                gamma=constants[gamma],
+                beta=constants[beta],
             )
         ]
