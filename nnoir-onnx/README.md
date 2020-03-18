@@ -42,7 +42,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [Pad](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pad)
     * `mode` must be `"constant"`
 * [PRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#PRelu)
-    * `slope` must be a single `"constant"`
+    * `slope` must be `"constant"` and a single value tensor
 * [ReduceSum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#reducesum)
 * [Relu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Relu)
 * [Reshape](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Reshape)
