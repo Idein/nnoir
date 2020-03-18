@@ -4,14 +4,14 @@ import onnx
 from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info
 from onnx import TensorProto
 
-from util import Tester
+from util import Base
 
 info = make_tensor_value_info
 
 shape = (3, 4, 5)
 
 
-class AddTester(Tester):
+class AddTester(Base):
     def __init__(self, inputs, outputs):
         super().__init__(inputs, outputs)
 

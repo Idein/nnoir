@@ -10,8 +10,10 @@ from nnoir_onnx import ONNX
 
 epsilon = 0.0001
 
+TMP_REMOVE = False
 
-class Tester():
+
+class Base():
     def __init__(self, inputs, outputs):
         self.inputs: Dict[str, np.ndarray] = inputs
         self.outputs: List[str] = outputs
@@ -21,10 +23,10 @@ class Tester():
 
     def run(self):
         self.onnx = self.create_onnx()
-        self.nnoir = self.create_nnoir(self.onnx)
         onnx.checker.check_model(self.onnx)
-
         onnx_result = self.execute_onnx(self.onnx)
+
+        self.nnoir = self.create_nnoir(self.onnx)
         nnoir_result = self.execute_nnoir(self.nnoir)
 
         for a, b in zip(onnx_result, nnoir_result):
@@ -35,14 +37,14 @@ class Tester():
         assert False
 
     def execute_onnx(self, model: onnx.ModelProto) -> List[np.ndarray]:
-        with tempfile.NamedTemporaryFile() as f:
+        with tempfile.NamedTemporaryFile(delete=TMP_REMOVE) as f:
             onnx.save(model, f.name)
             sess = onnxruntime.InferenceSession(f.name)
             r = sess.run(self.outputs, self.inputs)
             return r
 
     def create_nnoir(self, model: onnx.ModelProto) -> NNOIR:
-        with tempfile.NamedTemporaryFile() as f:
+        with tempfile.NamedTemporaryFile(delete=TMP_REMOVE) as f:
             onnx.save(model, f.name)
             return ONNX(f.name).to_NNOIR()
 
