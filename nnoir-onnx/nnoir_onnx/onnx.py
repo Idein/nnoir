@@ -34,14 +34,6 @@ def value_info_to_zero_narray(vi):
     )
 
 
-def op_for_node(node):
-    op_name = 'Op{}'.format(node.op_type)
-    if op_name in globals():
-        return globals()[op_name](node)
-    else:
-        raise UnsupportedONNXOperation(node, 'converting from {} is undefined'.format(node.op_type))
-
-
 class ONNX:
 
     def __init__(self, path):
@@ -61,6 +53,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
             raise UnsupportedONNXOperation(
                 variables, "This ONNX model includes dimension variables. Try to remove them by assignment by `freeze_onnx`")
         self.constant_nodes = {n: self.nodes[n] for n in constant_nodes}
+        self.opset_version = self.model.opset_import[0].version
 
     def _internal_values_info(self, model):
         values = list(set([v for n in model.graph.node for v in n.output]))
@@ -240,6 +233,13 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
             outputs = [x.name for x in sess.get_inputs()]
             results = sess.run(outputs, inputs)
 
+    def op_for_node(self, node):
+        op_name = 'Op{}'.format(node.op_type)
+        if op_name in globals():
+            return globals()[op_name](node, self.opset_version)
+        else:
+            raise UnsupportedONNXOperation(node, 'converting from {} is undefined'.format(node.op_type))
+
     def _to_NNOIR_functions(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
         visited = []
@@ -251,7 +251,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
             visited.append(o)
             generator = self._find_generator(o)
             if generator is not None:
-                function = op_for_node(generator).to_function(self.nodes, self.constant_nodes)
+                function = self.op_for_node(generator).to_function(self.nodes, self.constant_nodes)
                 inputs = list(chain.from_iterable(map(lambda x: x.inputs, function)))
                 outputs += inputs
                 functions += function

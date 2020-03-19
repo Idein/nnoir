@@ -4,8 +4,8 @@ from .utils import *
 
 class OpClip(Op):
 
-    def __init__(self, node):
-        super(OpClip, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpClip, self).__init__(node, *args)
 
     def to_function(self, env, constants):
         _min = -3.4028234663852886e+38

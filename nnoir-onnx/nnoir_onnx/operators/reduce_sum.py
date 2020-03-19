@@ -4,8 +4,8 @@ from .utils import *
 
 class OpReduceSum(Op):
 
-    def __init__(self, node):
-        super(OpReduceSum, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpReduceSum, self).__init__(node, *args)
 
         self.axes = None
         self.keepdims = True

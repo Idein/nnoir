@@ -6,8 +6,8 @@ from .utils import *
 
 class OpFlatten(Op):
 
-    def __init__(self, node):
-        super(OpFlatten, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpFlatten, self).__init__(node, *args)
 
         self.axis = 1
         for attr in node.attribute:

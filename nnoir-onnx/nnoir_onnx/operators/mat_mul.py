@@ -4,8 +4,8 @@ from .utils import *
 
 class OpMatMul(Op):
 
-    def __init__(self, node):
-        super(OpMatMul, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpMatMul, self).__init__(node, *args)
 
     def to_function(self, env, constants):
         [x, W] = self.node.input

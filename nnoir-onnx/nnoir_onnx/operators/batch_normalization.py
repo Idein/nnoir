@@ -4,8 +4,8 @@ from .utils import *
 
 class OpBatchNormalization(Op):
 
-    def __init__(self, node):
-        super(OpBatchNormalization, self).__init__(node)
+    def __init__(self, node, *args):
+        super().__init__(node, *args)
 
     def to_function(self, env, constants):
         [x, gamma, beta, mean, var] = self.node.input

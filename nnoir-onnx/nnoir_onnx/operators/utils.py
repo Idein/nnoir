@@ -17,8 +17,9 @@ class UnsupportedONNXOperation(Exception):
 
 class Op:
 
-    def __init__(self, node):
+    def __init__(self, node, opset_version):
         self.node = node
+        self.opset_version = opset_version
 
     def to_function(self, env, constants):
         raise UnsupportedONNXOperation(self.node, "not implemented")

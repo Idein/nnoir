@@ -4,8 +4,8 @@ from .utils import *
 
 class OpReshape(Op):
 
-    def __init__(self, node):
-        super(OpReshape, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpReshape, self).__init__(node, *args)
 
     def to_function(self, env, constants):
         [x, _] = self.node.input

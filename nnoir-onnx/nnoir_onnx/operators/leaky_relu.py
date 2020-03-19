@@ -4,8 +4,8 @@ from .utils import *
 
 class OpLeakyRelu(Op):
 
-    def __init__(self, node):
-        super(OpLeakyRelu, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpLeakyRelu, self).__init__(node, *args)
 
         self.alpha = 0.01
         for attr in node.attribute:

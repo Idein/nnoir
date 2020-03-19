@@ -5,8 +5,8 @@ from .utils import *
 
 class OpMaxPool(Op):
 
-    def __init__(self, node):
-        super(OpMaxPool, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpMaxPool, self).__init__(node, *args)
 
         self.kernel_shape = None
         self.auto_pad = b'NOTSET'

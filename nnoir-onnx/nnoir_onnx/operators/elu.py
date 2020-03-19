@@ -4,8 +4,8 @@ from .utils import *
 
 class OpElu(Op):
 
-    def __init__(self, node):
-        super(OpElu, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpElu, self).__init__(node, *args)
 
         self.alpha = 1.
         for attr in self.node.attribute:
