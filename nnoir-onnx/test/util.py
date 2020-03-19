@@ -5,6 +5,7 @@ import onnx
 import onnxruntime
 import numpy as np
 
+import nnoir
 from nnoir import NNOIR
 from nnoir_onnx import ONNX
 
@@ -31,6 +32,16 @@ class Base():
 
         for a, b in zip(onnx_result, nnoir_result):
             assert(np.all(abs(a - b)) < epsilon)
+
+        rerun_result = self.save_and_run(self.nnoir)
+        for a, b in zip(rerun_result, nnoir_result):
+            assert(np.all(abs(a - b)) < epsilon)
+
+    def save_and_run(self, model: NNOIR):
+        with tempfile.NamedTemporaryFile(delete=TMP_REMOVE) as f:
+            model.dump(f.name)
+            reload_nnoir: NNOIR = nnoir.load(f.name)
+            return self.execute_nnoir(reload_nnoir)
 
     def create_onnx(self) -> onnx.ModelProto:
         # should be override
