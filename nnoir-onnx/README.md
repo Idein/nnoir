@@ -21,7 +21,8 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [Add](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Add)
 * [AveragePool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#AveragePool)
 * [BatchNormalization](https://github.com/onnx/onnx/blob/master/docs/Operators.md#BatchNormalization)
-* [Clip](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Clip)
+    * `scale`, `B`, `mean`, and `var` must be `"constant"`
+* [Clip](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Clip) 
     * `min` must be 0
 * [Concat](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Concat)
 * [Conv](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Conv)
