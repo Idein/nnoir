@@ -28,7 +28,7 @@ setup(
         'numpy',
         'msgpack-python',
         'onnx',
-        'onnxruntime',
+        'onnxruntime>=1.2.0',
         'nnoir',
         'protobuf>=3.8'
     ],
