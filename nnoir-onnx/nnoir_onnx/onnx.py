@@ -55,15 +55,16 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         self._check_opset_compatibility()
         self.sess = onnxruntime.InferenceSession(path)
         constant_nodes = self._list_constant_nodes()
-        self.nodes = self._try_run()
+        self.nodes = self._try_run(constant_nodes)
         variables = self._statically_unknown_variables()
         if variables != []:
             raise UnsupportedONNXOperation(
                 variables, "This ONNX model includes dimension variables. Try to remove them by assignment by `freeze_onnx`")
-        self.constant_nodes = self._eval_nodes(constant_nodes)
+        self.constant_nodes = {n: self.nodes[n] for n in constant_nodes}
 
     def _internal_values_info(self, model):
-        return [onnx.helper.make_empty_tensor_value_info(o) for n in model.graph.node for o in n.output]
+        values = list(set([v for n in model.graph.node for v in n.output]))
+        return [onnx.helper.make_empty_tensor_value_info(v) for v in values]
 
     def _rename_to_c_ident(self):
         m = copy.deepcopy(self.model)
@@ -103,27 +104,57 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         if 'Resize' in ops and opset_version < 11:
             raise InvalidONNXData('Resize operator from opset version < 11 is not supported')
 
-    def _try_run(self):
-        m = copy.deepcopy(self.model)
-        values = [v.name for v in m.graph.value_info]
-        m.graph.output.extend(m.graph.input)
-        m.graph.output.extend(self._internal_values_info(m))
-
-        def tensor_to_value_info(t):
-            return onnx.helper.make_tensor_value_info(t.name, t.data_type, None)
-        m.graph.output.extend(list(map(tensor_to_value_info, m.graph.initializer)))
-        inits = [v.name for v in m.graph.initializer]
-        input_values = [v for v in m.graph.input if v.name not in inits]
+    def _try_run(self, constant_nodes):
+        model = copy.deepcopy(self.model)
+        while len(model.graph.output) > 0:
+            model.graph.output.pop(0)
+        inits = [v.name for v in model.graph.initializer]
+        input_values = [v for v in model.graph.input if v.name not in inits]
+        dummy_inputs = {i.name: value_info_to_zero_narray(i) for i in input_values}
         outputs = [
-            *[v.name for v in m.graph.input],
-            *[v.name for v in m.graph.value_info],
-            *[v.name for v in m.graph.output],
+            *[v for v in model.graph.input],
+            *self._internal_values_info(model),
         ]
+
+        result = copy.deepcopy(dummy_inputs)
+        for t in model.graph.initializer:
+            result[t.name] = tensor_to_narray(t)
         with tempfile.NamedTemporaryFile() as f:
-            onnx.save(m, f.name)
-            sess = onnxruntime.InferenceSession(f.name)
-            dummy_inputs = {i.name: value_info_to_zero_narray(i) for i in input_values}
-            return {name: value for name, value in zip(outputs, sess.run(outputs, dummy_inputs))}
+
+            while len(model.graph.node) > 0:
+
+                # create single operation graph
+                m = copy.deepcopy(model)
+                while len(m.graph.node) > 0:
+                    m.graph.node.pop(0)
+                while len(m.graph.input) > 0:
+                    m.graph.input.pop(0)
+                while len(m.graph.initializer) > 0:
+                    m.graph.initializer.pop(0)
+
+                node = model.graph.node.pop(0)
+                m.graph.node.append(node)
+
+                inputs = [i for i in node.input if i not in inits]
+                m.graph.input.extend([n for n in model.graph.input if n.name in inputs])
+
+                outputs = node.output
+                m.graph.output.extend([onnx.helper.make_empty_tensor_value_info(v) for v in outputs])
+
+                initializers = [i for i in node.input if i in inits]
+                m.graph.initializer.extend([n for n in model.graph.initializer if n.name in initializers])
+
+                onnx.save(m, f.name)
+                sess = onnxruntime.InferenceSession(f.name)
+                for k, v in zip(outputs, sess.run(outputs, {i: dummy_inputs[i] for i in inputs})):
+                    if k not in constant_nodes:
+                        # save memory usage
+                        v = np.broadcast_to(np.zeros(1, dtype=v.dtype), v.shape)
+                    result[k] = v
+                    dummy_inputs[k] = v
+                    model.graph.input.append(narray_to_value_info(k, v))
+
+            return result
 
     def _find(self, p, xs, default=None):
         return next(filter(p, xs), default)
@@ -151,7 +182,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                  for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
-        renaming_table = dict([(n.name, 'v{}'.format(i).encode('utf-8')) for i, n in enumerate(nodes)])
+        renaming_table = {n.name: 'v{}'.format(i).encode('utf-8') for i, n in enumerate(nodes)}
 
         def rename(x):
             return renaming_table[x]
