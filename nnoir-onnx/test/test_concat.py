@@ -5,6 +5,8 @@ from onnx.numpy_helper import from_array
 import onnx
 import numpy as np
 
+from nose.tools import raises
+
 info = make_tensor_value_info
 
 
@@ -45,7 +47,12 @@ def test_concat_01():
     ConcatTester({"v0": v0, "v1": v1, "v2": v2}, outputs).run()
 
 
+@raises(Exception)
 def test_concat_02():
+    '''
+    Test to get value from initializers directly.
+    Currently unsupported.
+    '''
     class ConcatTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node("Concat", inputs=["v0", "v1", "c"], outputs=["v2"], axis=2)
