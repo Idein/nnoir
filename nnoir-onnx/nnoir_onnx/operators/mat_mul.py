@@ -14,9 +14,9 @@ class OpMatMul(Op):
                 Linear(
                     [x],
                     list(self.node.output),
-                    W=encode_ndarray(env[W]),
+                    W=env[W],
                     b=None
                 )
             ]
         else:
-            raise UnsupportedONNXOperation(self.node, 'W must be constant')
+            raise UnsupportedONNXOperation(self.node, 'B must be constant')
