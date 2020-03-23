@@ -31,11 +31,11 @@ class Base():
         nnoir_result = self.execute_nnoir(self.nnoir)
 
         for a, b in zip(onnx_result, nnoir_result):
-            assert(np.all(abs(a - b)) < epsilon)
+            assert(np.all(abs(a - b) < epsilon))
 
         rerun_result = self.save_and_run(self.nnoir)
         for a, b in zip(rerun_result, nnoir_result):
-            assert(np.all(abs(a - b)) < epsilon)
+            assert(np.all(abs(a - b) < epsilon))
 
     def save_and_run(self, model: NNOIR):
         with tempfile.NamedTemporaryFile(delete=TMP_REMOVE) as f:
