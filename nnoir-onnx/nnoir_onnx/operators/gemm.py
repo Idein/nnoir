@@ -49,8 +49,8 @@ class OpGemm(Op):
                 Linear(
                     [internal_node],
                     list(self.node.output),
-                    W=encode_ndarray(self.alpha * b),
-                    b=encode_ndarray(self.beta * c.ravel())
+                    W=self.alpha * b,
+                    b=self.beta * c.ravel()
                 )
             ]
         else:
@@ -58,7 +58,7 @@ class OpGemm(Op):
                 Linear(
                     [A],
                     list(self.node.output),
-                    W=encode_ndarray(self.alpha * b),
-                    b=encode_ndarray(self.beta * c.ravel())
+                    W=self.alpha * b,
+                    b=self.beta * c.ravel()
                 )
             ]
