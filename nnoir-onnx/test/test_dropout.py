@@ -7,6 +7,7 @@ from onnx.helper import make_node, make_graph, make_model, make_tensor_value_inf
 from onnx.numpy_helper import from_array
 from onnx import TensorProto
 
+
 from util import Base
 
 info = make_tensor_value_info
@@ -44,8 +45,6 @@ def test_dropout_00():
 def test_dropout_01():
     class DropoutTester(Base):
         '''
-        opset version 7
-
         Consideration: Optional output 'mask'
         '''
 
