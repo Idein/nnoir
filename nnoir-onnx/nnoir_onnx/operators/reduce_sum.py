@@ -20,4 +20,4 @@ class OpReduceSum(Op):
         axes = self.axes
         if axes is None:
             axes = tuple(range(len(env[x].shape)))
-        return [Sum(list(self.node.input), list(self.node.output), axes=axes, keepdims=self.keepdims)]
+        return [Sum(list(self.node.input), list(self.node.output), axes=list(axes), keepdims=self.keepdims)]
