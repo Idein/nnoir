@@ -142,7 +142,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                 for k, v in zip(outputs, sess.run(outputs, {i: dummy_inputs[i] for i in inputs})):
                     if k not in constant_nodes:
                         # save memory usage
-                        v = np.broadcast_to(np.zeros(1, dtype=v.dtype), v.shape)
+                        v = np.broadcast_to(np.zeros(1, dtype=v.dtype), (1,) if v.ndim == 0 else v.shape)
                     result[k] = v
                     dummy_inputs[k] = v
                     model.graph.input.append(narray_to_value_info(k, v))
