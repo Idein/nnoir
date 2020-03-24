@@ -13,8 +13,6 @@ info = make_tensor_value_info
 def test_lrn_00():
     '''
     opser version >= 1
-
-    this test is not passed currently.
     '''
     class LRNTester(Base):
         def create_onnx(self) -> onnx.ModelProto:

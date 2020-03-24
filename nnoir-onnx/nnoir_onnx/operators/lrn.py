@@ -28,7 +28,7 @@ class OpLRN(Op):
                 list(self.node.output),
                 n=self.size,
                 k=self.bias,
-                alpha=self.alpha,
+                alpha=self.alpha / self.size,
                 beta=self.beta
             )
         ]
