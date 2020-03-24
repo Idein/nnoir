@@ -43,6 +43,8 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [MatMul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MatMul)
     * `B` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
 * [MaxPool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MaxPool)
+    * `ceil_mode = 1` is not supported
+    * `dilations` is not supported
 * [Pad](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pad)
     * `mode` must be `"constant"`
 * [PRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#PRelu)
