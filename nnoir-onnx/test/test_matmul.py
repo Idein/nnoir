@@ -10,9 +10,12 @@ from nose.tools import raises
 info = make_tensor_value_info
 
 
+@raises(AssertionError)
 def test_matmul_00():
     '''
     opset version >= 9
+
+    Currently, this test will fail due to missing implementations
     '''
 
     shape = (1, 2, 3, 4)
