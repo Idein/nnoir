@@ -10,7 +10,7 @@ from nose.tools import raises
 info = make_tensor_value_info
 
 
-@raises(AssertionError)
+@raises(Exception)
 def test_matmul_00():
     '''
     opset version >= 9
