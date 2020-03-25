@@ -39,6 +39,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * `B` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `C` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
 * [GlobalAveragePool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#GlobalAveragePool)
+* [LeakyRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LeakyRelu)
 * [LRN](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LRN)
 * [MatMul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MatMul)
     * `B` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
