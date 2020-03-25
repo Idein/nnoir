@@ -11,7 +11,7 @@ from nnoir_onnx import ONNX
 
 epsilon = 0.0001
 
-TMP_REMOVE = False
+TMP_REMOVE = True
 
 
 class Base():
