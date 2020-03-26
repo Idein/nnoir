@@ -7,6 +7,9 @@ class OpResize(Op):
     def __init__(self, node, *args):
         super(OpResize, self).__init__(node, *args)
 
+        if self.opset_version < 11:
+            raise UnsupportedONNXOperation(self.node, 'only opset_version >= 11 is supported')
+
         self.mode = b'half_pixel'  # unsupported default ONNX coordinate_transformation_mode
         for attr in node.attribute:
             if attr.name == 'mode':
