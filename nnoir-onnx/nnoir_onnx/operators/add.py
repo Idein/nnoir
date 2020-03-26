@@ -4,8 +4,8 @@ from .utils import *
 
 class OpAdd(Op):
 
-    def __init__(self, node):
-        super(OpAdd, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpAdd, self).__init__(node, *args)
 
     def to_function(self, env, constants):
         [a, b] = self.node.input

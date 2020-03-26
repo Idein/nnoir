@@ -4,8 +4,8 @@ from .utils import *
 
 class OpResize(Op):
 
-    def __init__(self, node):
-        super(OpResize, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpResize, self).__init__(node, *args)
 
         self.mode = b'half_pixel'  # unsupported default ONNX coordinate_transformation_mode
         for attr in node.attribute:
@@ -25,7 +25,8 @@ class OpResize(Op):
                         '"align_corners" and "pytorch_half_pixel"'.format(attr.s.decode('utf-8')))
 
         if self.mode == b'half_pixel':
-            raise UnsupportedONNXOperation(self.node, 'default "half_pixel" coordinate_transformation_mode is unsupported')
+            raise UnsupportedONNXOperation(
+                self.node, 'default "half_pixel" coordinate_transformation_mode is unsupported')
 
     def to_function(self, env, constants):
         x, *_ = self.node.input

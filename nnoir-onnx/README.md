@@ -21,7 +21,11 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [Add](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Add)
 * [AveragePool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#AveragePool)
 * [BatchNormalization](https://github.com/onnx/onnx/blob/master/docs/Operators.md#BatchNormalization)
-* [Clip](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Clip)
+    * `scale`, `B`, `mean`, and `var` must be `"constant"`
+* [Clip](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Clip) 
+    * must be opset version 6 or 11
+    * if opset version is 11 
+      * `max` must be `"constant"`
     * `min` must be 0
 * [Concat](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Concat)
 * [Conv](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Conv)
@@ -35,10 +39,13 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * `B` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `C` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
 * [GlobalAveragePool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#GlobalAveragePool)
+* [LeakyRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LeakyRelu)
 * [LRN](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LRN)
 * [MatMul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MatMul)
     * `B` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
 * [MaxPool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MaxPool)
+    * `ceil_mode = 1` is not supported
+    * `dilations` is not supported
 * [Pad](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pad)
     * `mode` must be `"constant"`
 * [PRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#PRelu)

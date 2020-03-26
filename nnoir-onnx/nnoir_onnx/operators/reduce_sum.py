@@ -4,8 +4,8 @@ from .utils import *
 
 class OpReduceSum(Op):
 
-    def __init__(self, node):
-        super(OpReduceSum, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpReduceSum, self).__init__(node, *args)
 
         self.axes = None
         self.keepdims = True
@@ -19,5 +19,5 @@ class OpReduceSum(Op):
         [x] = self.node.input
         axes = self.axes
         if axes is None:
-            axes = tuple(range(len(x.shape)))
-        return [Sum(list(self.node.input), list(self.node.output), axes=axes, keepdims=self.keepdims)]
+            axes = tuple(range(len(env[x].shape)))
+        return [Sum(list(self.node.input), list(self.node.output), axes=list(axes), keepdims=self.keepdims)]

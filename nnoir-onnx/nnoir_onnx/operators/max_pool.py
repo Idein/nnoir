@@ -5,8 +5,8 @@ from .utils import *
 
 class OpMaxPool(Op):
 
-    def __init__(self, node):
-        super(OpMaxPool, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpMaxPool, self).__init__(node, *args)
 
         self.kernel_shape = None
         self.auto_pad = b'NOTSET'
@@ -16,14 +16,24 @@ class OpMaxPool(Op):
         for attr in node.attribute:
             if attr.name == 'kernel_shape':
                 self.kernel_shape = attr.ints
-            if attr.name == 'storage_order':
+            elif attr.name == 'storage_order':
                 self.storage_order = attr.i
-            if attr.name == 'strides':
+            elif attr.name == 'strides':
                 self.strides = attr.ints
-            if attr.name == 'auto_pad':
+            elif attr.name == 'auto_pad':
                 self.auto_pad = attr.s
-            if attr.name == 'pads':
+            elif attr.name == 'pads':
                 self.pads = attr.ints
+
+            # opset version >= 10
+            elif attr.name == 'ceil_mode':
+                raise UnsupportedONNXOperation(self.node, 'attribute `ceil_mode` is not supported')
+
+            # opset version >= 11
+            elif attr.name == 'dilations':
+                raise UnsupportedONNXOperation(self.node, 'attribute `dialations` is not supported')
+            else:
+                raise UnsupportedONNXOperation(self.node, 'unknown attribute {}'.format(attr.name))
 
     def to_function(self, env, constants):
         [x] = self.node.input

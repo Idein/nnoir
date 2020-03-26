@@ -4,8 +4,8 @@ from .utils import *
 
 class OpLRN(Op):
 
-    def __init__(self, node):
-        super(OpLRN, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpLRN, self).__init__(node, *args)
 
         self.alpha = 0.0001
         self.beta = 0.75
@@ -28,7 +28,7 @@ class OpLRN(Op):
                 list(self.node.output),
                 n=self.size,
                 k=self.bias,
-                alpha=self.alpha,
+                alpha=self.alpha / self.size,
                 beta=self.beta
             )
         ]

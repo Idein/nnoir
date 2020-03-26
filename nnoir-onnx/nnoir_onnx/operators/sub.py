@@ -4,8 +4,8 @@ from .utils import *
 
 class OpSub(Op):
 
-    def __init__(self, node):
-        super(OpSub, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpSub, self).__init__(node, *args)
 
     def to_function(self, env, constants):
         [a, b] = self.node.input

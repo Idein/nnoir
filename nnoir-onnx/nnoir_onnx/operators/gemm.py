@@ -4,8 +4,8 @@ from .utils import *
 
 class OpGemm(Op):
 
-    def __init__(self, node):
-        super(OpGemm, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpGemm, self).__init__(node, *args)
 
         self.alpha = 1.0
         self.beta = 1.0
@@ -49,8 +49,8 @@ class OpGemm(Op):
                 Linear(
                     [internal_node],
                     list(self.node.output),
-                    W=encode_ndarray(self.alpha * b),
-                    b=encode_ndarray(self.beta * c.ravel())
+                    W=self.alpha * b,
+                    b=self.beta * c.ravel()
                 )
             ]
         else:
@@ -58,7 +58,7 @@ class OpGemm(Op):
                 Linear(
                     [A],
                     list(self.node.output),
-                    W=encode_ndarray(self.alpha * b),
-                    b=encode_ndarray(self.beta * c.ravel())
+                    W=self.alpha * b,
+                    b=self.beta * c.ravel()
                 )
             ]

@@ -5,8 +5,8 @@ from .utils import *
 
 class OpConv(Op):
 
-    def __init__(self, node):
-        super(OpConv, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpConv, self).__init__(node, *args)
 
         self.kernel_shape = None
         self.auto_pad = b'NOTSET'
@@ -73,8 +73,8 @@ class OpConv(Op):
                 DepthwiseConvolution2D(
                     [x],
                     list(self.node.output),
-                    W=encode_ndarray(np.rollaxis(W.reshape(self.group, out_channels//self.group, kh, kw), 1, 0)),
-                    b=encode_ndarray(b),
+                    W=np.rollaxis(W.reshape(self.group, out_channels//self.group, kh, kw), 1, 0),
+                    b=b,
                     stride=(sy, sx),
                     pad_h=pad_h,
                     pad_w=pad_w,
@@ -86,8 +86,8 @@ class OpConv(Op):
                 Convolution2D(
                     [x],
                     list(self.node.output),
-                    W=encode_ndarray(W),
-                    b=encode_ndarray(b),
+                    W=W,
+                    b=b,
                     stride=(sy, sx),
                     pad_h=pad_h,
                     pad_w=pad_w,

@@ -5,8 +5,8 @@ from .utils import *
 
 class OpConcat(Op):
 
-    def __init__(self, node):
-        super(OpConcat, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpConcat, self).__init__(node, *args)
 
         self.axis = None
         for attr in node.attribute:

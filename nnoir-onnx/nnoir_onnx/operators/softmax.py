@@ -4,8 +4,8 @@ from .utils import *
 
 class OpSoftmax(Op):
 
-    def __init__(self, node):
-        super(OpSoftmax, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpSoftmax, self).__init__(node, *args)
 
         self.axis = 1
         for attr in self.node.attribute:

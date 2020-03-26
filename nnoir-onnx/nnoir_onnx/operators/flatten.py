@@ -6,8 +6,8 @@ from .utils import *
 
 class OpFlatten(Op):
 
-    def __init__(self, node):
-        super(OpFlatten, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpFlatten, self).__init__(node, *args)
 
         self.axis = 1
         for attr in node.attribute:
@@ -16,8 +16,11 @@ class OpFlatten(Op):
 
     def to_function(self, env, constants):
         [x] = self.node.input
-        flattened_shape = (reduce(lambda k, n: k*n, env[x].shape[:self.axis]),
-                           reduce(lambda k, n: k*n, env[x].shape[self.axis:]))
+        if self.axis == 0:
+            flattened_shape = (1, -1)
+        else:
+            flattened_shape = (reduce(lambda k, n: k*n, env[x].shape[:self.axis]),
+                               reduce(lambda k, n: k*n, env[x].shape[self.axis:]))
         return [
             Reshape(
                 list(self.node.input),

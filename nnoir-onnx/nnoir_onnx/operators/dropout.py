@@ -4,8 +4,8 @@ from .utils import *
 
 class OpDropout(Op):
 
-    def __init__(self, node):
-        super(OpDropout, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpDropout, self).__init__(node, *args)
 
     def to_function(self, env, constants):
         return [

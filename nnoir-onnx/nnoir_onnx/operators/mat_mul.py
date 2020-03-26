@@ -4,8 +4,8 @@ from .utils import *
 
 class OpMatMul(Op):
 
-    def __init__(self, node):
-        super(OpMatMul, self).__init__(node)
+    def __init__(self, node, *args):
+        super(OpMatMul, self).__init__(node, *args)
 
     def to_function(self, env, constants):
         [x, W] = self.node.input
@@ -14,9 +14,9 @@ class OpMatMul(Op):
                 Linear(
                     [x],
                     list(self.node.output),
-                    W=encode_ndarray(env[W]),
+                    W=env[W],
                     b=None
                 )
             ]
         else:
-            raise UnsupportedONNXOperation(self.node, 'W must be constant')
+            raise UnsupportedONNXOperation(self.node, 'B must be constant')
