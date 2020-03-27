@@ -26,8 +26,9 @@ class OpMaxPool(Op):
                 self.pads = attr.ints
 
             # opset version >= 10
-            elif attr.name == 'ceil_mode' and attr.i != 0:
-                raise UnsupportedONNXOperation(self.node, 'only value 0 is supported for attribute `ceil_mode`')
+            elif attr.name == 'ceil_mode':
+                if attr.i != 0:
+                    raise UnsupportedONNXOperation(self.node, 'only value 0 is supported for attribute `ceil_mode`')
 
             # opset version >= 11
             elif attr.name == 'dilations':
