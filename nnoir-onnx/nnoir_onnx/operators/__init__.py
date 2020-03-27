@@ -25,4 +25,5 @@ from .sub import OpSub
 from .sum import OpSum
 from .tanh import OpTanh
 from .transpose import OpTranspose
+from .unsqueeze import OpUnsqueeze
 from .prelu import OpPRelu
