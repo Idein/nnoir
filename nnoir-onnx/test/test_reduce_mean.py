@@ -53,8 +53,6 @@ def test_reduce_mean_01():
 def test_reduce_mean_02():
     '''
     opset version >= 1
-
-    Currently, failed to packing as msgpack
     '''
     class ReduceMeanTester(Base):
         def create_onnx(self) -> onnx.ModelProto:

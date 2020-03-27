@@ -53,8 +53,6 @@ def test_reduce_sum_01():
 def test_reduce_sum_02():
     '''
     opset version >= 1
-
-    Currently, failed to packing as msgpack
     '''
     class ReduceSumTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
