@@ -11,6 +11,9 @@ class OpUnsqueeze(Op):
         [x] = self.node.input
         [y] = self.node.output
 
+        # The axes attribute is ignored. We already know output shape,
+        # without reconstruction from input shape and axes.
+
         return [
             Reshape(
                 [x],
