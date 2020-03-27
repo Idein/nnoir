@@ -117,7 +117,7 @@ def test_mul_03():
 
             b_init = from_array(B, "B")
             graph = make_graph([node], "add_graph", inputs, outputs, initializer=[b_init])
-            model = make_model(graph, opset_imports=[make_opsetid("", 6)])
+            model = make_model(graph, opset_imports=[make_opsetid("", 1)])
             return model
 
     a = np.random.rand(*a_shape).astype(np.float32)
