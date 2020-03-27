@@ -47,7 +47,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * `ceil_mode = 1` is not supported
     * `dilations` is not supported
 * [Mul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Mul)
-    * must be from opset version >= 7
+    * for opset <= 6 without `axis` specification and for opset >= 7, if only one input is [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant), supports only [unidirectional broadcast](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md#unidirectional-broadcasting) on the constant input
 * [Pad](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pad)
     * `mode` must be `"constant"`
 * [PRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#PRelu)
