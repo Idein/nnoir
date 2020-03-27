@@ -7,7 +7,6 @@ class OpMul(Op):
     def __init__(self, node, *args):
         super().__init__(node, *args)
 
-
         self._axis = None
 
         for attr in node.attribute:
