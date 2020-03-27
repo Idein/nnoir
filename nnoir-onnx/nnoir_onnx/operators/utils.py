@@ -52,3 +52,14 @@ def auto_pad_to_manual_pad(n, k, s, d, auto_pad):
         return (0, 0)
     else:
         raise 'invalid'
+
+
+def gen_unregisterd_node_name(env):
+    for i in range(len(env)):
+        candidate = 'v{}'.format(i)
+        if candidate not in env:
+            return candidate
+
+
+def register_node(env, name, val):
+    env[name] = val

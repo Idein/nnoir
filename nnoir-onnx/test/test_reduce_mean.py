@@ -10,13 +10,13 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_reduce_sum_00():
+def test_reduce_mean_00():
     '''
     opset version >= 1
     '''
-    class ReduceSumTester(Base):
+    class ReduceMeanTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("ReduceSum", inputs=["v0"], outputs=["v1"])
+            node = make_node("ReduceMean", inputs=["v0"], outputs=["v1"])
             inputs = [info("v0", TensorProto.FLOAT, (1, 3, 4, 5))]
             outputs = [info("v1", TensorProto.FLOAT, (1, 1, 1, 1))]
 
@@ -27,16 +27,16 @@ def test_reduce_sum_00():
     v0 = np.random.rand(1, 3, 4, 5).astype(np.float32)
 
     outputs = ["v1"]
-    ReduceSumTester({"v0": v0}, outputs).run()
+    ReduceMeanTester({"v0": v0}, outputs).run()
 
 
-def test_reduce_sum_01():
+def test_reduce_mean_01():
     '''
     opset version >= 1
     '''
-    class ReduceSumTester(Base):
+    class ReduceMeanTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("ReduceSum", inputs=["v0"], outputs=["v1"], keepdims=0)
+            node = make_node("ReduceMean", inputs=["v0"], outputs=["v1"], keepdims=0)
             inputs = [info("v0", TensorProto.FLOAT, (1, 3, 4, 5))]
             outputs = [info("v1", TensorProto.FLOAT, [])]  # the shape is scalar
 
@@ -47,16 +47,16 @@ def test_reduce_sum_01():
     v0 = np.random.rand(1, 3, 4, 5).astype(np.float32)
 
     outputs = ["v1"]
-    ReduceSumTester({"v0": v0}, outputs).run()
+    ReduceMeanTester({"v0": v0}, outputs).run()
 
 
-def test_reduce_sum_02():
+def test_reduce_mean_02():
     '''
     opset version >= 1
     '''
-    class ReduceSumTester(Base):
+    class ReduceMeanTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("ReduceSum", inputs=["v0"], outputs=["v1"], axes=[1, 2])
+            node = make_node("ReduceMean", inputs=["v0"], outputs=["v1"], axes=[1, 2])
             inputs = [info("v0", TensorProto.FLOAT, (1, 3, 4, 5))]
             outputs = [info("v1", TensorProto.FLOAT, [1, 1, 1, 5])]
 
@@ -67,4 +67,4 @@ def test_reduce_sum_02():
     v0 = np.random.rand(1, 3, 4, 5).astype(np.float32)
 
     outputs = ["v1"]
-    ReduceSumTester({"v0": v0}, outputs).run()
+    ReduceMeanTester({"v0": v0}, outputs).run()
