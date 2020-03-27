@@ -7,7 +7,7 @@ import numpy
 import argparse
 
 def function_label(function):
-    ret = '{{' + ('|'.join([function[b'name'].decode()] + list(map(lambda v: '<' + v.decode() + '>', reversed(function[b'inputs'])))))
+    ret = '{{' + ('|'.join([function[b'name'].decode()] + list(map(lambda v: '<a' + str(v[0]) + v[1].decode() + '>', enumerate(function[b'inputs'])))))
     if (b'W' in function[b'params']):
         ret += '|W'
     if (b'b' in function[b'params']):
@@ -79,8 +79,8 @@ def to_dot(nnoir, rankdir = 'TB'):
                       in attribute.items()]
         ret += "  %s [%s];\n" % (function_name(function), ",".join(attributes))
         # output functions
-        for from_value in function[b'inputs']:
-            ret += '  %s -> %s:%s[constraint=false];' % (from_value.decode(), function_name(function), from_value.decode())
+        for i, from_value in enumerate(function[b'inputs']):
+            ret += '  %s -> %s:a%d%s[constraint=false];' % (from_value.decode(), function_name(function), i, from_value.decode())
             ret += '  %s -> %s[color="transparent"];\n' % (from_value.decode(), function_name(function))
         for to_value in function[b'outputs']:
             ret += '  %s:%s -> %s[constraint=false];' % (function_name(function), to_value.decode(), to_value.decode())
