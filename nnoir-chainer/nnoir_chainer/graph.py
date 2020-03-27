@@ -98,9 +98,8 @@ class Graph(object):
             else:
                 if hasattr(candidate, 'chainer_input_variables'):
                     for input_ in reversed(candidate.chainer_input_variables):
-                        if input_ is not candidate and (id(input_), id(candidate)) not in seen_edges:
+                        if input_ is not candidate:
                             add_candidate(input_)
-                            seen_edges.add((id(input_), id(candidate)))
                             input_node = create_node(input_)
                             candidate_node = create_node(candidate)
                             candidate_node.add_in_edge(input_node)
