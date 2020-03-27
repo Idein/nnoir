@@ -64,3 +64,14 @@ def unidirectional_broadcastable(shape_x, shape_w):
     """
 
     return all([w_i in (x_i, 1) for x_i, w_i in zip(shape_x, shape_w)])
+
+
+def gen_unregisterd_node_name(env):
+    for i in range(len(env)):
+        candidate = 'v{}'.format(i)
+        if candidate not in env:
+            return candidate
+
+
+def register_node(env, name, val):
+    env[name] = val

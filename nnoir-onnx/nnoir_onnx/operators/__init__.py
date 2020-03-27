@@ -15,6 +15,7 @@ from .mat_mul import OpMatMul
 from .max_pool import OpMaxPool
 from .mul import OpMul
 from .pad import OpPad
+from .reduce_mean import OpReduceMean
 from .reduce_sum import OpReduceSum
 from .relu import OpRelu
 from .reshape import OpReshape
@@ -25,4 +26,5 @@ from .sub import OpSub
 from .sum import OpSum
 from .tanh import OpTanh
 from .transpose import OpTranspose
+from .unsqueeze import OpUnsqueeze
 from .prelu import OpPRelu

@@ -22,9 +22,9 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [AveragePool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#AveragePool)
 * [BatchNormalization](https://github.com/onnx/onnx/blob/master/docs/Operators.md#BatchNormalization)
     * `scale`, `B`, `mean`, and `var` must be `"constant"`
-* [Clip](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Clip) 
+* [Clip](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Clip)
     * must be opset version 6 or 11
-    * if opset version is 11 
+    * if opset version is 11
       * `max` must be `"constant"`
     * `min` must be 0
 * [Concat](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Concat)
@@ -52,6 +52,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * `mode` must be `"constant"`
 * [PRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#PRelu)
     * `slope` must be `"constant"` and a single value tensor
+* [ReduceMean](https://github.com/onnx/onnx/blob/master/docs/Operators.md#reducemean)
 * [ReduceSum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#reducesum)
 * [Relu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Relu)
 * [Reshape](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Reshape)
@@ -67,3 +68,4 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * 2 inputs
 * [Tanh](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tanh)
 * [Transpose](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Transpose)
+* [Unsqueeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Unsqueeze)
