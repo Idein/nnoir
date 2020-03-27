@@ -50,8 +50,15 @@ class OpMul(Op):
                 shape_post_len = len(a_shape) - self._axis - len(b_shape)
                 shape = (1,)*self._axis + b_shape + (1,)*shape_post_len
 
-                
-                return []
-            return [Mul(list(self.node.input), list(self.node.output))]
+                internal_node_val = env[b].reshape(shape)
+                internal_node = gen_unregisterd_node_name(env)
+                register_node(env, internal_node, internal_node_val)
+
+                return [
+                    Reshape([b], [internal_node], shape=shape),
+                    Mul([a, internal_node], list(self.node.output))
+                ]
+            else:
+                return [Mul(list(self.node.input), list(self.node.output))]
         else:
             raise UnsupportedONNXOperation(self.node, 'bug! (unreachable here)')
