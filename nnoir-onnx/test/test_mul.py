@@ -8,7 +8,7 @@ import numpy as np
 from nose.tools import raises
 
 info = make_tensor_value_info
-+
+
 
 @raises(Exception)
 def test_mul_00():
