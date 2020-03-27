@@ -66,3 +66,4 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * 2 inputs
 * [Tanh](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tanh)
 * [Transpose](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Transpose)
+* [Unsqueeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Unsqueeze)
