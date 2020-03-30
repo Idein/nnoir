@@ -1,3 +1,4 @@
+import numpy as np
 from nnoir.functions import *
 from .utils import *
 
@@ -17,7 +18,7 @@ class OpMul(Op):
             if axis == 0 and not unidirectional_broadcastable(env[v].shape, env[w].shape):
 
                 shape = env[y].shape
-                internal_node_val = env[v].reshape(shape)
+                internal_node_val = np.broadcast_to(env[v], shape=shape)
                 internal_node = gen_unregisterd_node_name(env)
                 register_node(env, internal_node, internal_node_val)
                 return [
