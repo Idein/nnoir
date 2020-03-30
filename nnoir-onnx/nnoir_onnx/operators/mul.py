@@ -21,7 +21,7 @@ class OpMul(Op):
                 internal_node = gen_unregisterd_node_name(env)
                 register_node(env, internal_node, internal_node_val)
                 return [
-                    Reshape([v], [internal_node], shape=shape),
+                    BroadcastTo([v], [internal_node], shape=shape),
                     Scale([internal_node], list(self.node.output), axis=axis, W=encode_ndarray(constants[w]), b=None)
                 ]
             else:
