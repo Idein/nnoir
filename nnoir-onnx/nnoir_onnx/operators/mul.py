@@ -10,6 +10,7 @@ class OpMul(Op):
     def to_function(self, env, constants):
         [a, b] = self.node.input
         [y] = self.node.output
+
         def scale(v, w):
             # use unidirectional broadcasting rule
             axis = env[v].ndim - env[w].ndim
