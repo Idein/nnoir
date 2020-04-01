@@ -23,10 +23,10 @@ class OpMul(Op):
                 register_node(env, internal_node, internal_node_val)
                 return [
                     BroadcastTo([v], [internal_node], shape=shape),
-                    Scale([internal_node], list(self.node.output), axis=axis, W=encode_ndarray(constants[w]), b=None)
+                    Scale([internal_node], list(self.node.output), axis=axis, W=constants[w], b=None)
                 ]
             else:
-                return [Scale([v], list(self.node.output), axis=axis, W=encode_ndarray(constants[w]), b=None)]
+                return [Scale([v], list(self.node.output), axis=axis, W=constants[w], b=None)]
 
         if a in constants and b not in constants:
             return scale(b, a)
