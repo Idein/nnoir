@@ -1,4 +1,3 @@
-import numpy as np
 from nnoir.functions import *
 from .utils import *
 
@@ -16,14 +15,11 @@ class OpMul(Op):
             # use unidirectional broadcasting rule
             axis = env[v].ndim - env[w].ndim
             if axis == 0 and not unidirectional_broadcastable(env[v].shape, env[w].shape):
-
-                shape = env[y].shape
-                internal_node_val = np.broadcast_to(env[v], shape=shape)
                 internal_node = gen_unregisterd_node_name(env)
-                register_node(env, internal_node, internal_node_val)
+                register_node(env, internal_node, env[w])
                 return [
-                    BroadcastTo([v], [internal_node], shape=shape),
-                    Scale([internal_node], list(self.node.output), axis=axis, W=constants[w], b=None)
+                    Constant([], [internal_node], value=constants[w]),
+                    Mul([v, internal_node], list(self.node.output))
                 ]
             else:
                 return [Scale([v], list(self.node.output), axis=axis, W=constants[w], b=None)]
