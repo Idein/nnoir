@@ -46,6 +46,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [MaxPool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MaxPool)
     * `ceil_mode = 1` is not supported
     * `dilations` is not supported
+* [Mul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Mul)
 * [Pad](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pad)
     * `mode` must be `"constant"`
 * [PRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#PRelu)
