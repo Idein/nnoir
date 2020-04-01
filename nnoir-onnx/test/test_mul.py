@@ -94,3 +94,32 @@ def test_mul_02():
 
     outputs = ["C"]
     MulTester({"A": a}, outputs).run()
+
+
+def test_mul_03():
+    '''
+    opset version >= 7
+    with one constant, different shape length
+    '''
+
+    a_shape = (1, 2, 3, 4)
+    b_shape = (3, 4)
+    out_shape = (1, 2, 3, 4)
+
+    class MulTester(Base):
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node("Mul", inputs=["A", "B"], outputs=["C"])
+            inputs = [info("A", TensorProto.FLOAT, a_shape)]
+            outputs = [info("C", TensorProto.FLOAT, out_shape)]
+
+            B = np.random.rand(*b_shape).astype(np.float32)
+
+            b_init = from_array(B, "B")
+            graph = make_graph([node], "add_graph", inputs, outputs, initializer=[b_init])
+            model = make_model(graph)
+            return model
+
+    a = np.random.rand(*a_shape).astype(np.float32)
+
+    outputs = ["C"]
+    MulTester({"A": a}, outputs).run()

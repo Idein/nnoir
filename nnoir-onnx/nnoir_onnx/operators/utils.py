@@ -54,18 +54,6 @@ def auto_pad_to_manual_pad(n, k, s, d, auto_pad):
         raise 'invalid'
 
 
-def unidirectional_broadcastable(shape_x, shape_w):
-    """returns True if w of shape `shape_w` is unidirectionnally broadcastable to x of shape `shape_x`
-    The number of dimensions is equal between tensors
-
-    Arguments:
-        shape_x {tuple} -- shape of tensor x
-        shape_w {tuple} -- shape of tensor w (size of the tuple is assumed to be equal)
-    """
-
-    return all([w_i in (x_i, 1) for x_i, w_i in zip(shape_x, shape_w)])
-
-
 def gen_unregisterd_node_name(env):
     for i in range(len(env)):
         candidate = 'v{}'.format(i)
