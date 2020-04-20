@@ -14,7 +14,7 @@ class OpMatMul(Op):
                 Linear(
                     [x],
                     list(self.node.output),
-                    W=env[W],
+                    W=env[W].T,
                     b=None
                 )
             ]
