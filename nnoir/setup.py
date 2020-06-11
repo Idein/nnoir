@@ -24,6 +24,6 @@ setup(
     ],
     keywords='nnoir machine learning',
     packages=find_packages(),
-    install_requires=['numpy', 'msgpack-python'],
+    install_requires=['numpy', 'msgpack'],
     scripts=['nnoir2dot']
 )

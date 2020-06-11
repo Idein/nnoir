@@ -24,5 +24,5 @@ setup(
     ],
     keywords='nnoir machine learning chainer',
     packages=find_packages(),
-    install_requires=['chainer', 'numpy', 'msgpack-python', 'nnoir'],
+    install_requires=['chainer', 'numpy', 'msgpack', 'nnoir'],
 )
