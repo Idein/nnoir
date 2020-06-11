@@ -8,7 +8,7 @@ from .value import Value
 
 def load(nnoir_file):
     with open(nnoir_file, 'rb') as f:
-        nnoir = msgpack.unpackb(f.read())
+        nnoir = msgpack.unpackb(f.read(),raw=True)
     name = nnoir[b'nnoir'][b'model'][b'name']
     generator_name = nnoir[b'nnoir'][b'model'][b'generator'][b'name']
     generator_version = nnoir[b'nnoir'][b'model'][b'generator'][b'version']
