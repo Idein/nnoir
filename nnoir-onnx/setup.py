@@ -26,7 +26,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'numpy',
-        'msgpack-python',
+        'msgpack',
         'onnx',
         'onnxruntime>=1.2.0',
         'nnoir',

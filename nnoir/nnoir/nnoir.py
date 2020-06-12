@@ -64,7 +64,7 @@ class NNOIR():
         }
 
     def pack(self):
-        return msgpack.packb(self.to_nnoir())
+        return msgpack.packb(self.to_nnoir(), use_bin_type=False)
 
     def dump(self, file_name):
         result = self.pack()
