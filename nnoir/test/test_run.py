@@ -212,6 +212,18 @@ def test_ELU():
         alpha=0.5,
     )
 
+def test_Gemm():
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b'v0', (3, 4)),
+         (b'v1', (4, 5))],
+        [(b'v2', (3, 5))],
+        transA = 0,
+        transB = 0,
+        alpha = 2.0,
+        beta = 1.0
+    )
+
 def test_LeakyReLU():
     single_function_model(
         sys._getframe().f_code.co_name[5:],

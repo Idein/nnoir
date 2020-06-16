@@ -12,6 +12,7 @@ from .convolution_2d import Convolution2D
 from .depthwise_convolution_2d import DepthwiseConvolution2D
 from .dropout import Dropout
 from .elu import ELU
+from .gemm import Gemm
 from .leaky_relu import LeakyReLU
 from .linear import Linear
 from .local_response_normalization import LocalResponseNormalization
