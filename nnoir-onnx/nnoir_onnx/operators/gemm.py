@@ -22,7 +22,10 @@ class OpGemm(Op):
                 self.transB = attr.i
 
     def to_function(self, env, constants):
-        [A, B, C] = self.node.input
+        if len(self.node.input) == 3:
+            [A, B, C] = self.node.input
+        else:
+            [A, B] = self.node.input
 
         if B not in constants:
             return [
