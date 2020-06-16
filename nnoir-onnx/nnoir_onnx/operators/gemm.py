@@ -25,9 +25,16 @@ class OpGemm(Op):
         [A, B, C] = self.node.input
 
         if B not in constants:
-            raise UnsupportedONNXOperation(self.node, 'B must be constant')
-        if C not in constants:
-            raise UnsupportedONNXOperation(self.node, 'C must be constant')
+            return [
+                Gemm(
+                    list(self.node.input),
+                    list(self.node.output),
+                    alpha=self.alpha,
+                    beta=self.beta,
+                    transA=self.transA != 0,
+                    transB=self.transB != 0
+                )
+            ]
 
         b = env[B]
         if self.transB == 0:
