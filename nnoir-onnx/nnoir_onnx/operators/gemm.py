@@ -22,12 +22,22 @@ class OpGemm(Op):
                 self.transB = attr.i
 
     def to_function(self, env, constants):
-        [A, B, C] = self.node.input
+        if len(self.node.input) == 3:
+            [A, B, C] = self.node.input
+        else:
+            [A, B] = self.node.input
 
         if B not in constants:
-            raise UnsupportedONNXOperation(self.node, 'B must be constant')
-        if C not in constants:
-            raise UnsupportedONNXOperation(self.node, 'C must be constant')
+            return [
+                Gemm(
+                    list(self.node.input),
+                    list(self.node.output),
+                    alpha=self.alpha,
+                    beta=self.beta,
+                    transA=self.transA != 0,
+                    transB=self.transB != 0
+                )
+            ]
 
         b = env[B]
         if self.transB == 0:
