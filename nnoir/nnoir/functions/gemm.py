@@ -10,8 +10,8 @@ class Gemm(Function):
                                    params, required_params, optional_params)
 
     def run(self, a, b, c=None):
-        a = a if self.params['transA'] == 0 else a.T
-        b = b if self.params['transB'] == 0 else b.T
+        a = a if not self.params['transA'] else a.T
+        b = b if not self.params['transB'] else b.T
         result = self.params['alpha']*np.dot(a, b)
         if c is not None:
             result += self.params['beta']*c
