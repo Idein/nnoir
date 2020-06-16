@@ -110,3 +110,32 @@ def test_gemm_02():
     inputs = {"a": a, "b": b, "c": c}
     outputs = ["y"]
     GemmTester(inputs, outputs).run()
+
+def test_gemm_03():
+    a_shape = (4, 3)
+    b_shape = (5, 4)
+
+    class GemmTester(Base):
+        '''
+        opset version >= 11
+        '''
+
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node("Gemm", inputs=["a", "b"], outputs=["y"],
+                             alpha=0.3, beta=0.35, transA=1, transB=1
+                             )
+
+            inputs = [info("a", TensorProto.FLOAT, a_shape),
+                      info("b", TensorProto.FLOAT, b_shape)
+                     ]
+            outputs = [info("y", TensorProto.FLOAT, (3, 5))]
+
+            graph = make_graph([node], "gemm_graph", inputs, outputs)
+            return make_model(graph)
+
+    a = np.random.ranf(list(a_shape)).astype(np.float32)
+    b = np.random.ranf(list(b_shape)).astype(np.float32)
+
+    inputs = {"a": a, "b": b}
+    outputs = ["y"]
+    GemmTester(inputs, outputs).run()
