@@ -79,6 +79,7 @@ def test_gemm_01():
     outputs = ["y"]
     GemmTester(inputs, outputs).run()
 
+
 def test_gemm_02():
     a_shape = (4, 3)
     b_shape = (5, 4)
@@ -97,7 +98,7 @@ def test_gemm_02():
             inputs = [info("a", TensorProto.FLOAT, a_shape),
                       info("b", TensorProto.FLOAT, b_shape),
                       info("c", TensorProto.FLOAT, c_shape)
-                     ]
+                      ]
             outputs = [info("y", TensorProto.FLOAT, (3, 5))]
 
             graph = make_graph([node], "gemm_graph", inputs, outputs)
@@ -110,6 +111,7 @@ def test_gemm_02():
     inputs = {"a": a, "b": b, "c": c}
     outputs = ["y"]
     GemmTester(inputs, outputs).run()
+
 
 def test_gemm_03():
     a_shape = (3, 4)
@@ -129,7 +131,7 @@ def test_gemm_03():
             inputs = [info("a", TensorProto.FLOAT, a_shape),
                       info("b", TensorProto.FLOAT, b_shape),
                       info("c", TensorProto.FLOAT, c_shape)
-                     ]
+                      ]
             outputs = [info("y", TensorProto.FLOAT, (3, 5))]
 
             graph = make_graph([node], "gemm_graph", inputs, outputs)
@@ -142,6 +144,7 @@ def test_gemm_03():
     inputs = {"a": a, "b": b, "c": c}
     outputs = ["y"]
     GemmTester(inputs, outputs).run()
+
 
 def test_gemm_04():
     a_shape = (4, 3)
@@ -159,7 +162,7 @@ def test_gemm_04():
 
             inputs = [info("a", TensorProto.FLOAT, a_shape),
                       info("b", TensorProto.FLOAT, b_shape)
-                     ]
+                      ]
             outputs = [info("y", TensorProto.FLOAT, (3, 5))]
 
             graph = make_graph([node], "gemm_graph", inputs, outputs)
