@@ -19,4 +19,4 @@ class OpMatMul(Op):
                 )
             ]
         else:
-            raise UnsupportedONNXOperation(self.node, 'B must be constant')
+            return [MatMul(list(self.node.input), list(self.node.output))]
