@@ -11,6 +11,7 @@ from .gemm import OpGemm
 from .global_average_pool import OpGlobalAveragePool
 from .leaky_relu import OpLeakyRelu
 from .lrn import OpLRN
+from .lstm import OpLSTM
 from .mat_mul import OpMatMul
 from .max_pool import OpMaxPool
 from .mul import OpMul
