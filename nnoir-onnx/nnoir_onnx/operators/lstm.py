@@ -43,16 +43,30 @@ class OpLSTM(Op):
         print("LSTM.to_function end")
 
         if self.direction == "forward":
-            # [x, W, R, B, seq_lens, h0, c0, P] = self.node.input
-            [x, W, R] = self.node.input
-            Ws = np.split(env[W], 4, axis=1)
-            Rs = np.split(env[R], 4, axis=1)
-            # WB, RB = np.split(env[B], 2)
-            # WB_i, WB_o, WB_f, WB_c = np.split(WB, 4)
-            # RB_i, RB_o, RB_f, RB_c = np.split(RB, 4)
+            li = len(self.node.input)
+            if li == 3:
+                [x, W, R] = self.node.input
+                Ws = np.split(env[W], 4, axis=1)
+                Rs = np.split(env[R], 4, axis=1)
+                WBs = np.zeros(4)
+                RBs = np.zeros(4)
+            elif li == 4:
+                [x, W, R, B] = self.node.input
+                Ws = np.split(env[W], 4, axis=1)
+                Rs = np.split(env[R], 4, axis=1)
+                WB, RB = np.split(env[B], 2, axis=1)
+                WBs = np.split(WB, 4, axis=1)
+                RBs = np.split(WB, 4, axis=1)
 
-            h1 = self.node.output[1]
-            y = self.node.output[0]
+            lo = len(self.node.output)
+            if lo == 1:
+                [y] = self.node.output
+            elif lo == 2:
+                [y, y_h] = self.node.output
+            elif lo == 3:
+                [y, y_h, y_c] = self.node.output
+            else:
+                raise UnsupportedONNXOperation(self.node, 'too many output')
 
             # i = sigmoid(np.dot(x, W_i) + np.dot(h0, R_i) + WB_i + RB_i)
             # o = sigmoid(np.dot(x, W_o) + np.dot(h0, R_o) + WB_o + RB_o)
@@ -70,13 +84,21 @@ class OpLSTM(Op):
             W_o = gen_new_node(env)
             W_c = gen_new_node(env)
 
+            WB_i = gen_new_node(env)
+            WB_o = gen_new_node(env)
+            WB_c = gen_new_node(env)
+
+
             i0 = gen_new_node(env)
+            i1 = gen_new_node(env)
             i  = gen_new_node(env)
 
             o0 = gen_new_node(env)
+            o1 = gen_new_node(env)
             o  = gen_new_node(env)
 
             g0 = gen_new_node(env)
+            g1 = gen_new_node(env)
             g  = gen_new_node(env)
 
             c1 = gen_new_node(env)
@@ -85,18 +107,24 @@ class OpLSTM(Op):
 
             return [
                 Constant([],[W_i],value=Ws[0].transpose((0,2,1))),
+                Constant([],[WB_i],value=WBs[0]),
                 MatMul([x, W_i], [i0]),
-                Sigmoid([i0], [i]),
+                Add([i0, WB_i], [i1]),
+                Sigmoid([i1], [i]),
                 Constant([],[W_o],value=Ws[1].transpose((0,2,1))),
+                Constant([],[WB_o],value=WBs[0]),
                 MatMul([x, W_o], [o0]),
-                Sigmoid([o0], [o]),
+                Add([o0, WB_o], [o1]),
+                Sigmoid([o1], [o]),
                 Constant([],[W_c],value=Ws[3].transpose((0,2,1))),
+                Constant([],[WB_c],value=WBs[0]),
                 MatMul([x, W_c], [g0]),
-                Tanh([g0], [g]),
+                Add([g0, WB_c], [g1]),
+                Tanh([g1], [g]),
                 Mul([g, i], [c1]),
                 Tanh([c1], [t0]),
-                Mul([o, t0], [h1]),
-                AddConstant([h1], [y], value=0.0)
+                Mul([o, t0], [y_h]),
+                AddConstant([y_h], [y], value=0.0)
             ]
         else:
             raise UnsupportedONNXOperation(self.node, 'direction is not forward')
