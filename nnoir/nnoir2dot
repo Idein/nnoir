@@ -111,4 +111,4 @@ if __name__ == '__main__':
                         metavar='NNOIR', help='input(NNOIR) file path')
     args = parser.parse_args()
     with open(args.input, 'rb') as f:
-        print(to_dot(msgpack.unpackb(f.read())))
+        print(to_dot(msgpack.unpackb(f.read(), raw=True)))
