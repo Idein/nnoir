@@ -53,8 +53,8 @@ class OpLSTM(Op):
                 WBs = np.zeros((num_of_gates, hidden_size))
                 RBs = np.zeros((num_of_gates, hidden_size))
                 sequence_lens = np.repeat(seq_length, batch_size).astype(np.int32)
-                h0 = gen_new_node(env, value=init_h)
-                c0 = gen_new_node(env, value=init_c)
+                h0 = gen_new_node(env, init_h)
+                c0 = gen_new_node(env, init_c)
                 graph += [
                     Constant([], [h0], value=init_h),
                     Constant([], [c0], value=init_c),
@@ -68,8 +68,8 @@ class OpLSTM(Op):
                 WBs = np.split(WB, num_of_gates)
                 RBs = np.split(RB, num_of_gates)
                 sequence_lens = np.repeat(seq_length, batch_size).astype(np.int32)
-                h0 = gen_new_node(env, value=init_h)
-                c0 = gen_new_node(env, value=init_c)
+                h0 = gen_new_node(env, init_h)
+                c0 = gen_new_node(env, init_c)
                 graph += [
                     Constant([], [h0], value=init_h),
                     Constant([], [c0], value=init_c),
@@ -83,8 +83,8 @@ class OpLSTM(Op):
                 WBs = np.split(WB, num_of_gates)
                 RBs = np.split(RB, num_of_gates)
                 sequence_lens = env[seq_lens]
-                h0 = gen_new_node(env, value=init_h)
-                c0 = gen_new_node(env, value=init_c)
+                h0 = gen_new_node(env, init_h)
+                c0 = gen_new_node(env, init_c)
                 graph += [
                     Constant([], [h0], value=init_h),
                     Constant([], [c0], value=init_c),
@@ -98,8 +98,8 @@ class OpLSTM(Op):
                 WBs = np.split(WB, num_of_gates)
                 RBs = np.split(RB, num_of_gates)
                 sequence_lens = env[seq_lens]
-                h0 = gen_new_node(env, value=env[H0])
-                c0 = gen_new_node(env, value=init_c)
+                h0 = gen_new_node(env, env[H0])
+                c0 = gen_new_node(env, init_c)
                 graph += [
                     Constant([], [h0], value=env[H0]),
                     Constant([], [c0], value=init_c),
@@ -113,8 +113,8 @@ class OpLSTM(Op):
                 WBs = np.split(WB, num_of_gates)
                 RBs = np.split(RB, num_of_gates)
                 sequence_lens = env[seq_lens]
-                h0 = gen_new_node(env, value=env[H0])
-                c0 = gen_new_node(env, value=env[C0])
+                h0 = gen_new_node(env, env[H0])
+                c0 = gen_new_node(env, env[C0])
                 graph += [
                     Constant([], [h0], value=env[H0]),
                     Constant([], [c0], value=env[C0]),
@@ -128,8 +128,8 @@ class OpLSTM(Op):
                 WBs = np.split(WB, num_of_gates)
                 RBs = np.split(RB, num_of_gates)
                 sequence_lens = env[seq_lens]
-                h0 = gen_new_node(env, value=env[H0])
-                c0 = gen_new_node(env, value=env[C0])
+                h0 = gen_new_node(env, env[H0])
+                c0 = gen_new_node(env, env[C0])
                 graph += [
                     Constant([], [h0], value=env[H0]),
                     Constant([], [c0], value=env[C0]),
@@ -139,13 +139,14 @@ class OpLSTM(Op):
                 raise UnsupportedONNXOperation(self.node, 'too many inputs')
 
             lo = len(self.node.output)
+            dummy_cell = np.zeros((num_directions, batch_size, hidden_size)).astype(np.float32)
             if lo == 1:
-                [y] = self.node.output
-                y_h = gen_new_node(env)
-                y_c = gen_new_node(env)
+                [y] = self.node.output # (seq_length, num_directions, batch_size, hidden_size)
+                y_h = gen_new_node(env, dummy_cell)
+                y_c = gen_new_node(env, dummy_cell)
             elif lo == 2:
                 [y, y_h] = self.node.output
-                y_c = gen_new_node(env)
+                y_c = gen_new_node(env, dummy_cell)
             elif lo == 3:
                 [y, y_h, y_c] = self.node.output
             elif lo == 0:
@@ -160,10 +161,12 @@ class OpLSTM(Op):
             # c1 = f*c0 + g*i
             # h1 = o*tanh(c1)
 
+            dummy_res = np.zeros((batch_size, hidden_size)).astype(np.float32) 
+
             def gemm(env, x, W, WB, res):
-                w = gen_new_node(env)
-                wb = gen_new_node(env)
-                t0 = gen_new_node(env)
+                w = gen_new_node(env, W)
+                wb = gen_new_node(env, WB)
+                t0 = gen_new_node(env, dummy_res)
                 graph = [
                     Constant([], [w], value=W),
                     Constant([], [wb], value=WB),
@@ -173,9 +176,9 @@ class OpLSTM(Op):
                 return graph
 
             def gate(env, x, h, W, R, WB, RB, f, res):
-                t0 = gen_new_node(env)
-                t1 = gen_new_node(env)
-                t2 = gen_new_node(env)
+                t0 = gen_new_node(env, dummy_res)
+                t1 = gen_new_node(env, dummy_res)
+                t2 = gen_new_node(env, dummy_res)
 
                 graph = []
                 graph += gemm(env, x, W, WB, t0)
@@ -187,14 +190,14 @@ class OpLSTM(Op):
 
                 return graph
 
-            i = gen_new_node(env)
-            o = gen_new_node(env)
-            f = gen_new_node(env)
-            g = gen_new_node(env)
+            i = gen_new_node(env, dummy_res)
+            o = gen_new_node(env, dummy_res)
+            f = gen_new_node(env, dummy_res)
+            g = gen_new_node(env, dummy_res)
 
-            t0 = gen_new_node(env)
-            t1 = gen_new_node(env)
-            t2 = gen_new_node(env)
+            t0 = gen_new_node(env, dummy_res)
+            t1 = gen_new_node(env, dummy_res)
+            t2 = gen_new_node(env, dummy_res)
 
             graph += gate(env, x, h0, Ws[0].transpose(), Rs[0].transpose(), WBs[0], RBs[0], Sigmoid, i)
             graph += gate(env, x, h0, Ws[1].transpose(), Rs[1].transpose(), WBs[1], RBs[1], Sigmoid, o)
@@ -214,7 +217,7 @@ class OpLSTM(Op):
             raise UnsupportedONNXOperation(self.node, 'direction is not forward')
 
 
-def gen_new_node(env, value=np.ones(1)):
+def gen_new_node(env, value):
     n = gen_unregisterd_node_name(env)
     register_node(env, n, value)
     return n
