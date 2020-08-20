@@ -168,3 +168,38 @@ def test_LSTM_03():
     x = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)
     outputs = ["y", "y_h"]
     LSTMTester({"x": x}, outputs).run()
+
+
+def test_LSTM_04():
+    class LSTMTester(Base):
+        def create_onnx(self) -> onnx.ModelProto:
+            input_size = 2
+            batch_size = 3
+            hidden_size = 3
+            weight_scale = 0.1
+            number_of_gates = 4
+            seq_length = 1
+            num_directions = 1
+
+            node = make_node(
+                'LSTM',
+                inputs=['x', 'W', 'R'],
+                outputs=['y'],
+                hidden_size=hidden_size,
+                activations=['Sigmoid', 'Relu', 'Tanh']
+            )
+
+            inputs = [info("x", TensorProto.FLOAT, (seq_length, batch_size, input_size))]
+            outputs = [info("y", TensorProto.FLOAT, (seq_length, num_directions, batch_size, hidden_size))]
+
+            W = from_array(weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32), "W")
+            R = from_array(weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32), "R")
+
+            graph = make_graph([node], "lstm_graph", inputs, outputs, initializer=[W, R])
+            print(onnx.helper.printable_graph(graph))
+            model = make_model(graph)
+            return model
+
+    x = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)
+    outputs = ["y"]
+    LSTMTester({"x": x}, outputs).run()
