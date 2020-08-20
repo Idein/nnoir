@@ -141,7 +141,7 @@ class OpLSTM(Op):
             lo = len(self.node.output)
             dummy_cell = np.zeros((num_directions, batch_size, hidden_size)).astype(np.float32)
             if lo == 1:
-                [y] = self.node.output # (seq_length, num_directions, batch_size, hidden_size)
+                [y] = self.node.output  # (seq_length, num_directions, batch_size, hidden_size)
                 y_h = gen_new_node(env, dummy_cell)
                 y_c = gen_new_node(env, dummy_cell)
             elif lo == 2:
@@ -154,6 +154,9 @@ class OpLSTM(Op):
             else:
                 raise UnsupportedONNXOperation(self.node, 'too many outputs')
 
+            if seq_length > 1:
+                raise UnsupportedONNXOperation(self.node, 'not support LSTM with seq_length > 1')
+
             # i = sigmoid(np.dot(x, W_i) + np.dot(h0, R_i) + WB_i + RB_i)
             # o = sigmoid(np.dot(x, W_o) + np.dot(h0, R_o) + WB_o + RB_o)
             # f = sigmoid(np.dot(x, W_f) + np.dot(h0, R_f) + WB_f + RB_f)
@@ -161,7 +164,7 @@ class OpLSTM(Op):
             # c1 = f*c0 + g*i
             # h1 = o*tanh(c1)
 
-            dummy_res = np.zeros((batch_size, hidden_size)).astype(np.float32) 
+            dummy_res = np.zeros((batch_size, hidden_size)).astype(np.float32)
 
             def gemm(env, x, W, WB, res):
                 w = gen_new_node(env, W)
@@ -209,7 +212,7 @@ class OpLSTM(Op):
                 Add([t0, t1], [y_c]),
                 Tanh([y_c], [t2]),
                 Mul([o, t2], [y_h]),
-                AddConstant([y_h], [y], value=0.0)
+                Reshape([y_h], [y], shape=(seq_length, num_directions, batch_size, hidden_size))
             ]
 
             return graph
