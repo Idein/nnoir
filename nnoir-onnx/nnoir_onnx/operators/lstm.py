@@ -50,8 +50,8 @@ class OpLSTM(Op):
                 [x, W, R] = self.node.input
                 Ws = np.split(env[W][0], num_of_gates)
                 Rs = np.split(env[R][0], num_of_gates)
-                WBs = np.zeros((num_of_gates, hidden_size))
-                RBs = np.zeros((num_of_gates, hidden_size))
+                WBs = np.zeros((num_of_gates, hidden_size)).astype(np.float32)
+                RBs = np.zeros((num_of_gates, hidden_size)).astype(np.float32)
                 sequence_lens = np.repeat(seq_length, batch_size).astype(np.int32)
                 h0 = gen_new_node(env, init_h)
                 c0 = gen_new_node(env, init_c)
