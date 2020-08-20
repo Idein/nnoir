@@ -44,7 +44,7 @@ class OpLSTM(Op):
             graph = []
             init_h = np.zeros((num_directions, batch_size, hidden_size)).astype(np.float32)
             init_c = np.zeros((num_directions, batch_size, hidden_size)).astype(np.float32)
-            ps = np.zeros((num_directions, num_of_peepholes*hidden_size)).astype(np.float32)
+            ps = np.zeros((num_of_peepholes, hidden_size)).astype(np.float32)
             li = len(self.node.input)
             if li == 3:
                 [x, W, R] = self.node.input
@@ -157,11 +157,11 @@ class OpLSTM(Op):
             if seq_length > 1:
                 raise UnsupportedONNXOperation(self.node, 'not support LSTM with seq_length > 1')
 
-            # i = sigmoid(np.dot(x, W_i) + np.dot(h0, R_i) + WB_i + RB_i)
-            # o = sigmoid(np.dot(x, W_o) + np.dot(h0, R_o) + WB_o + RB_o)
-            # f = sigmoid(np.dot(x, W_f) + np.dot(h0, R_f) + WB_f + RB_f)
+            # i = sigmoid(np.dot(x, W_i) + np.dot(h0, R_i) + WB_i + RB_i + P_i*c0)
+            # f = sigmoid(np.dot(x, W_f) + np.dot(h0, R_f) + WB_f + RB_f + P_f*c0)
             # g = tanh(np.dot(x, W_c) + np.dot(h0, R_c) + WB_c + RB_c)
             # c1 = f*c0 + g*i
+            # o = sigmoid(np.dot(x, W_o) + np.dot(h0, R_o) + WB_o + RB_o + P_o*c1)
             # h1 = o*tanh(c1)
 
             dummy_res = np.zeros((batch_size, hidden_size)).astype(np.float32)
@@ -178,7 +178,7 @@ class OpLSTM(Op):
                 ]
                 return graph
 
-            def gate(env, x, h, W, R, WB, RB, f, res):
+            def gate(env, x, h, W, R, WB, RB, f, res, P=None, c=None):
                 t0 = gen_new_node(env, dummy_res)
                 t1 = gen_new_node(env, dummy_res)
                 t2 = gen_new_node(env, dummy_res)
@@ -186,10 +186,21 @@ class OpLSTM(Op):
                 graph = []
                 graph += gemm(env, x, W, WB, t0)
                 graph += gemm(env, h, R, RB, t1)
-                graph += [
-                    Add([t0, t1], [t2]),
-                    f([t2], [res]),
-                ]
+                graph += [Add([t0, t1], [t2])]
+                if P is not None:
+                    t3 = gen_new_node(env, dummy_res)
+                    t4 = gen_new_node(env, dummy_res)
+                    p = gen_new_node(env, P)
+                    graph += [
+                        Constant([], [p], value=P),
+                        Mul([p, c], [t3]),
+                        Add([t2, t3], [t4]),
+                        f([t4], [res])
+                    ]
+                else:
+                    graph += [
+                        f([t2], [res]),
+                    ]
 
                 return graph
 
@@ -202,14 +213,16 @@ class OpLSTM(Op):
             t1 = gen_new_node(env, dummy_res)
             t2 = gen_new_node(env, dummy_res)
 
-            graph += gate(env, x, h0, Ws[0].transpose(), Rs[0].transpose(), WBs[0], RBs[0], Sigmoid, i)
-            graph += gate(env, x, h0, Ws[1].transpose(), Rs[1].transpose(), WBs[1], RBs[1], Sigmoid, o)
-            graph += gate(env, x, h0, Ws[2].transpose(), Rs[2].transpose(), WBs[2], RBs[2], Sigmoid, f)
+            graph += gate(env, x, h0, Ws[0].transpose(), Rs[0].transpose(), WBs[0], RBs[0], Sigmoid, i, Ps[0], c0)
+            graph += gate(env, x, h0, Ws[2].transpose(), Rs[2].transpose(), WBs[2], RBs[2], Sigmoid, f, Ps[2], c0)
             graph += gate(env, x, h0, Ws[3].transpose(), Rs[3].transpose(), WBs[3], RBs[3], Tanh, g)
             graph += [
                 Mul([f, c0], [t0]),
                 Mul([g, i], [t1]),
                 Add([t0, t1], [y_c]),
+            ]
+            graph += gate(env, x, h0, Ws[1].transpose(), Rs[1].transpose(), WBs[1], RBs[1], Sigmoid, o, Ps[1], y_c)
+            graph += [
                 Tanh([y_c], [t2]),
                 Mul([o, t2], [y_h]),
                 Reshape([y_h], [y], shape=(seq_length, num_directions, batch_size, hidden_size))
