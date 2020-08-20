@@ -23,7 +23,7 @@ class OpLSTM(Op):
             if attr.name == 'activation_beta':
                 self.activation_beta = attr.floats
             if attr.name == 'activations':
-                self.activations = attr.strs
+                self.activations = attr.strings
             if attr.name == 'clip':
                 self.clip = attr.f
             if attr.name == 'direction':
@@ -41,6 +41,23 @@ class OpLSTM(Op):
         hidden_size = self.hidden_size
 
         if num_directions == 1 and self.direction == "forward":
+            l = len(self.activations)
+            if l == 0:
+                activation_f, activation_g, activation_h = [Sigmoid, Tanh, Tanh]
+            elif l == 3:
+                def to_op(s):
+                    if s == b'Sigmoid':
+                        return Sigmoid
+                    elif s == b'Tanh':
+                        return Tanh
+                    elif s == b'Relu':
+                        return ReLU
+                    else:
+                        raise UnsupportedONNXOperation(self.node, f'{s} is not supported')
+                activation_f, activation_g, activation_h = [to_op(f) for f in self.activations]
+            else:
+                raise UnsupportedONNXOperation(self.node, 'the number of activations must be 0 or 3')
+
             graph = []
             init_h = np.zeros((num_directions, batch_size, hidden_size)).astype(np.float32)
             init_c = np.zeros((num_directions, batch_size, hidden_size)).astype(np.float32)
@@ -213,17 +230,17 @@ class OpLSTM(Op):
             t1 = gen_new_node(env, dummy_res)
             t2 = gen_new_node(env, dummy_res)
 
-            graph += gate(env, i, x, h0, Ws[0].transpose(), Rs[0].transpose(), WBs[0], RBs[0], Sigmoid, c0, Ps[0])
-            graph += gate(env, f, x, h0, Ws[2].transpose(), Rs[2].transpose(), WBs[2], RBs[2], Sigmoid, c0, Ps[2])
-            graph += gate(env, g, x, h0, Ws[3].transpose(), Rs[3].transpose(), WBs[3], RBs[3], Tanh)
+            graph += gate(env, i, x, h0, Ws[0].transpose(), Rs[0].transpose(), WBs[0], RBs[0], activation_f, c0, Ps[0])
+            graph += gate(env, f, x, h0, Ws[2].transpose(), Rs[2].transpose(), WBs[2], RBs[2], activation_f, c0, Ps[2])
+            graph += gate(env, g, x, h0, Ws[3].transpose(), Rs[3].transpose(), WBs[3], RBs[3], activation_g)
             graph += [
                 Mul([f, c0], [t0]),
                 Mul([g, i], [t1]),
                 Add([t0, t1], [y_c]),
             ]
-            graph += gate(env, o, x, h0, Ws[1].transpose(), Rs[1].transpose(), WBs[1], RBs[1], Sigmoid, y_c, Ps[1])
+            graph += gate(env, o, x, h0, Ws[1].transpose(), Rs[1].transpose(), WBs[1], RBs[1], activation_f, y_c, Ps[1])
             graph += [
-                Tanh([y_c], [t2]),
+                activation_h([y_c], [t2]),
                 Mul([o, t2], [y_h]),
                 Reshape([y_h], [y], shape=(seq_length, num_directions, batch_size, hidden_size))
             ]
