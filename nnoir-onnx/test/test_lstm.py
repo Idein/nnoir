@@ -22,13 +22,12 @@ def test_LSTM_00():
             node = make_node(
                 'LSTM',
                 inputs=['x', 'W', 'R'],
-                outputs=['y', 'y_h'],
+                outputs=['y'],
                 hidden_size=hidden_size
             )
 
             inputs = [info("x", TensorProto.FLOAT, (seq_length, batch_size, input_size))]
-            outputs = [info("y", TensorProto.FLOAT, (seq_length, num_directions, batch_size, hidden_size)),
-                       info("y_h", TensorProto.FLOAT, (num_directions, batch_size, hidden_size))]
+            outputs = [info("y", TensorProto.FLOAT, (seq_length, num_directions, batch_size, hidden_size))]
 
             W = from_array(weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32), "W")
             R = from_array(weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32), "R")
@@ -39,7 +38,7 @@ def test_LSTM_00():
             return model
 
     x = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)
-    outputs = ["y", "y_h"]
+    outputs = ["y"]
     LSTMTester({"x": x}, outputs).run()
 
 
@@ -97,13 +96,14 @@ def test_LSTM_02():
             node = make_node(
                 'LSTM',
                 inputs=['x', 'W', 'R', 'B', 'sequence_lens', 'initial_h', 'initial_c'],
-                outputs=['y', 'y_h'],
+                outputs=['y', 'y_h', 'y_c'],
                 hidden_size=hidden_size
             )
 
             inputs = [info("x", TensorProto.FLOAT, (seq_length, batch_size, input_size))]
             outputs = [info("y", TensorProto.FLOAT, (seq_length, num_directions, batch_size, hidden_size)),
-                       info("y_h", TensorProto.FLOAT, (num_directions, batch_size, hidden_size))]
+                       info("y_h", TensorProto.FLOAT, (num_directions, batch_size, hidden_size)),
+                       info("y_c", TensorProto.FLOAT, (num_directions, batch_size, hidden_size))]
 
             W = from_array(weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32), "W")
             R = from_array(weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32), "R")
@@ -121,7 +121,7 @@ def test_LSTM_02():
             return model
 
     x = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)
-    outputs = ["y", "y_h"]
+    outputs = ["y", "y_h", "y_c"]
     LSTMTester({"x": x}, outputs).run()
 
 
