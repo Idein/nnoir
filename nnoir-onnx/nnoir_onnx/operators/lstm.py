@@ -166,7 +166,7 @@ class OpLSTM(Op):
 
             dummy_res = np.zeros((batch_size, hidden_size)).astype(np.float32)
 
-            def gemm(env, x, W, WB, res):
+            def gemm(env, res, x, W, WB):
                 w = gen_new_node(env, W)
                 wb = gen_new_node(env, WB)
                 t0 = gen_new_node(env, dummy_res)
@@ -178,14 +178,14 @@ class OpLSTM(Op):
                 ]
                 return graph
 
-            def gate(env, x, h, W, R, WB, RB, f, res, P=None, c=None):
+            def gate(env, res, x, h, W, R, WB, RB, f, c=None, P=None):
                 t0 = gen_new_node(env, dummy_res)
                 t1 = gen_new_node(env, dummy_res)
                 t2 = gen_new_node(env, dummy_res)
 
                 graph = []
-                graph += gemm(env, x, W, WB, t0)
-                graph += gemm(env, h, R, RB, t1)
+                graph += gemm(env, t0, x, W, WB)
+                graph += gemm(env, t1, h, R, RB)
                 graph += [Add([t0, t1], [t2])]
                 if P is not None:
                     t3 = gen_new_node(env, dummy_res)
@@ -199,7 +199,7 @@ class OpLSTM(Op):
                     ]
                 else:
                     graph += [
-                        f([t2], [res]),
+                        f([t2], [res])
                     ]
 
                 return graph
@@ -213,15 +213,15 @@ class OpLSTM(Op):
             t1 = gen_new_node(env, dummy_res)
             t2 = gen_new_node(env, dummy_res)
 
-            graph += gate(env, x, h0, Ws[0].transpose(), Rs[0].transpose(), WBs[0], RBs[0], Sigmoid, i, Ps[0], c0)
-            graph += gate(env, x, h0, Ws[2].transpose(), Rs[2].transpose(), WBs[2], RBs[2], Sigmoid, f, Ps[2], c0)
-            graph += gate(env, x, h0, Ws[3].transpose(), Rs[3].transpose(), WBs[3], RBs[3], Tanh, g)
+            graph += gate(env, i, x, h0, Ws[0].transpose(), Rs[0].transpose(), WBs[0], RBs[0], Sigmoid, c0, Ps[0])
+            graph += gate(env, f, x, h0, Ws[2].transpose(), Rs[2].transpose(), WBs[2], RBs[2], Sigmoid, c0, Ps[2])
+            graph += gate(env, g, x, h0, Ws[3].transpose(), Rs[3].transpose(), WBs[3], RBs[3], Tanh)
             graph += [
                 Mul([f, c0], [t0]),
                 Mul([g, i], [t1]),
                 Add([t0, t1], [y_c]),
             ]
-            graph += gate(env, x, h0, Ws[1].transpose(), Rs[1].transpose(), WBs[1], RBs[1], Sigmoid, o, Ps[1], y_c)
+            graph += gate(env, o, x, h0, Ws[1].transpose(), Rs[1].transpose(), WBs[1], RBs[1], Sigmoid, y_c, Ps[1])
             graph += [
                 Tanh([y_c], [t2]),
                 Mul([o, t2], [y_h]),
