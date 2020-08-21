@@ -41,6 +41,14 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [GlobalAveragePool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#GlobalAveragePool)
 * [LeakyRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LeakyRelu)
 * [LRN](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LRN)
+* [LSTM](https://github.com/onnx/onnx/blob/master/docs/Operators.md#lstm)
+    * only `seq_length == 1`
+    * `direction` must be forward
+    * Supported `activations` are below
+        * `Sigmoid`
+        * `Tanh`
+        * `Relu`
+    * Not support `clip` and `input_forget`
 * [MatMul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MatMul)
 * [MaxPool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MaxPool)
     * `ceil_mode = 1` is not supported
