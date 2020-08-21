@@ -16,7 +16,6 @@ from .gemm import Gemm
 from .leaky_relu import LeakyReLU
 from .linear import Linear
 from .local_response_normalization import LocalResponseNormalization
-from .lstm import LSTM
 from .matmul import MatMul
 from .max_pooling_2d import MaxPooling2D
 from .mul_constant import MulConstant
