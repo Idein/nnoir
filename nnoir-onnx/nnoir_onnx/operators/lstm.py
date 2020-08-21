@@ -40,6 +40,9 @@ class OpLSTM(Op):
         seq_length, batch_size, input_size = env[self.node.input[0]].shape
         hidden_size = self.hidden_size
 
+        if seq_length > 1:
+            raise UnsupportedONNXOperation(self.node, 'not support LSTM with seq_length > 1')
+
         if num_directions == 1 and self.direction == "forward":
             l = len(self.activations)
             if l == 0:
@@ -59,8 +62,8 @@ class OpLSTM(Op):
                 raise UnsupportedONNXOperation(self.node, 'the number of activations must be 0 or 3')
 
             graph = []
-            init_h = np.zeros((num_directions, batch_size, hidden_size)).astype(np.float32)
-            init_c = np.zeros((num_directions, batch_size, hidden_size)).astype(np.float32)
+            init_h = np.zeros((batch_size, hidden_size)).astype(np.float32)
+            init_c = np.zeros((batch_size, hidden_size)).astype(np.float32)
             ps = np.zeros((num_of_peepholes, hidden_size)).astype(np.float32)
             li = len(self.node.input)
             if li == 3:
@@ -115,10 +118,10 @@ class OpLSTM(Op):
                 WBs = np.split(WB, num_of_gates)
                 RBs = np.split(RB, num_of_gates)
                 sequence_lens = env[seq_lens]
-                h0 = gen_new_node(env, env[H0])
+                h0 = gen_new_node(env, env[H0][0])
                 c0 = gen_new_node(env, init_c)
                 graph += [
-                    Constant([], [h0], value=env[H0]),
+                    Constant([], [h0], value=env[H0][0]),
                     Constant([], [c0], value=init_c),
                 ]
                 Ps = ps
@@ -130,11 +133,11 @@ class OpLSTM(Op):
                 WBs = np.split(WB, num_of_gates)
                 RBs = np.split(RB, num_of_gates)
                 sequence_lens = env[seq_lens]
-                h0 = gen_new_node(env, env[H0])
-                c0 = gen_new_node(env, env[C0])
+                h0 = gen_new_node(env, env[H0][0])
+                c0 = gen_new_node(env, env[C0][0])
                 graph += [
-                    Constant([], [h0], value=env[H0]),
-                    Constant([], [c0], value=env[C0]),
+                    Constant([], [h0], value=env[H0][0]),
+                    Constant([], [c0], value=env[C0][0]),
                 ]
                 Ps = ps
             elif li == 8:
@@ -145,11 +148,11 @@ class OpLSTM(Op):
                 WBs = np.split(WB, num_of_gates)
                 RBs = np.split(RB, num_of_gates)
                 sequence_lens = env[seq_lens]
-                h0 = gen_new_node(env, env[H0])
-                c0 = gen_new_node(env, env[C0])
+                h0 = gen_new_node(env, env[H0][0])
+                c0 = gen_new_node(env, env[C0][0])
                 graph += [
-                    Constant([], [h0], value=env[H0]),
-                    Constant([], [c0], value=env[C0]),
+                    Constant([], [h0], value=env[H0][0]),
+                    Constant([], [c0], value=env[C0][0]),
                 ]
                 Ps = np.split(env[P][0], num_of_peepholes)
             else:
@@ -171,9 +174,6 @@ class OpLSTM(Op):
             else:
                 raise UnsupportedONNXOperation(self.node, 'too many outputs')
 
-            if seq_length > 1:
-                raise UnsupportedONNXOperation(self.node, 'not support LSTM with seq_length > 1')
-
             # i = sigmoid(np.dot(x, W_i) + np.dot(h0, R_i) + WB_i + RB_i + P_i*c0)
             # f = sigmoid(np.dot(x, W_f) + np.dot(h0, R_f) + WB_f + RB_f + P_f*c0)
             # g = tanh(np.dot(x, W_c) + np.dot(h0, R_c) + WB_c + RB_c)
@@ -181,17 +181,14 @@ class OpLSTM(Op):
             # o = sigmoid(np.dot(x, W_o) + np.dot(h0, R_o) + WB_o + RB_o + P_o*c1)
             # h1 = o*tanh(c1)
 
+            x0 = gen_new_node(env, env[x])
+            graph += [Reshape([x], [x0], shape=(batch_size, input_size))]
+
             dummy_res = np.zeros((batch_size, hidden_size)).astype(np.float32)
 
             def gemm(env, res, x, W, WB):
-                w = gen_new_node(env, W)
-                wb = gen_new_node(env, WB)
-                t0 = gen_new_node(env, dummy_res)
                 graph = [
-                    Constant([], [w], value=W),
-                    Constant([], [wb], value=WB),
-                    MatMul([x, w], [t0]),
-                    Add([t0, wb], [res])
+                    Linear([x], [res], W=W, b=WB)
                 ]
                 return graph
 
@@ -201,8 +198,8 @@ class OpLSTM(Op):
                 t2 = gen_new_node(env, dummy_res)
 
                 graph = []
-                graph += gemm(env, t0, x, W, WB)
-                graph += gemm(env, t1, h, R, RB)
+                graph += [Linear([x], [t0], W=W, b=WB)]
+                graph += [Linear([h], [t1], W=R, b=RB)]
                 graph += [Add([t0, t1], [t2])]
                 if P is not None:
                     t3 = gen_new_node(env, dummy_res)
@@ -230,15 +227,15 @@ class OpLSTM(Op):
             t1 = gen_new_node(env, dummy_res)
             t2 = gen_new_node(env, dummy_res)
 
-            graph += gate(env, i, x, h0, Ws[0].transpose(), Rs[0].transpose(), WBs[0], RBs[0], activation_f, c0, Ps[0])
-            graph += gate(env, f, x, h0, Ws[2].transpose(), Rs[2].transpose(), WBs[2], RBs[2], activation_f, c0, Ps[2])
-            graph += gate(env, g, x, h0, Ws[3].transpose(), Rs[3].transpose(), WBs[3], RBs[3], activation_g)
+            graph += gate(env, i, x0, h0, Ws[0], Rs[0], WBs[0], RBs[0], activation_f, c0, Ps[0])
+            graph += gate(env, f, x0, h0, Ws[2], Rs[2], WBs[2], RBs[2], activation_f, c0, Ps[2])
+            graph += gate(env, g, x0, h0, Ws[3], Rs[3], WBs[3], RBs[3], activation_g)
             graph += [
                 Mul([f, c0], [t0]),
                 Mul([g, i], [t1]),
                 Add([t0, t1], [y_c]),
             ]
-            graph += gate(env, o, x, h0, Ws[1].transpose(), Rs[1].transpose(), WBs[1], RBs[1], activation_f, y_c, Ps[1])
+            graph += gate(env, o, x0, h0, Ws[1], Rs[1], WBs[1], RBs[1], activation_f, y_c, Ps[1])
             graph += [
                 activation_h([y_c], [t2]),
                 Mul([o, t2], [y_h]),
