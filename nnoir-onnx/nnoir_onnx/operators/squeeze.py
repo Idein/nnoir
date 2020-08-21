@@ -24,7 +24,8 @@ class OpSqueeze(Op):
             shape1 = [sh for sh in shape0 if sh != 1]
         else:
             sh = list(shape0)
-            for a in sorted(self.axes, reverse=True):
+            dim = len(sh)
+            for a in sorted([(a + dim) % dim for a in self.axes], reverse=True):
                 del sh[a]
             shape1 = sh
 
