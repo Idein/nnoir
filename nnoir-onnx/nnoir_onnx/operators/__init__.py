@@ -25,6 +25,7 @@ from .sigmoid import OpSigmoid
 from .softmax import OpSoftmax
 from .sub import OpSub
 from .sum import OpSum
+from .squeeze import OpSqueeze
 from .tanh import OpTanh
 from .transpose import OpTranspose
 from .unsqueeze import OpUnsqueeze
