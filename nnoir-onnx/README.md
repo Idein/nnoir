@@ -68,6 +68,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * `coordinate_transformation_mode` must be either `"pytorch_half_pixel"` or `"align_corners"`
 * [Sigmoid](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sigmoid)
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
+* [Squeeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Squeeze)
 * [Sub](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sub)
     * 1st input must not be `"constant"`
 * [Sum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sum)

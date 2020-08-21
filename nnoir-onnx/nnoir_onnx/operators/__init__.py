@@ -23,6 +23,7 @@ from .reshape import OpReshape
 from .resize import OpResize
 from .sigmoid import OpSigmoid
 from .softmax import OpSoftmax
+from .squeeze import OpSqueeze
 from .sub import OpSub
 from .sum import OpSum
 from .tanh import OpTanh
