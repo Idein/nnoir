@@ -186,12 +186,6 @@ class OpLSTM(Op):
 
             dummy_res = np.zeros((batch_size, hidden_size)).astype(np.float32)
 
-            def gemm(env, res, x, W, WB):
-                graph = [
-                    Linear([x], [res], W=W, b=WB)
-                ]
-                return graph
-
             def gate(env, res, x, h, W, R, WB, RB, f, c=None, P=None):
                 t0 = gen_new_node(env, dummy_res)
                 t1 = gen_new_node(env, dummy_res)
