@@ -231,6 +231,7 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
     def _to_NNOIR_functions(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
         visited = []
+        known_generator = []
         functions = []
         while outputs != []:
             o = outputs.pop(0)
@@ -238,11 +239,14 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
                 continue
             visited.append(o)
             generator = self._find_generator(o)
+            if generator in known_generator:
+                continue
             if generator is not None:
                 function = self.op_for_node(generator).to_function(self.nodes, self.constant_nodes)
                 inputs = list(chain.from_iterable(map(lambda x: x.inputs, function)))
                 outputs += inputs
                 functions += function
+                known_generator.append(generator)
             initializer = self._find_initializer(o)
             if initializer is not None:
                 raise UnsupportedONNXOperation(initializer, 'converting from Constant is undefined')

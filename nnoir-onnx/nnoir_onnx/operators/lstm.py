@@ -181,16 +181,10 @@ class OpLSTM(Op):
             # o = sigmoid(np.dot(x, W_o) + np.dot(h0, R_o) + WB_o + RB_o + P_o*c1)
             # h1 = o*tanh(c1)
 
-            x0 = gen_new_node(env, env[x])
+            x0 = gen_new_node(env, env[x].reshape((batch_size, input_size)))
             graph += [Reshape([x], [x0], shape=(batch_size, input_size))]
 
             dummy_res = np.zeros((batch_size, hidden_size)).astype(np.float32)
-
-            def gemm(env, res, x, W, WB):
-                graph = [
-                    Linear([x], [res], W=W, b=WB)
-                ]
-                return graph
 
             def gate(env, res, x, h, W, R, WB, RB, f, c=None, P=None):
                 t0 = gen_new_node(env, dummy_res)
