@@ -6,6 +6,12 @@ def get_conv_outsize(size, k, s, pre_p, post_p, cover_all=False, d=1):
     return (size + pre_p + post_p - dk) // s + 1
 
 
+def get_deconv_outsize(size, k, s, d, ph, oph):
+    (pre_p, post_p) = ph
+    (pre_outp, post_outp) = oph
+    return s * (size - 1) + pre_outp + post_outp + ((k - 1) * d + 1) - pre_p - post_p
+
+
 def im2col_cpu(img, kernel, stride, ph, pw, dilate=(1, 1), pval=0, cover_all=False):
     n, c, h, w = img.shape
     kh, kw = kernel

@@ -5,6 +5,7 @@ from .clip import OpClip
 from .concat import OpConcat
 from .conv import OpConv
 from .cos import OpCos
+from .deconv import OpConvTranspose
 from .div import OpDiv
 from .dropout import OpDropout
 from .elu import OpElu
