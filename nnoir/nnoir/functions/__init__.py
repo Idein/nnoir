@@ -37,3 +37,4 @@ from .tanh import Tanh
 from .transpose import Transpose
 from .unpooling_2d import Unpooling2D
 from .function import Function
+from .deconvolution_2d import Deconvolution2D
