@@ -9,6 +9,7 @@ from .clipped_relu import ClippedReLU
 from .concat import Concat
 from .constant import Constant
 from .convolution_2d import Convolution2D
+from .cos import Cos
 from .depthwise_convolution_2d import DepthwiseConvolution2D
 from .dropout import Dropout
 from .elu import ELU
@@ -25,11 +26,13 @@ from .relu import ReLU
 from .reshape import Reshape
 from .scale import Scale
 from .sigmoid import Sigmoid
+from .sin import Sin
 from .softmax_cross_entropy import SoftmaxCrossEntropy
 from .sum import Sum
 from .softmax import Softmax
 from .sub import Sub
 from .swish import Swish
+from .tan import Tan
 from .tanh import Tanh
 from .transpose import Transpose
 from .unpooling_2d import Unpooling2D
