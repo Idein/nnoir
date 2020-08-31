@@ -31,6 +31,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [Conv](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Conv)
     * `W` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `b` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
+* [Cos](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Cos)
 * [Dropout](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Dropout)
     * equivalent identity function
 * [Elu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Elu)
@@ -67,12 +68,14 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * `mode` must be `"linear"`
     * `coordinate_transformation_mode` must be either `"pytorch_half_pixel"` or `"align_corners"`
 * [Sigmoid](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sigmoid)
+* [Sin](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sin)
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
 * [Squeeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Squeeze)
 * [Sub](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sub)
     * 1st input must not be `"constant"`
 * [Sum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sum)
     * 2 inputs
+* [Tan](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tan)
 * [Tanh](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tanh)
 * [Transpose](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Transpose)
 * [Unsqueeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Unsqueeze)

@@ -4,6 +4,7 @@ from .batch_normalization import OpBatchNormalization
 from .clip import OpClip
 from .concat import OpConcat
 from .conv import OpConv
+from .cos import OpCos
 from .dropout import OpDropout
 from .elu import OpElu
 from .flatten import OpFlatten
@@ -22,10 +23,12 @@ from .relu import OpRelu
 from .reshape import OpReshape
 from .resize import OpResize
 from .sigmoid import OpSigmoid
+from .sin import OpSin
 from .softmax import OpSoftmax
 from .squeeze import OpSqueeze
 from .sub import OpSub
 from .sum import OpSum
+from .tan import OpTan
 from .tanh import OpTanh
 from .transpose import OpTranspose
 from .unsqueeze import OpUnsqueeze
