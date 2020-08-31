@@ -21,7 +21,7 @@ def test_tan_00():
             inputs = [info("v0", TensorProto.FLOAT, (1, 3, 4, 5))]
             outputs = [info("v1", TensorProto.FLOAT, (1, 3, 4, 5))]
 
-            graph = make_graph([node], "add_graph", inputs, outputs)
+            graph = make_graph([node], "tan_graph", inputs, outputs)
             model = make_model(graph)
             return model
 
