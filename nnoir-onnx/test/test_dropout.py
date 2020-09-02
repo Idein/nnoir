@@ -1,5 +1,4 @@
-from nose.tools import raises
-
+import pytest
 import numpy as np
 
 import onnx
@@ -41,7 +40,7 @@ def test_dropout_00():
     DropoutTester({"v0": v0, "v1": v1}, outputs).run()
 
 
-@raises(Exception)
+@pytest.mark.xfail()
 def test_dropout_01():
     class DropoutTester(Base):
         '''

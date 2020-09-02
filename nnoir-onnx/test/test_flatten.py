@@ -5,8 +5,6 @@ from onnx.numpy_helper import from_array
 import onnx
 import numpy as np
 
-from nose.tools import raises
-
 info = make_tensor_value_info
 
 

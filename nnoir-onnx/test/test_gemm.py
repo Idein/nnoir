@@ -5,7 +5,7 @@ from onnx.numpy_helper import from_array
 import onnx
 import numpy as np
 
-from nose.tools import raises
+import pytest
 
 info = make_tensor_value_info
 
@@ -43,7 +43,7 @@ def test_gemm_00():
     GemmTester(inputs, outputs).run()
 
 
-@raises(Exception)
+@pytest.mark.xfail()
 def test_gemm_01():
     '''
     unidirectional broadcasting is not supported

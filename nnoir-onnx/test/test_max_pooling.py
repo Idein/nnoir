@@ -7,7 +7,8 @@ from onnx import TensorProto
 from nnoir_onnx.operators.utils import UnsupportedONNXOperation
 
 from util import Base
-from nose.tools import raises
+
+import pytest
 
 info = make_tensor_value_info
 
@@ -29,7 +30,7 @@ def test_max_pool_00():
     MaxPoolTester({"v0": v0}, outputs).run()
 
 
-@raises(UnsupportedONNXOperation)
+@pytest.mark.xfail()
 def test_max_pool_01():
     '''
     opset version >= 10
@@ -52,7 +53,7 @@ def test_max_pool_01():
     MaxPoolTester({"v0": v0}, outputs).run()
 
 
-@raises(UnsupportedONNXOperation)
+@pytest.mark.xfail(raises=UnsupportedONNXOperation)
 def test_max_pool_02():
     '''
     opset version >= 11
