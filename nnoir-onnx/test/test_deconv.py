@@ -17,10 +17,10 @@ def test_deconv_base():
     opset version >= 11
     '''
 
-    x_shape = (1, 16, 20, 10)
-    w_shape = (16, 1, 3, 3)
+    x_shape = (1, 2, 3, 3)
+    w_shape = (2, 3, 3, 3)
 
-    out_shape = (1, 33, 41, 21)
+    out_shape = (1, 5, 3, 3)
 
     class DeconvTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
