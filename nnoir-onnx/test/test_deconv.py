@@ -1,5 +1,3 @@
-from nose.tools import raises
-
 import numpy as np
 
 import onnx
@@ -8,6 +6,8 @@ from onnx.numpy_helper import from_array
 from onnx import TensorProto
 
 from util import Base
+
+import pytest
 
 info = make_tensor_value_info
 
@@ -125,7 +125,7 @@ def test_deconv_with_odd_pads():
     DeconvTester({"X": x}, outputs).run()
 
 
-@raises(Exception)
+@pytest.mark.xfail()
 def test_deconv_dilation_and_output_shape():
     '''
     opset version >= 11
@@ -157,7 +157,7 @@ def test_deconv_dilation_and_output_shape():
     DeconvTester({"X": x}, outputs).run()
 
 
-@raises(Exception)
+@pytest.mark.xfail()
 def test_deconv_output_padding():
     '''
     opset version >= 11
