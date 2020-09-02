@@ -33,13 +33,11 @@ class OpConvTranspose(Op):
             if attr.name == 'pads':
                 self.pads = attr.ints
             if attr.name == 'output_padding':
-                raise UnsupportedONNXOperation(self.node, 'output_padding is not surporrted')
+                raise UnsupportedONNXOperation(self.node, 'output_padding is not supported')
                 # self.output_padding = attr.ints
             if attr.name == 'output_shape':
-                self.output_shape = attr.ints
-
-                # The onnx doc say if `output_shape` is specified, pads are ignored
-                self.pads = None
+                raise UnsupportedONNXOperation(self.node, 'output_shape is not supported')
+                # self.output_shape = attr.ints
 
     def to_function(self, env, constants):
         b = None
@@ -57,37 +55,12 @@ class OpConvTranspose(Op):
                 raise UnsupportedONNXOperation(self.node, 'b must be constant')
             b = constants[b]
 
-        # `kernel_shape` may be ommited. Then, it should be inferred.
-        if self.kernel_shape is None:
-            (_, _, kh, kw) = W.shape
-        else:
-            kh = self.kernel_shape[0]
-            kw = self.kernel_shape[1]
-
-        _input = env[x]
-        in_h = _input.shape[2]
-        in_w = _input.shape[3]
-        sy = self.strides[1]
-        sx = self.strides[0]
-        dy = self.dilations[1]
-        dx = self.dilations[0]
+        sy = self.strides[0]
+        sx = self.strides[1]
+        dy = self.dilations[0]
+        dx = self.dilations[1]
 
         if self.output_shape is not None:
-            if sx == sy == dx == dy == 1:
-                return [
-                    Convolution2D(
-                        [x],
-                        list(self.node.output),
-                        W=W,
-                        b=b,
-                        stride=(sy, sx),
-                        pad_h=pad_h,
-                        pad_w=pad_w,
-                        dilate=(dy, dx),
-                        groups=self.group
-                    )
-                ]
-
             raise UnsupportedONNXOperation(self.node, 'output_shape is not surporrted')
 
         else:
@@ -97,10 +70,6 @@ class OpConvTranspose(Op):
                 if self.pads is not None:
                     pad_h = (self.pads[0], self.pads[2])
                     pad_w = (self.pads[1], self.pads[3])
-            else:
-                pad_h, pad_w = calc_output_padding(in_h, in_w, kh, kw, sx, sy, dx, dy)
-                print(pad_h)
-                print(pad_w)
             return [
                 Deconvolution2D(
                     [x],
@@ -114,32 +83,3 @@ class OpConvTranspose(Op):
                     groups=self.group
                 )
             ]
-
-
-def calc_output_padding(in_h, in_w, kh, kw, sx, sy, dx, dy):
-    '''
-    For attribute `output_shape`. Currently unused.
-    '''
-    output_padding = [0, 0]
-
-    out_h = get_deconv_outsize(in_h, kh, sx, dx, (0, 0), (0, 0))
-    out_w = get_deconv_outsize(in_w, kw, sy, dy, (0, 0), (0, 0))
-
-    output_padding[0] = self.output_shape[0] - out_h
-    output_padding[1] = self.output_shape[1] - out_w
-
-    assert output_padding[0] >= 0 or output_padding[1] >= 0
-
-    total_padding = [0, 0]
-
-    total_padding[0] = sx * (in_h - 1) + output_padding[0] + ((kh - 1) * dx + 1) - out_h
-    total_padding[1] = sy * (in_w - 1) + output_padding[1] + ((kw - 1) * dy + 1) - out_w
-
-    if (self.auto_pad != b'SAME_UPPER'):
-        pad_h = (total_padding[0] // 2, total_padding[0] - (total_padding[0] // 2))
-        pad_w = (total_padding[1] // 2, total_padding[1] - (total_padding[1] // 2))
-    else:
-        pad_h = (total_padding[0] - (total_padding[0] // 2), total_padding[0] // 2)
-        pad_w = (total_padding[1] - (total_padding[1] // 2), total_padding[1] // 2)
-
-    return (pad_h, pad_w)
