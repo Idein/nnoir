@@ -29,8 +29,8 @@ class Deconvolution2D(Function):
         dy = self.params['dilate'][0]
         dx = self.params['dilate'][1]
 
-        outh = util.get_deconv_outsize(in_h, kh, sx, dx, self.params['pad_h'], (0, 0))
-        outw = util.get_deconv_outsize(in_w, kw, sy, dy, self.params['pad_w'], (0, 0))
+        outh = util.get_deconv_outsize(in_h, kh, sy, dy, self.params['pad_h'], (0, 0))
+        outw = util.get_deconv_outsize(in_w, kw, sx, dx, self.params['pad_w'], (0, 0))
 
         gcol = np.tensordot(W, x, (0, 1)).astype(x.dtype, copy=False)
         gcol = np.rollaxis(gcol, 3)
