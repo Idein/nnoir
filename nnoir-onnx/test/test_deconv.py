@@ -12,7 +12,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_deconv_00():
+def test_deconv_base():
     '''
     opset version >= 11
     '''
@@ -39,7 +39,7 @@ def test_deconv_00():
     DeconvTester({"X": x}, outputs).run()
 
 
-def test_deconv_01():
+def test_deconv_infer_kernel_shape():
     '''
     opset version >= 11
     `kernel_shape` is ommitted. it should be inferred.
@@ -67,7 +67,7 @@ def test_deconv_01():
     DeconvTester({"X": x}, outputs).run()
 
 
-def test_deconv_02():
+def test_deconv_stride_and_pads():
     '''
     opset version >= 11
     make_node with `strides` and `pads`.
@@ -81,7 +81,36 @@ def test_deconv_02():
     class DeconvTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             node = onnx.helper.make_node("ConvTranspose", ["X", "W"], ["Y"],
-                                         strides=[3, 2], pads=[1, 2, 1, 2])
+                                         strides=[3, 2], pads=[1, 1, 1, 1])
+            inputs = [info("X", TensorProto.FLOAT, x_shape)]
+            outputs = [info("Y", TensorProto.FLOAT, out_shape)]
+
+            W = from_array(np.random.rand(*w_shape).astype(np.float32), "W")
+            graph = make_graph([node], "add_graph", inputs, outputs, initializer=[W])
+            model = make_model(graph)
+            return model
+
+    x = np.random.rand(*x_shape).astype(np.float32)
+
+    outputs = ["Y"]
+    DeconvTester({"X": x}, outputs).run()
+
+
+def test_deconv_with_odd_pads():
+    '''
+    opset version >= 11
+    make_node with `strides` and `pads`.
+    '''
+
+    x_shape = (1, 1, 3, 3)
+    w_shape = (1, 2, 3, 3)
+
+    out_shape = (1, 2, 7, 3)
+
+    class DeconvTester(Base):
+        def create_onnx(self) -> onnx.ModelProto:
+            node = onnx.helper.make_node("ConvTranspose", ["X", "W"], ["Y"],
+                                         strides=[3, 2], pads=[1, 1, 2, 2])
             inputs = [info("X", TensorProto.FLOAT, x_shape)]
             outputs = [info("Y", TensorProto.FLOAT, out_shape)]
 
@@ -97,7 +126,7 @@ def test_deconv_02():
 
 
 @raises(Exception)
-def test_deconv_03():
+def test_deconv_dilation_and_output_shape():
     '''
     opset version >= 11
     make_node with `dialation` and `output_shape`.
@@ -129,7 +158,7 @@ def test_deconv_03():
 
 
 @raises(Exception)
-def test_deconv_04():
+def test_deconv_output_padding():
     '''
     opset version >= 11
     make_node with `output_padding`.
