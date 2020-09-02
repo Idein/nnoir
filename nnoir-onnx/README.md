@@ -85,3 +85,5 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [Tanh](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tanh)
 * [Transpose](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Transpose)
 * [Unsqueeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Unsqueeze)
+* [ConvTranspose](https://github.com/onnx/onnx/blob/master/docs/Operators.md#ConvTranspose)
+    * `output_padding` is not supported
