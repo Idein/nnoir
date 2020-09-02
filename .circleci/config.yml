@@ -14,8 +14,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            pip3 install nose
-            pip3 install autopep8
+            pip3 install pytest autopep8
       - run:
           name: Check nnoir library code format
           working_directory: nnoir
@@ -30,7 +29,7 @@ jobs:
           name: Test nnoir library
           working_directory: nnoir
           command: |
-            nosetests -v test
+            pytest -v
       - run:
           name: Check nnoir-onnx library code format
           working_directory: nnoir-onnx
@@ -42,9 +41,28 @@ jobs:
           command: |
             python3 setup.py install
       - run:
+          name: Test nnoir-onnx
+          working_directory: nnoir-onnx
+          command: |
+            pytest -v
+      - run:
           name: Test nnoir-onnx example
           command: |
             make -C nnoir-onnx/example/mobilenetv2
+
+  test-chainer-component:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip3 install pytest autopep8
+      - run:
+          name: Install nnoir library
+          working_directory: nnoir
+          command: |
+            python3 setup.py install
       - run:
           name: Check nnoir-chainer library code format
           working_directory: nnoir-chainer
@@ -60,16 +78,11 @@ jobs:
           name: Test nnoir-chainer library
           working_directory: nnoir-chainer
           command: |
-            nosetests -v test
+            pytest -v
       - run:
           name: Test nnoir-chainer example
           command: |
             make -C nnoir-chainer/example/mnist
-      - run:
-          name: Test nnoir-onnx
-          working_directory: nnoir-onnx
-          command: |
-            nosetests -v test
 
 
 workflows:
@@ -77,3 +90,4 @@ workflows:
   test:
     jobs:
       - test
+      - test-chainer-component

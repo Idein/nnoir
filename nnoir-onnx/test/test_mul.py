@@ -6,7 +6,6 @@ import onnx
 import numpy as np
 
 from nnoir_onnx.operators.utils import UnsupportedONNXOperation
-from nose.tools import raises
 
 info = make_tensor_value_info
 

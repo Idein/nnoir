@@ -1,10 +1,9 @@
+from util import Base
+from onnx import TensorProto
+from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info
+import onnx
 import numpy as np
 
-import onnx
-from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info
-from onnx import TensorProto
-
-from util import Base
 
 info = make_tensor_value_info
 

@@ -5,7 +5,7 @@ from onnx.numpy_helper import from_array
 import onnx
 import numpy as np
 
-from nose.tools import raises
+import pytest
 
 info = make_tensor_value_info
 
@@ -37,7 +37,7 @@ def test_matmul_00():
     MatMulTester({"x": x}, outputs).run()
 
 
-@raises(Exception)
+@pytest.mark.xfail()
 def test_matmul_01():
     '''
     opset version >= 9
@@ -64,6 +64,7 @@ def test_matmul_01():
     outputs = ["y"]
     MatMulTester({"x": x}, outputs).run()
 
+
 def test_matmul_02():
     '''
     opset version >= 9
@@ -88,6 +89,7 @@ def test_matmul_02():
 
     outputs = ["z"]
     MatMulTester({"x": x, "y": y}, outputs).run()
+
 
 def test_matmul_03():
     '''
@@ -114,6 +116,7 @@ def test_matmul_03():
     outputs = ["z"]
     MatMulTester({"x": x, "y": y}, outputs).run()
 
+
 def test_matmul_04():
     '''
     opset version >= 9
@@ -139,6 +142,7 @@ def test_matmul_04():
     outputs = ["z"]
     MatMulTester({"x": x, "y": y}, outputs).run()
 
+
 def test_matmul_05():
     '''
     opset version >= 9
@@ -163,4 +167,3 @@ def test_matmul_05():
 
     outputs = ["z"]
     MatMulTester({"x": x, "y": y}, outputs).run()
-
