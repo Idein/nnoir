@@ -17,7 +17,6 @@ class OpConvTranspose(Op):
         self.dilations = (1, 1)
         self.group = 1
         self.output_shape = None
-        # self.output_padding = None
 
         for attr in node.attribute:
             if attr.name == 'kernel_shape':
@@ -34,10 +33,8 @@ class OpConvTranspose(Op):
                 self.pads = attr.ints
             if attr.name == 'output_padding':
                 raise UnsupportedONNXOperation(self.node, 'output_padding is not supported')
-                # self.output_padding = attr.ints
             if attr.name == 'output_shape':
-                raise UnsupportedONNXOperation(self.node, 'output_shape is not supported')
-                # self.output_shape = attr.ints
+                self.output_shape = attr.ints
 
     def to_function(self, env, constants):
         b = None
@@ -55,14 +52,34 @@ class OpConvTranspose(Op):
                 raise UnsupportedONNXOperation(self.node, 'b must be constant')
             b = constants[b]
 
+        _input = env[x]
         sy = self.strides[0]
         sx = self.strides[1]
         dy = self.dilations[0]
         dx = self.dilations[1]
 
         if self.output_shape is not None:
-            raise UnsupportedONNXOperation(self.node, 'output_shape is not surporrted')
+            # if output_shape is apecified, we must infer `pads` by the following equations as follows:
+            # https://github.com/onnx/onnx/blob/master/docs/Operators.md#ConvTranspose
+            def infer_total_pad(in_size, s, k, d, out_size):
+                return s * (in_size - 1) + ((k - 1) * d + 1) - out_size
 
+            def infer_pad(auto_pads: bytes, total_padding):
+                if (auto_pads != b'SAME_UPPER'):
+                    return (total_padding // 2, total_padding - (total_padding // 2))
+                else:
+                    return (total_padding - (total_padding // 2), total_padding // 2)
+
+            _, _, in_h, in_w = _input.shape
+            _, _, kh, kw = W.shape
+
+            total_pad_h = infer_total_pad(in_h, sy, kh, dy, self.output_shape[0])
+            pad_h = infer_pad(self.auto_pad, total_pad_h)
+            total_pad_w = infer_total_pad(in_w, sx, kw, dx, self.output_shape[1])
+            pad_w = infer_pad(self.auto_pad, total_pad_w)
+
+            print("total:", total_pad_h, total_pad_w)
+            print("pads:", pad_h, pad_w)
         else:
             if self.auto_pad == b'NOTSET':
                 pad_h = (0, 0)
@@ -70,16 +87,16 @@ class OpConvTranspose(Op):
                 if self.pads is not None:
                     pad_h = (self.pads[0], self.pads[2])
                     pad_w = (self.pads[1], self.pads[3])
-            return [
-                Deconvolution2D(
-                    [x],
-                    list(self.node.output),
-                    W=W,
-                    b=b,
-                    stride=(sy, sx),
-                    pad_h=pad_h,
-                    pad_w=pad_w,
-                    dilate=(dy, dx),
-                    groups=self.group
-                )
-            ]
+        return [
+            Deconvolution2D(
+                [x],
+                list(self.node.output),
+                W=W,
+                b=b,
+                stride=(sy, sx),
+                pad_h=pad_h,
+                pad_w=pad_w,
+                dilate=(dy, dx),
+                groups=self.group
+            )
+        ]
