@@ -20,7 +20,7 @@ def test_deconv_base():
     x_shape = (1, 2, 3, 3)
     w_shape = (2, 3, 3, 3)
 
-    out_shape = (1, 5, 3, 3)
+    out_shape = (1, 3, 5, 5)
 
     class DeconvTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
@@ -45,10 +45,10 @@ def test_deconv_infer_kernel_shape():
     `kernel_shape` is ommitted. it should be inferred.
     '''
 
-    x_shape = (1, 16, 50, 100)
-    w_shape = (16, 1, 3, 3)
+    x_shape = (1, 2, 3, 3)
+    w_shape = (2, 3, 3, 3)
 
-    out_shape = (1, 33, 101, 201)
+    out_shape = (1, 3, 5, 5)
 
     class DeconvTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
@@ -76,7 +76,7 @@ def test_deconv_stride_and_pads():
     x_shape = (1, 1, 3, 3)
     w_shape = (1, 2, 3, 3)
 
-    out_shape = (1, 2, 7, 3)
+    out_shape = (1, 2, 7, 5)
 
     class DeconvTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
@@ -105,7 +105,7 @@ def test_deconv_with_odd_pads():
     x_shape = (1, 1, 3, 3)
     w_shape = (1, 2, 3, 3)
 
-    out_shape = (1, 2, 7, 3)
+    out_shape = (1, 2, 6, 4)
 
     class DeconvTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
