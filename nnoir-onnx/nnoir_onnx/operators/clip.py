@@ -1,5 +1,6 @@
 from nnoir.functions import *
 from .utils import *
+import numpy as np
 
 
 class OpClip(Op):
@@ -15,10 +16,16 @@ class OpClip(Op):
             raise UnsupportedONNXOperation(self.node, 'only opset_version >= 6 is supported')
 
         if self.opset_version >= 11:
+
             if len(self.node.input) >= 2:
                 _min = constants[self.node.input[1]]
+                if isinstance(_min, np.ndarray):
+                    _min = float(_min.ravel()[0])
+
             if len(self.node.input) >= 3:
                 _max = constants[self.node.input[2]]
+                if isinstance(_max, np.ndarray):
+                    _max = float(_max.ravel()[0])
 
             if _min != 0.0:
                 raise UnsupportedONNXOperation(self.node, 'min must be 0.0')
