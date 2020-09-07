@@ -464,3 +464,21 @@ def test_Unpooling2D():
         outh=out_h,
         outw=out_w,
     )
+
+
+def test_Deconvolution2D():
+    batch, in_ch, in_h, in_w = 1, 3, 3, 3
+    out_ch, out_h, out_w = 4, 5, 5
+    kh, kw = 3, 3
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b'v0', (batch, in_ch, in_h, in_w))],
+        [(b'v1', (batch, out_ch, out_h, out_w))],
+        W=np.arange(out_ch * in_ch * kh * kw).reshape(in_ch, out_ch, kh, kw).astype(np.float32),
+        b=np.arange(out_ch).astype(np.float32),
+        pad_h=(0, 0),
+        pad_w=(0, 0),
+        stride=(1, 1),
+        dilate=(1, 1),
+        groups=1,
+    )
