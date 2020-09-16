@@ -77,9 +77,6 @@ class OpConvTranspose(Op):
             pad_h = infer_pad(self.auto_pad, total_pad_h)
             total_pad_w = infer_total_pad(in_w, sx, kw, dx, self.output_shape[1])
             pad_w = infer_pad(self.auto_pad, total_pad_w)
-
-            print("total:", total_pad_h, total_pad_w)
-            print("pads:", pad_h, pad_w)
         else:
             if self.auto_pad == b'NOTSET':
                 pad_h = (0, 0)
