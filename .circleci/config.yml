@@ -1,8 +1,12 @@
 version: 2
+
 references:
   defaults: &defaults
     docker:
       - image: python:3.7-buster
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     environment:
       TZ: "/usr/share/zoneinfo/Asia/Tokyo"
 
@@ -89,5 +93,9 @@ workflows:
   version: 2
   test:
     jobs:
-      - test
-      - test-chainer-component
+      - test:
+          context:
+            - docker-hub-creds
+      - test-chainer-component:
+          context:
+            - docker-hub-creds
