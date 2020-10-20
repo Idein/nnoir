@@ -32,6 +32,8 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
     * `W` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `b` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
 * [Cos](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Cos)
+* [Div](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Div)
+    * 1st input must not be `"constant"`
 * [Dropout](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Dropout)
     * equivalent identity function
 * [Elu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Elu)
