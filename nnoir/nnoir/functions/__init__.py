@@ -11,6 +11,7 @@ from .constant import Constant
 from .convolution_2d import Convolution2D
 from .cos import Cos
 from .depthwise_convolution_2d import DepthwiseConvolution2D
+from .div import Div
 from .dropout import Dropout
 from .elu import ELU
 from .gemm import Gemm
