@@ -222,6 +222,15 @@ def test_DepthwiseConvolution2D():
     )
 
 
+def test_Div():
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b'v0', (10, 10)),
+         (b'v1', (10, 10))],
+        [(b'v2', (10, 10))],
+    )
+
+
 def test_Dropout():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
