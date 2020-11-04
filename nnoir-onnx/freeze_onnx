@@ -8,14 +8,14 @@ from nnoir_onnx import utils
 
 def command_list(args) -> None:
     model = onnx.load(args.input)
-    s = utils.list_statically_unknown_sized_variables(model)
+    s = utils.list_dimension_variables(model)
     if len(s) != 0:
         print(s)
 
 
 def command_freeze(args) -> None:
     model = onnx.load(args.input)
-    s = utils.list_statically_unknown_sized_variables(model)
+    s = utils.list_dimension_variables(model)
     diff = s.difference(set(args.fix_dimension.keys()))
     if len(diff) != 0:
         print("missing variables: " + str(diff))

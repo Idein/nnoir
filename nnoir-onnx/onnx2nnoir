@@ -6,7 +6,7 @@ from nnoir_onnx import ONNX, utils
 
 def check_graph(input_path):
     model = onnx.load(input_path)
-    vs = utils.list_statically_unknown_sized_variables(model)
+    vs = utils.list_dimension_variables(model)
     if len(vs) != 0:
         sys.exit(f"""Error: This ONNX model includes dimension variables.
 {vs}
