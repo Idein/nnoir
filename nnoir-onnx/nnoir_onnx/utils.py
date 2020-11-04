@@ -1,4 +1,4 @@
-from typing import Dict, Set
+from typing import Set
 
 
 def list_dimension_variables(model) -> Set[str]:
