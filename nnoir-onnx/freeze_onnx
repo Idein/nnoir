@@ -3,28 +3,19 @@ from typing import Dict, Set
 
 import argparse
 import onnx
-
-
-def list_variables(model) -> Set[str]:
-    s = set()
-    for x in model.graph.input:
-        if x.type.HasField('tensor_type'):
-            for dim in x.type.tensor_type.shape.dim:
-                if dim.HasField('dim_param'):
-                    s.add(dim.dim_param)
-    return s
+from nnoir_onnx import utils
 
 
 def command_list(args) -> None:
     model = onnx.load(args.input)
-    s = list_variables(model)
+    s = utils.list_statically_unknown_sized_variables(model)
     if len(s) != 0:
         print(s)
 
 
 def command_freeze(args) -> None:
     model = onnx.load(args.input)
-    s = list_variables(model)
+    s = utils.list_statically_unknown_sized_variables(model)
     diff = s.difference(set(args.fix_dimension.keys()))
     if len(diff) != 0:
         print("missing variables: " + str(diff))
