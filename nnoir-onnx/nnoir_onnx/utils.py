@@ -1,5 +1,6 @@
 from typing import Dict, Set
 
+
 def list_dimension_variables(model) -> Set[str]:
     s = set()
     for x in model.graph.input:
@@ -8,4 +9,3 @@ def list_dimension_variables(model) -> Set[str]:
                 if dim.HasField('dim_param'):
                     s.add(dim.dim_param)
     return s
-

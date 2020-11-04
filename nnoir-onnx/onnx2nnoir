@@ -4,6 +4,7 @@ import onnx
 import sys
 from nnoir_onnx import ONNX, utils
 
+
 def check_graph(input_path):
     model = onnx.load(input_path)
     vs = utils.list_dimension_variables(model)
@@ -12,6 +13,7 @@ def check_graph(input_path):
 {vs}
 Set the values with `freeze_onnx freeze`.
 $ freeze_onnx freeze --help""")
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ONNX to NNOIR Converter')
