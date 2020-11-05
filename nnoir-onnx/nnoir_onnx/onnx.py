@@ -42,14 +42,14 @@ class ONNX:
         onnx.checker.check_model(self.model)
         # All names MUST adhere to C identifier syntax rules.
         if not re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', self.model.graph.name):
-            raise InvalidONNXData('''graph name "{}" is not C identifier.
-see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.format(self.model.graph.name))
+            raise InvalidONNXData(f'''graph name "{self.model.graph.name}" is not C identifier.
+see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph''')
         variables = list_dimension_variables(self.model)
         if len(variables) != 0:
-            raise UnknownSizedVariable('''This ONNX model includes dimension variables.
-{}
+            raise UnknownSizedVariable(f'''This ONNX model includes dimension variables.
+{variables}
 Set the values with `freeze_onnx freeze`.
-$ freeze_onnx freeze --help'''.format(variables))
+$ freeze_onnx freeze --help''')
         self._rename_to_c_ident()
         self.sess = onnxruntime.InferenceSession(path)
         constant_nodes = self._list_constant_nodes()
@@ -72,15 +72,15 @@ $ freeze_onnx freeze --help'''.format(variables))
             if re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', rename_content):
                 rename_prefix += '_plain'
             else:
-                rename_content = ''.join(map(lambda c: 'x{:02x}'.format(ord(c)), rename_content))
+                rename_content = ''.join(map(lambda c: f'x{ord(c):02x}', rename_content))
                 rename_prefix += '_encoded'
-            rename_candidate = "{}_{}_{}".format(rename_prefix, rename_step, rename_content)
+            rename_candidate = f"{rename_prefix}_{rename_step}_{rename_content}"
             while True:
                 if rename_candidate not in value_names:
                     value_names.append(rename_candidate)
                     break
                 rename_step += 1
-                rename_candidate = "{}_{}_{}".format(rename_prefix, rename_step, rename_content)
+                rename_candidate = f"{rename_prefix}_{rename_step}_{rename_content}"
             # rename initializer.name -> rename_candidate
             for n in self.model.graph.node:
                 for i in range(len(n.input)):
@@ -166,7 +166,7 @@ $ freeze_onnx freeze --help'''.format(variables))
                  for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
-        renaming_table = {n.name: 'v{}'.format(i).encode('utf-8') for i, n in enumerate(nodes)}
+        renaming_table = {n.name: f'v{i}'.encode('utf-8') for i, n in enumerate(nodes)}
 
         def rename(x):
             return renaming_table[x]
@@ -225,11 +225,11 @@ $ freeze_onnx freeze --help'''.format(variables))
             results = sess.run(outputs, inputs)
 
     def op_for_node(self, node):
-        op_name = 'Op{}'.format(node.op_type)
+        op_name = f'Op{node.op_type}'
         if op_name in globals():
             return globals()[op_name](node, self.opset_version)
         else:
-            raise UnsupportedONNXOperation(node, 'converting from {} is undefined'.format(node.op_type))
+            raise UnsupportedONNXOperation(node, f'converting from {node.op_type} is undefined')
 
     def _to_NNOIR_functions(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))

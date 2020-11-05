@@ -30,7 +30,7 @@ class OpPad(Op):
                 if attr.name == 'mode':
                     self.mode = attr.s
                 else:
-                    raise UnsupportedONNXOperation(self.node, 'unknown attribute {}'.format(attr.s))
+                    raise UnsupportedONNXOperation(self.node, f'unknown attribute {attr.s}')
 
             input_ = [self.node.input[0]]
             pads = list(map(int, self.pads))  # In ONNX specification, the type of `pads` is int64

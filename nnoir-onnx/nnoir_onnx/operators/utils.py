@@ -62,7 +62,7 @@ def auto_pad_to_manual_pad(n, k, s, d, auto_pad):
 
 def gen_unregisterd_node_name(env):
     for i in range(len(env)):
-        candidate = 'v{}'.format(i)
+        candidate = f'v{i}'
         if candidate not in env:
             return candidate
 
