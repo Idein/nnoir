@@ -48,7 +48,7 @@ class OpGemm(Op):
             raise UnsupportedONNXOperation(self.node, 'shapes mismatch')
 
         if self.transA == 1:
-            internal_node = "{}_{}".format(A, id(A))
+            internal_node = f"{A}_{id(A)}"
             env[internal_node] = env[A].T
             return [
                 Transpose(

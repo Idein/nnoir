@@ -34,7 +34,7 @@ class OpMaxPool(Op):
             elif attr.name == 'dilations':
                 raise UnsupportedONNXOperation(self.node, 'attribute `dilations` is not supported')
             else:
-                raise UnsupportedONNXOperation(self.node, 'unknown attribute {}'.format(attr.name))
+                raise UnsupportedONNXOperation(self.node, f'unknown attribute {attr.name}')
 
     def to_function(self, env, constants):
         [x] = self.node.input
