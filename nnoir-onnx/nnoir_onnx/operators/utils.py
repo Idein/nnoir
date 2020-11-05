@@ -15,6 +15,12 @@ class UnsupportedONNXOperation(Exception):
         self.message = message
 
 
+class UnknownSizedVariable(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+
 class Op:
 
     def __init__(self, node, opset_version):

@@ -7,7 +7,8 @@ import onnx
 import onnxruntime
 from nnoir import *
 from nnoir_onnx.operators import *
-from .operators.utils import UnsupportedONNXOperation, InvalidONNXData
+from .operators.utils import InvalidONNXData, UnknownSizedVariable, UnsupportedONNXOperation
+from .utils import list_dimension_variables
 
 
 def tensor_to_narray(tensor):
@@ -43,14 +44,16 @@ class ONNX:
         if not re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', self.model.graph.name):
             raise InvalidONNXData('''graph name "{}" is not C identifier.
 see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.format(self.model.graph.name))
+        variables = list_dimension_variables(self.model)
+        if len(variables) != 0:
+            raise UnknownSizedVariable('''This ONNX model includes dimension variables.
+{}
+Set the values with `freeze_onnx freeze`.
+$ freeze_onnx freeze --help'''.format(variables))
         self._rename_to_c_ident()
         self.sess = onnxruntime.InferenceSession(path)
         constant_nodes = self._list_constant_nodes()
         self.nodes = self._try_run(constant_nodes)
-        variables = self._statically_unknown_variables()
-        if variables != []:
-            raise UnsupportedONNXOperation(
-                variables, "This ONNX model includes dimension variables. Try to remove them by assignment by `freeze_onnx`")
         self.constant_nodes = {n: self.nodes[n] for n in constant_nodes}
         self.opset_version = self.model.opset_import[0].version
 
@@ -281,15 +284,6 @@ see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph'''.
         result = []
         dfs([], outputs, result)
         return result
-
-    def _statically_unknown_variables(self):
-        variables = []
-        for n in self.nodes:
-            _input = self._find_input(n)
-            if _input and hasattr(_input.type, 'tensor_type'):
-                dims = _input.type.tensor_type.shape.dim
-                variables += filter(lambda x: x.dim_param != '', dims)
-        return variables
 
 
 def to_dummy_input(x):
