@@ -16,7 +16,7 @@ def command_list(args) -> None:
 def command_freeze(args) -> None:
     model = onnx.load(args.input)
     fixed_model = utils.freeze_dimension_variables(model, args.fix_dimension)
-    onnx.save(model, args.output)
+    onnx.save(fixed_model, args.output)
 
 
 if __name__ == '__main__':
