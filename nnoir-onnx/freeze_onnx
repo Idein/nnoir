@@ -20,6 +20,7 @@ def command_freeze(args) -> None:
 
 
 if __name__ == '__main__':
+    print('Warning: freeze_onnx is deprecated. Instead use `onnx2nnoir --fix_dimension`.')
     parser = argparse.ArgumentParser(description='ONNX Freezer')
     subparsers = parser.add_subparsers()
 
