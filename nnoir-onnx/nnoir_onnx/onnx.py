@@ -8,7 +8,7 @@ import onnxruntime
 from nnoir import *
 from nnoir_onnx.operators import *
 from .operators.utils import InvalidONNXData, UnknownSizedVariable, UnsupportedONNXOperation
-from .utils import list_dimension_variables
+from .utils import list_dimension_variables, freeze_dimension_variables
 
 
 def tensor_to_narray(tensor):
@@ -37,10 +37,12 @@ def value_info_to_zero_narray(vi):
 
 class ONNX:
 
-    def __init__(self, path, graph_name=None):
+    def __init__(self, path, graph_name=None, fix_dimension=None):
         self.model = onnx.load(path)
         if graph_name is not None:
             self.model.graph.name = graph_name
+        if fix_dimension is not None:
+            self.model = freeze_dimension_variables(self.model, fix_dimension)
         onnx.checker.check_model(self.model)
         # All names MUST adhere to C identifier syntax rules.
         if not re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', self.model.graph.name):
@@ -51,8 +53,7 @@ You can override the graph name with the `--graph_name` option.''')
         if len(variables) != 0:
             raise UnknownSizedVariable(f'''This ONNX model includes dimension variables.
 {variables}
-Set the values with `freeze_onnx freeze`.
-$ freeze_onnx freeze --help''')
+Set the values with the `--fix_dimension` option.''')
         self._rename_to_c_ident()
         self.sess = onnxruntime.InferenceSession(path)
         constant_nodes = self._list_constant_nodes()
