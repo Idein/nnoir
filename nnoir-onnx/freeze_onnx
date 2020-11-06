@@ -15,29 +15,8 @@ def command_list(args) -> None:
 
 def command_freeze(args) -> None:
     model = onnx.load(args.input)
-    s = utils.list_dimension_variables(model)
-    diff = s.difference(set(args.fix_dimension.keys()))
-    if len(diff) != 0:
-        print("missing variables: " + str(diff))
-        return
-
-    for x in model.graph.input:
-        if x.type.HasField('tensor_type'):
-            for dim in x.type.tensor_type.shape.dim:
-                if dim.HasField('dim_param'):
-                    v = dim.dim_param
-                    dim.ClearField('dim_param')
-                    dim.dim_value = args.fix_dimension[v]
+    fixed_model = utils.freeze_dimension_variables(model, args.fix_dimension)
     onnx.save(model, args.output)
-
-
-def parse_assign(s: str) -> Dict[str, int]:
-    d: Dict[str, int] = dict()
-    item: str
-    for item in s.split(','):
-        [v, n] = item.split('=')
-        d[v] = int(n)
-    return d
 
 
 if __name__ == '__main__':
@@ -48,7 +27,7 @@ if __name__ == '__main__':
     parser_freeze = subparsers.add_parser('freeze', help='create freezed (statically sized) onnx')
     parser_freeze.add_argument('-o', '--output', dest='output', type=str, required=True,
                                metavar='ONNX', help='output(ONNX) file path')
-    parser_freeze.add_argument('--fix-dimension', type=parse_assign, dest='fix_dimension', required=True,
+    parser_freeze.add_argument('--fix-dimension', type=utils.parse_assign, dest='fix_dimension', required=True,
                                help='assign statically unknown variables (like W=2,H=4. Cannot include spaces)')
     parser_freeze.add_argument(dest='input', type=str,
                                metavar='ONNX', help='input(ONNX) file path')
