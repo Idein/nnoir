@@ -37,13 +37,16 @@ def value_info_to_zero_narray(vi):
 
 class ONNX:
 
-    def __init__(self, path):
+    def __init__(self, path, graph_name=None):
         self.model = onnx.load(path)
+        if graph_name is not None:
+            self.model.graph.name = graph_name
         onnx.checker.check_model(self.model)
         # All names MUST adhere to C identifier syntax rules.
         if not re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', self.model.graph.name):
             raise InvalidONNXData(f'''graph name "{self.model.graph.name}" is not C identifier.
-see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph''')
+see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph.
+You can override the graph name with the `--graph_name` option.''')
         variables = list_dimension_variables(self.model)
         if len(variables) != 0:
             raise UnknownSizedVariable(f'''This ONNX model includes dimension variables.
