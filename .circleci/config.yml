@@ -53,6 +53,7 @@ jobs:
           name: Test nnoir-onnx example
           command: |
             make -C nnoir-onnx/example/mobilenetv2
+            make -C nnoir-onnx/example/super_resolution
 
   test-chainer-component:
     <<: *defaults
