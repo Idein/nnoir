@@ -1,7 +1,7 @@
 import numpy as np
 
 import onnx
-from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info
+from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info, make_opsetid
 from onnx.numpy_helper import from_array
 from onnx import TensorProto
 
@@ -26,7 +26,7 @@ def test_squeeze_00():
             outputs = [info("y", TensorProto.FLOAT, shape1)]
 
             graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
             return model
 
     x = np.ones(shape0).astype(np.float32)
@@ -51,7 +51,7 @@ def test_squeeze_01():
             outputs = [info("y", TensorProto.FLOAT, shape1)]
 
             graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
             return model
 
     x = np.ones(shape0).astype(np.float32)
@@ -76,7 +76,7 @@ def test_squeeze_02():
             outputs = [info("y", TensorProto.FLOAT, shape1)]
 
             graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
             return model
 
     x = np.ones(shape0).astype(np.float32)
@@ -101,7 +101,7 @@ def test_squeeze_03():
             outputs = [info("y", TensorProto.FLOAT, shape1)]
 
             graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
             return model
 
     x = np.ones(shape0).astype(np.float32)
@@ -126,7 +126,7 @@ def test_squeeze_04():
             outputs = [info("y", TensorProto.FLOAT, shape1)]
 
             graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
             return model
 
     x = np.ones(shape0).astype(np.float32)
@@ -150,7 +150,7 @@ def test_squeeze_05():
             outputs = [info("y", TensorProto.FLOAT, shape1)]
 
             graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
             return model
 
     x = np.ones(shape0).astype(np.float32)

@@ -21,7 +21,7 @@ def test_reduce_sum_00():
             outputs = [info("v1", TensorProto.FLOAT, (1, 1, 1, 1))]
 
             graph = make_graph([node], "add_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
             return model
 
     v0 = np.random.rand(1, 3, 4, 5).astype(np.float32)
@@ -41,7 +41,7 @@ def test_reduce_sum_01():
             outputs = [info("v1", TensorProto.FLOAT, [])]  # the shape is scalar
 
             graph = make_graph([node], "add_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
             return model
 
     v0 = np.random.rand(1, 3, 4, 5).astype(np.float32)
@@ -61,7 +61,7 @@ def test_reduce_sum_02():
             outputs = [info("v1", TensorProto.FLOAT, [1, 1, 1, 5])]
 
             graph = make_graph([node], "add_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
             return model
 
     v0 = np.random.rand(1, 3, 4, 5).astype(np.float32)
