@@ -16,8 +16,8 @@ def test_clip_00():
 
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node("Clip", inputs=["x", "min", "max"], outputs=["y"])
-            max_init = make_tensor("max", TensorProto.FLOAT, None, np.array([6.0], dtype=np.float32))
-            min_init = make_tensor("min", TensorProto.FLOAT, None, np.array([0.0], dtype=np.float32))
+            max_init = make_tensor("max", TensorProto.FLOAT, (), np.array([6.0], dtype=np.float32))
+            min_init = make_tensor("min", TensorProto.FLOAT, (), np.array([0.0], dtype=np.float32))
 
             inputs = [info("x", TensorProto.FLOAT, (1, 3, 4, 5))]
             outputs = [info("y", TensorProto.FLOAT, (1, 3, 4, 5))]
