@@ -19,7 +19,7 @@ def test_unsqueeze_00():
             outputs = [info("y", TensorProto.FLOAT, (1, 3, 4, 1))]
 
             graph = make_graph([node], "add_graph", inputs, outputs, initializer=[])
-            return make_model(graph)
+            return make_model(graph, opset_imports=[make_opsetid("", 11)])
 
     inputs = {"x": (np.random.rand(3, 4).astype(np.float32) * 10.0)}
     outputs = ["y"]
@@ -37,7 +37,7 @@ def test_unsqueeze_01():
             outputs = [info("y", TensorProto.FLOAT, (1, 3, 1, 4))]
 
             graph = make_graph([node], "add_graph", inputs, outputs, initializer=[])
-            return make_model(graph)
+            return make_model(graph, opset_imports=[make_opsetid("", 11)])
 
     inputs = {"x": (np.random.rand(3, 4).astype(np.float32) * 10.0)}
     outputs = ["y"]
