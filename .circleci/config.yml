@@ -100,3 +100,18 @@ workflows:
       - test-chainer-component:
           context:
             - docker-hub-creds
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 16 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - test:
+          context:
+            - docker-hub-creds
+      - test-chainer-component:
+          context:
+            - docker-hub-creds
