@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 references:
   defaults: &defaults
@@ -10,15 +10,16 @@ references:
     environment:
       TZ: "/usr/share/zoneinfo/Asia/Tokyo"
 
-jobs:
-  test:
-    <<: *defaults
+commands:
+  install-python-tools:
     steps:
-      - checkout
       - run:
-          name: Install dependencies
+          name: Install python tools
           command: |
             pip3 install pytest autopep8
+            pip3 install setuptools wheel twine
+  test-nnoir:
+    steps:
       - run:
           name: Check nnoir library code format
           working_directory: nnoir
@@ -34,6 +35,8 @@ jobs:
           working_directory: nnoir
           command: |
             pytest -v
+  test-nnoir-onnx:
+    steps:
       - run:
           name: Check nnoir-onnx library code format
           working_directory: nnoir-onnx
@@ -51,23 +54,12 @@ jobs:
             pytest -v
       - run:
           name: Test nnoir-onnx example
+          working_directory: nnoir-onnx
           command: |
-            make -C nnoir-onnx/example/mobilenetv2
-            make -C nnoir-onnx/example/super_resolution
-
-  test-chainer-component:
-    <<: *defaults
+            make -C example/mobilenetv2
+            make -C example/super_resolution
+  test-nnoir-chainer:
     steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            pip3 install pytest autopep8
-      - run:
-          name: Install nnoir library
-          working_directory: nnoir
-          command: |
-            python3 setup.py install
       - run:
           name: Check nnoir-chainer library code format
           working_directory: nnoir-chainer
@@ -86,9 +78,26 @@ jobs:
             pytest -v
       - run:
           name: Test nnoir-chainer example
+          working_directory: nnoir-chainer
           command: |
-            make -C nnoir-chainer/example/mnist
+            make -C example/mnist
 
+jobs:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - install-python-tools
+      - test-nnoir
+      - test-nnoir-onnx
+
+  test-chainer-component:
+    <<: *defaults
+    steps:
+      - checkout
+      - install-python-tools
+      - test-nnoir
+      - test-nnoir-chainer
 
 workflows:
   version: 2
