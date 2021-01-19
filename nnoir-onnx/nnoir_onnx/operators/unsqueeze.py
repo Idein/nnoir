@@ -8,7 +8,7 @@ class OpUnsqueeze(Op):
         super(OpUnsqueeze, self).__init__(node, *args)
 
     def to_function(self, env, constants):
-        [x] = self.node.input
+        x = self.node.input[0]
         [y] = self.node.output
 
         # The axes attribute is ignored. We already know output shape,
