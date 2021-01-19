@@ -10,149 +10,100 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_squeeze_00():
-    shape0 = (1, 3, 1, 5)
-    shape1 = (3, 5)
+def run_opset_11_tester(input_shape, output_shape, axes=None):
 
     class SqueezeTester(Base):
+
+        def __init__(self, inputs, outputs):
+            super(SqueezeTester, self).__init__(inputs, outputs)
+
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node(
                 'Squeeze',
                 inputs=['x'],
                 outputs=['y'],
+                **{'axes': axes for _ in [None] if axes is not None}
             )
 
-            inputs = [info("x", TensorProto.FLOAT, shape0)]
-            outputs = [info("y", TensorProto.FLOAT, shape1)]
+            inputs = [info("x", TensorProto.FLOAT, input_shape)]
+            outputs = [info("y", TensorProto.FLOAT, output_shape)]
 
             graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
-            return model
+            return make_model(graph, opset_imports=[make_opsetid("", 11)])
 
-    x = np.ones(shape0).astype(np.float32)
-    outputs = ["y"]
-    SqueezeTester({"x": x}, outputs).run()
+    SqueezeTester({"x": np.ones(input_shape, dtype=np.float32)}, ["y"]).run()
 
 
-def test_squeeze_01():
-    shape0 = (1, 3, 1, 5)
-    shape1 = (3, 1, 5)
+def test_opset_11_squeeze_00():
+    run_opset_11_tester((1, 3, 1, 5), (3, 5))
+
+
+def test_opset_11_squeeze_01():
+    run_opset_11_tester((1, 3, 1, 5), (3, 1, 5), axes=[0])
+
+
+def test_opset_11_squeeze_02():
+    run_opset_11_tester((1, 3, 1, 5), (1, 3, 5), axes=[-2])
+
+
+def test_opset_11_squeeze_03():
+    run_opset_11_tester((1, 3, 1, 5), (3, 5), axes=[0, 2])
+
+
+def test_opset_11_squeeze_04():
+    run_opset_11_tester((1, 3, 1, 5), (3, 5), axes=[0, -2])
+
+
+def test_opset_11_squeeze_05():
+    run_opset_11_tester((1, 3, 1, 5), (3, 5), axes=[2, -4])
+
+
+def run_opset_13_tester(input_shape, output_shape, axes=None):
 
     class SqueezeTester(Base):
+
+        def __init__(self, inputs, outputs):
+            super(SqueezeTester, self).__init__(inputs, outputs)
+
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node(
                 'Squeeze',
-                inputs=['x'],
+                inputs=['x'] + ['axes' for _ in [None] if axes is not None],
                 outputs=['y'],
-                axes=[0],
             )
 
-            inputs = [info("x", TensorProto.FLOAT, shape0)]
-            outputs = [info("y", TensorProto.FLOAT, shape1)]
+            inputs = [info("x", TensorProto.FLOAT, input_shape)]
+            outputs = [info("y", TensorProto.FLOAT, output_shape)]
 
-            graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
-            return model
+            initializer = []
+            if axes is not None:
+                initializer.append(from_array(np.array(axes, dtype=np.int64), "axes"))
 
-    x = np.ones(shape0).astype(np.float32)
-    outputs = ["y"]
-    SqueezeTester({"x": x}, outputs).run()
+            graph = make_graph([node], "squeeze_graph", inputs, outputs, initializer=initializer)
+            return make_model(graph, opset_imports=[make_opsetid("", 13)])
 
-
-def test_squeeze_02():
-    shape0 = (1, 3, 1, 5)
-    shape1 = (1, 3, 5)
-
-    class SqueezeTester(Base):
-        def create_onnx(self) -> onnx.ModelProto:
-            node = make_node(
-                'Squeeze',
-                inputs=['x'],
-                outputs=['y'],
-                axes=[-2],
-            )
-
-            inputs = [info("x", TensorProto.FLOAT, shape0)]
-            outputs = [info("y", TensorProto.FLOAT, shape1)]
-
-            graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
-            return model
-
-    x = np.ones(shape0).astype(np.float32)
-    outputs = ["y"]
-    SqueezeTester({"x": x}, outputs).run()
+    SqueezeTester({"x": np.ones(input_shape, dtype=np.float32)}, ["y"]).run()
 
 
-def test_squeeze_03():
-    shape0 = (1, 3, 1, 5)
-    shape1 = (3, 5)
-
-    class SqueezeTester(Base):
-        def create_onnx(self) -> onnx.ModelProto:
-            node = make_node(
-                'Squeeze',
-                inputs=['x'],
-                outputs=['y'],
-                axes=[0, 2],
-            )
-
-            inputs = [info("x", TensorProto.FLOAT, shape0)]
-            outputs = [info("y", TensorProto.FLOAT, shape1)]
-
-            graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
-            return model
-
-    x = np.ones(shape0).astype(np.float32)
-    outputs = ["y"]
-    SqueezeTester({"x": x}, outputs).run()
+def test_opset_13_squeeze_00():
+    run_opset_13_tester((1, 3, 1, 5), (3, 5))
 
 
-def test_squeeze_04():
-    shape0 = (1, 3, 1, 5)
-    shape1 = (3, 5)
+def test_opset_13_squeeze_01():
+    run_opset_13_tester((1, 3, 1, 5), (3, 1, 5), axes=[0])
 
-    class SqueezeTester(Base):
-        def create_onnx(self) -> onnx.ModelProto:
-            node = make_node(
-                'Squeeze',
-                inputs=['x'],
-                outputs=['y'],
-                axes=[0, -2],
-            )
 
-            inputs = [info("x", TensorProto.FLOAT, shape0)]
-            outputs = [info("y", TensorProto.FLOAT, shape1)]
+def test_opset_13_squeeze_02():
+    run_opset_13_tester((1, 3, 1, 5), (1, 3, 5), axes=[-2])
 
-            graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
-            return model
 
-    x = np.ones(shape0).astype(np.float32)
-    outputs = ["y"]
-    SqueezeTester({"x": x}, outputs).run()
+def test_opset_13_squeeze_03():
+    run_opset_13_tester((1, 3, 1, 5), (3, 5), axes=[0, 2])
 
-def test_squeeze_05():
-    shape0 = (1, 3, 1, 5)
-    shape1 = (3, 5)
 
-    class SqueezeTester(Base):
-        def create_onnx(self) -> onnx.ModelProto:
-            node = make_node(
-                'Squeeze',
-                inputs=['x'],
-                outputs=['y'],
-                axes=[2, -4],
-            )
+def test_opset_13_squeeze_04():
+    run_opset_13_tester((1, 3, 1, 5), (3, 5), axes=[0, -2])
 
-            inputs = [info("x", TensorProto.FLOAT, shape0)]
-            outputs = [info("y", TensorProto.FLOAT, shape1)]
 
-            graph = make_graph([node], "squeeze_graph", inputs, outputs)
-            model = make_model(graph, opset_imports=[make_opsetid("", 11)])
-            return model
-
-    x = np.ones(shape0).astype(np.float32)
-    outputs = ["y"]
-    SqueezeTester({"x": x}, outputs).run()
+def test_opset_13_squeeze_05():
+    run_opset_13_tester((1, 3, 1, 5), (3, 5), axes=[2, -4])
