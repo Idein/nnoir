@@ -16,16 +16,22 @@ class OpSqueeze(Op):
                 self.axes = attr.ints
 
     def to_function(self, env, constants):
-        [x] = self.node.input
+        x = self.node.input[0]
         [y] = self.node.output
         shape0 = env[x].shape
 
-        if self.axes == []:
+        axes = []
+        if self.axes != []:
+            axes = self.axes
+        if len(self.node.input) > 1:  # Opset 13
+            axes = list(env[self.node.input[1]])
+
+        if axes == []:
             shape1 = [sh for sh in shape0 if sh != 1]
         else:
             sh = list(shape0)
             dim = len(sh)
-            for a in sorted([(a + dim) % dim for a in self.axes], reverse=True):
+            for a in sorted([(a + dim) % dim for a in axes], reverse=True):
                 del sh[a]
             shape1 = sh
 
