@@ -84,6 +84,9 @@ commands:
       library:
         description: target library
         type: string
+      pypi-api-token:
+        description: pypi API token
+        type: string
     steps:
       - run:
           name: Check if git tag name is appropriate for package version
@@ -106,7 +109,7 @@ commands:
           command: |
             pip3 install twine
             export TWINE_USERNAME=__token__
-            export TWINE_PASSWORD=$PYPI_API_TOKEN
+            export TWINE_PASSWORD=<< parameters.pypi-api-token >>
             python -m twine upload --non-interactive --repository pypi dist/*
 
 jobs:
@@ -181,6 +184,7 @@ workflows:
           releases:
             - upload-package:
                 library: nnoir
+                pypi-api-token: $PYPI_API_TOKEN_NNOIR
 
   release-nnoir-onnx:
     jobs:
@@ -199,6 +203,7 @@ workflows:
           releases:
             - upload-package:
                 library: nnoir-onnx
+                pypi-api-token: $PYPI_API_TOKEN_NNOIR_ONNX
 
   release-nnoir-chainer:
     jobs:
@@ -217,3 +222,4 @@ workflows:
           releases:
             - upload-package:
                 library: nnoir-chainer
+                pypi-api-token: $PYPI_API_TOKEN_NNOIR_CHAINER
