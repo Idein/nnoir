@@ -104,6 +104,7 @@ commands:
           name: Publish wheel & sdist to PyPI
           working_directory: << parameters.library >>
           command: |
+            pip3 install twine
             export TWINE_USERNAME=__token__
             export TWINE_PASSWORD=$PYPI_API_TOKEN
             python -m twine upload --non-interactive --repository pypitest dist/*
