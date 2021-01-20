@@ -107,8 +107,7 @@ commands:
             pip3 install twine
             export TWINE_USERNAME=__token__
             export TWINE_PASSWORD=$PYPI_API_TOKEN
-            python -m twine upload --non-interactive --repository-url https://test.pypi.org/legacy/ dist/*
-            python -m twine upload --non-interactive --repository     pypi                          dist/*
+            python -m twine upload --non-interactive --repository pypi dist/*
 
 jobs:
 
