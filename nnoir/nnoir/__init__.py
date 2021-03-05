@@ -1,4 +1,5 @@
 from .nnoir import NNOIR
+from .nntc import *
 from .load import load
 from .value import Value
 from . import functions
