@@ -37,7 +37,6 @@ def test_matmul_00():
     MatMulTester({"x": x}, outputs).run()
 
 
-@pytest.mark.xfail()
 def test_matmul_01():
     '''
     opset version >= 9
