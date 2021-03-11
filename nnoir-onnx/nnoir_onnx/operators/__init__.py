@@ -34,3 +34,4 @@ from .tanh import OpTanh
 from .transpose import OpTranspose
 from .unsqueeze import OpUnsqueeze
 from .prelu import OpPRelu
+from .split import OpSplit

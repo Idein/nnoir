@@ -165,9 +165,16 @@ Set the values with the `--fix_dimension` option.''')
     def to_NNOIR(self):
         inputs = list(map(lambda x: x.name, self.sess.get_inputs()))
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
-        functions = self._to_NNOIR_functions()
-        nodes = [Value(n, self.nodes[n])
-                 for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
+        functions, new_values = self._to_NNOIR_functions()
+
+        nodes = []
+        for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions))):
+            if n in self.nodes:
+                nodes.append(Value(n, self.nodes[n]))
+            elif n in new_values:
+                nodes.append(Value(n, new_values[n]))
+            else:
+                raise Exception("invalid value: {}".format(n))
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
         renaming_table = {n.name: f'v{i}'.encode('utf-8') for i, n in enumerate(nodes)}
@@ -231,7 +238,7 @@ Set the values with the `--fix_dimension` option.''')
     def op_for_node(self, node):
         op_name = f'Op{node.op_type}'
         if op_name in globals():
-            return globals()[op_name](node, self.opset_version)
+            return globals()[op_name](node, self.opset_version, self)
         else:
             raise UnsupportedONNXOperation(node, f'converting from {node.op_type} is undefined')
 
@@ -240,6 +247,7 @@ Set the values with the `--fix_dimension` option.''')
         visited = []
         known_generator = []
         functions = []
+        new_values = {}
         while outputs != []:
             o = outputs.pop(0)
             if o in visited:
@@ -249,7 +257,16 @@ Set the values with the `--fix_dimension` option.''')
             if generator in known_generator:
                 continue
             if generator is not None:
-                function = self.op_for_node(generator).to_function(self.nodes, self.constant_nodes)
+                out = self.op_for_node(generator).to_function(self.nodes, self.constant_nodes)
+
+                if type(out) == dict:
+                    function = out["nodes"]
+                    if "new_values" in out:
+                        for key, value in out["new_values"]:
+                            new_values[key] = value
+                else:
+                    function = out
+
                 inputs = list(chain.from_iterable(map(lambda x: x.inputs, function)))
                 outputs += inputs
                 functions += function
@@ -257,7 +274,7 @@ Set the values with the `--fix_dimension` option.''')
             initializer = self._find_initializer(o)
             if initializer is not None:
                 raise UnsupportedONNXOperation(initializer, 'converting from Constant is undefined')
-        return functions
+        return functions, new_values
 
     def _list_constant_nodes(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
