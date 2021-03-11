@@ -28,7 +28,7 @@ class OpGemm(Op):
             [A, B] = self.node.input
 
         if B not in constants:
-            return [
+            return ([
                 Gemm(
                     list(self.node.input),
                     list(self.node.output),
@@ -37,7 +37,7 @@ class OpGemm(Op):
                     transA=self.transA != 0,
                     transB=self.transB != 0
                 )
-            ]
+            ], [])
 
         b = env[B]
         if self.transB == 0:
@@ -50,7 +50,7 @@ class OpGemm(Op):
         if self.transA == 1:
             internal_node = f"{A}_{id(A)}"
             env[internal_node] = env[A].T
-            return [
+            return ([
                 Transpose(
                     [A],
                     [internal_node],
@@ -62,13 +62,13 @@ class OpGemm(Op):
                     W=self.alpha * b,
                     b=self.beta * c.ravel()
                 )
-            ]
+            ], [])
         else:
-            return [
+            return ([
                 Linear(
                     [A],
                     list(self.node.output),
                     W=self.alpha * b,
                     b=self.beta * c.ravel()
                 )
-            ]
+            ], [])

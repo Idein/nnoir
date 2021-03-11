@@ -21,7 +21,7 @@ class OpBatchNormalization(Op):
         for attr in self.node.attribute:
             if attr.name == 'epsilon':
                 eps = attr.f
-        return [
+        return ([
             BatchNormalization(
                 [x],
                 list(self.node.output),
@@ -31,4 +31,4 @@ class OpBatchNormalization(Op):
                 gamma=constants[gamma],
                 beta=constants[beta],
             )
-        ]
+        ], [])

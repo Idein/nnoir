@@ -34,11 +34,11 @@ class OpResize(Op):
     def to_function(self, env, constants):
         x, *_ = self.node.input
         [y] = self.node.output
-        return [
+        return ([
             Bilinear2D(
                 [x],
                 list(self.node.output),
                 size=tuple(env[y].shape[2:]),
                 mode=self.mode
             )
-        ]
+        ], [])

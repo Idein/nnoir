@@ -69,7 +69,7 @@ class OpConv(Op):
         is_depthwise = False
         out_channels, in_channels_per_groups = W.shape[:2]
         if self.group > 1 and 1 == in_channels_per_groups:
-            return [
+            return ([
                 DepthwiseConvolution2D(
                     [x],
                     list(self.node.output),
@@ -80,9 +80,9 @@ class OpConv(Op):
                     pad_w=pad_w,
                     dilate=(dy, dx),
                 )
-            ]
+            ], [])
         else:
-            return [
+            return ([
                 Convolution2D(
                     [x],
                     list(self.node.output),
@@ -94,4 +94,4 @@ class OpConv(Op):
                     dilate=(dy, dx),
                     groups=self.group
                 )
-            ]
+            ], [])

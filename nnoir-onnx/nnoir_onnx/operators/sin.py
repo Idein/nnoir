@@ -8,4 +8,4 @@ class OpSin(Op):
         super(OpSin, self).__init__(node, *args)
 
     def to_function(self, env, constants):
-        return [Sin(list(self.node.input), list(self.node.output))]
+        return ([Sin(list(self.node.input), list(self.node.output))], [])

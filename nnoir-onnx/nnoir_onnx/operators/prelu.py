@@ -15,6 +15,6 @@ class OpPRelu(Op):
             if len(c) != 1:
                 raise UnsupportedONNXOperation(self.node, '# of slope size must be 1')
             v = [LeakyReLU([x], list(self.node.output), slope=float(c[0]))]
-            return v
+            return (v, [])
         else:
             raise UnsupportedONNXOperation(self.node, '# of slope must be constant')

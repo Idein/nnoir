@@ -3,6 +3,7 @@ import numpy as np
 
 from nnoir.functions import Transpose, Linear
 from .utils import Op
+from nnoir import Value
 
 
 def create_half_split_matrices(k: int) -> Tuple[np.ndarray, np.ndarray]:
@@ -73,8 +74,8 @@ class OpSplit(Op):
             transpose_down_node
         ]
 
-        new_values = [(trans_out, trans_shape),
-                      (linear_down_out, linear_down_shape),
-                      (linear_up_out, linear_up_shape),
+        new_values = [Value(trans_out, shape=trans_shape),
+                      Value(linear_down_out, shape=linear_down_shape),
+                      Value(linear_up_out, shape=linear_up_shape),
                       ]
-        return {"nodes": nodes, "new_values": new_values}
+        return (nodes, new_values)

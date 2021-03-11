@@ -35,4 +35,4 @@ class OpSqueeze(Op):
                 del sh[a]
             shape1 = sh
 
-        return [Reshape([x], [y], shape=tuple(shape1))]
+        return ([Reshape([x], [y], shape=tuple(shape1))], [])

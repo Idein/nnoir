@@ -30,13 +30,13 @@ class OpClip(Op):
             if _min != 0.0:
                 raise UnsupportedONNXOperation(self.node, 'min must be 0.0')
 
-            return [
+            return ([
                 ClippedReLU(
                     [self.node.input[0]],
                     list(self.node.output),
                     upper=_max
                 )
-            ]
+            ], [])
 
         else:
             # opset_version 6
@@ -49,10 +49,10 @@ class OpClip(Op):
             if _min != 0.0:
                 raise UnsupportedONNXOperation(self.node, 'min must be 0.0')
 
-            return [
+            return ([
                 ClippedReLU(
                     list(self.node.input),
                     list(self.node.output),
                     upper=_max
                 )
-            ]
+            ], [])

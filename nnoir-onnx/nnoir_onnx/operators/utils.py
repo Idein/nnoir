@@ -1,3 +1,5 @@
+from nnoir import Value
+from typing import Tuple, List
 import io
 import numpy as np
 
@@ -28,7 +30,10 @@ class Op:
         self.opset_version = opset_version
         self.onnx = onnx
 
-    def to_function(self, env, constants):
+    def to_function(self, env, constants) -> Tuple[List["Op"], List[Value]]:
+        """
+        return the list of operators and values representing intermediate nodes
+        """
         raise UnsupportedONNXOperation(self.node, "not implemented")
 
 

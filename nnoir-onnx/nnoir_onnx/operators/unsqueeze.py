@@ -14,10 +14,10 @@ class OpUnsqueeze(Op):
         # The axes attribute is ignored. We already know output shape,
         # without reconstruction from input shape and axes.
 
-        return [
+        return ([
             Reshape(
                 [x],
                 list(self.node.output),
                 shape=list(map(int, env[y].shape))
             )
-        ]
+        ], [])

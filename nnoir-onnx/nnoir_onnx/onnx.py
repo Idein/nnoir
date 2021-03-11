@@ -167,14 +167,10 @@ Set the values with the `--fix_dimension` option.''')
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
         functions, new_values = self._to_NNOIR_functions()
 
-        nodes = []
+        nodes = new_values
         for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions))):
             if n in self.nodes:
                 nodes.append(Value(n, self.nodes[n]))
-            elif n in new_values:
-                nodes.append(Value(n, new_values[n]))
-            else:
-                raise Exception("invalid value: {}".format(n))
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
         renaming_table = {n.name: f'v{i}'.encode('utf-8') for i, n in enumerate(nodes)}
@@ -247,7 +243,7 @@ Set the values with the `--fix_dimension` option.''')
         visited = []
         known_generator = []
         functions = []
-        new_values = {}
+        values = []
         while outputs != []:
             o = outputs.pop(0)
             if o in visited:
@@ -257,24 +253,18 @@ Set the values with the `--fix_dimension` option.''')
             if generator in known_generator:
                 continue
             if generator is not None:
-                out = self.op_for_node(generator).to_function(self.nodes, self.constant_nodes)
+                new_functions, new_values = self.op_for_node(generator).to_function(self.nodes, self.constant_nodes)
 
-                if type(out) == dict:
-                    function = out["nodes"]
-                    if "new_values" in out:
-                        for key, value in out["new_values"]:
-                            new_values[key] = value
-                else:
-                    function = out
+                functions += new_functions
+                values += new_values
 
-                inputs = list(chain.from_iterable(map(lambda x: x.inputs, function)))
+                inputs = list(chain.from_iterable(map(lambda x: x.inputs, new_functions)))
                 outputs += inputs
-                functions += function
                 known_generator.append(generator)
             initializer = self._find_initializer(o)
             if initializer is not None:
                 raise UnsupportedONNXOperation(initializer, 'converting from Constant is undefined')
-        return functions, new_values
+        return functions, values
 
     def _list_constant_nodes(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))

@@ -29,7 +29,7 @@ class OpReduceMean(Op):
         internal_node = gen_unregisterd_node_name(env)
         register_node(env, internal_node, env[y])
 
-        return [
+        return ([
             Sum(list(self.node.input), [internal_node], axes=list(axes), keepdims=self.keepdims),
             MulConstant([internal_node], list(self.node.output), value=float(1.0 / n))
-        ]
+        ], [])

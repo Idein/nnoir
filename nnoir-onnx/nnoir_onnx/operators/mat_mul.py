@@ -10,13 +10,13 @@ class OpMatMul(Op):
     def to_function(self, env, constants):
         [x, W] = self.node.input
         if W in constants:
-            return [
+            return ([
                 Linear(
                     [x],
                     list(self.node.output),
                     W=env[W].T,
                     b=None
                 )
-            ]
+            ], [])
         else:
-            return [MatMul(list(self.node.input), list(self.node.output))]
+            return ([MatMul(list(self.node.input), list(self.node.output))], [])

@@ -11,4 +11,4 @@ class OpSum(Op):
     def to_function(self, env, constants):
         if len(self.node.input) != 2:
             raise UnsupportedONNXOperation(self.node, '# of inputs must be 2')
-        return [Add(list(self.node.input), list(self.node.output))]
+        return ([Add(list(self.node.input), list(self.node.output))], [])

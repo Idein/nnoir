@@ -8,4 +8,4 @@ class OpCos(Op):
         super(OpCos, self).__init__(node, *args)
 
     def to_function(self, env, constants):
-        return [Cos(list(self.node.input), list(self.node.output))]
+        return ([Cos(list(self.node.input), list(self.node.output))], [])
