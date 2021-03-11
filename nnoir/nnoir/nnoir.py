@@ -74,6 +74,13 @@ class NNOIR():
     def run(self, *inputs):
         env = dict(zip(self.inputs, inputs))
 
+        def cast(vs):
+            res = []
+            for (n, arr) in vs:
+                v = [v for v in self.values if v.name == n][0]
+                res.append((n, arr.astype(v.dtype)))
+            return res
+
         def eval(n):
             if n not in env:
                 for f in self.functions:
@@ -87,7 +94,7 @@ class NNOIR():
                         outputs = list(outputs)
                     else:
                         outputs = [outputs]
-                    env.update(dict(zip(f.outputs, outputs)))
+                    env.update(dict(cast(zip(f.outputs, outputs))))
                     break
             return env[n]
 
