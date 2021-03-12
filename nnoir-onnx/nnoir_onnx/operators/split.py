@@ -42,7 +42,7 @@ class OpSplit(Op):
             if attr.name == "axis":
                 split_axis = attr.i
 
-        shape = self.onnx.nodes[self.node.input[0]].shape
+        shape = env[self.node.input[0]].shape
         k = shape[split_axis]
         if k % 2 != 0:
             raise Exception("Cannot reshape on odd size, shape {}, axis {}".format(shape, split_axis))

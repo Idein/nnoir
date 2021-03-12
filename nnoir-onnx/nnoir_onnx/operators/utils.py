@@ -23,10 +23,9 @@ class UnknownSizedVariable(Exception):
 
 class Op:
 
-    def __init__(self, node, opset_version, onnx):
+    def __init__(self, node, opset_version):
         self.node = node
         self.opset_version = opset_version
-        self.onnx = onnx
 
     def to_function(self, env, constants):
         raise UnsupportedONNXOperation(self.node, "not implemented")

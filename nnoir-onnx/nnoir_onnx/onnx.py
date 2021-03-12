@@ -231,7 +231,7 @@ Set the values with the `--fix_dimension` option.''')
     def op_for_node(self, node):
         op_name = f'Op{node.op_type}'
         if op_name in globals():
-            return globals()[op_name](node, self.opset_version, self)
+            return globals()[op_name](node, self.opset_version)
         else:
             raise UnsupportedONNXOperation(node, f'converting from {node.op_type} is undefined')
 
