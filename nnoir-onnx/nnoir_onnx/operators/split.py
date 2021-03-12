@@ -1,7 +1,7 @@
 from typing import Tuple
 import numpy as np
 
-from nnoir.functions import Transpose, Linear
+from nnoir.functions import Transpose, MatMul, Constant
 from .utils import Op, gen_unregisterd_node_name, register_node
 
 
@@ -14,8 +14,15 @@ def create_half_split_matrices(k: int) -> Tuple[np.ndarray, np.ndarray]:
     return (np.concatenate([eye, zero]), np.concatenate([zero, eye]))
 
 
+def gen_value(env, arr):
+    name = gen_unregisterd_node_name(env)
+    register_node(env, name, arr)
+
+    return name
+
+
 def gen_dummy_value(env, shape):
-    dummy_arr = np.zeros(shape)
+    dummy_arr = np.zeros(shape).astype(np.float32)
     name = gen_unregisterd_node_name(env)
     register_node(env, name, dummy_arr)
 
@@ -41,7 +48,6 @@ class OpSplit(Op):
             raise Exception("Cannot reshape on odd size, shape {}, axis {}".format(shape, split_axis))
 
         matrice_up, matrice_down = create_half_split_matrices(k)
-        matrice_up, matrice_down = matrice_up.T, matrice_down.T
         transpose_perm_0 = list(range(len(shape)))
         transpose_perm_0.append(transpose_perm_0.pop(split_axis))
         transpose_perm_1 = list(range(len(shape)))
@@ -55,11 +61,11 @@ class OpSplit(Op):
 
         def linear_shape(x_shape, w_shape):
             """
-            (batch, channel, n, k), (m, k) -> (batch, channel, n, m)
+            (batch, channel, n, k), (k, m) -> (batch, channel, n, m)
             """
 
-            assert x_shape[3] == w_shape[1]
-            return ([x_shape[0], x_shape[1], x_shape[2], w_shape[0]])
+            assert x_shape[3] == w_shape[0]
+            return ([x_shape[0], x_shape[1], x_shape[2], w_shape[1]])
 
         trans_shape = transpose_shape(shape, transpose_perm_0)
         trans_out = gen_dummy_value(env, trans_shape)
@@ -70,12 +76,19 @@ class OpSplit(Op):
         linear_down_shape = linear_shape(trans_shape, matrice_down.shape)
         linear_down_out = gen_dummy_value(env, linear_down_shape)
 
+        up_const = gen_value(env, matrice_up)
+        up_const_node = Constant([], [up_const], value=matrice_up)
+        down_const = gen_value(env, matrice_up)
+        down_const_node = Constant([], [down_const], value=matrice_down)
+
         transpose_node = Transpose(list(self.node.input), [trans_out], axes=transpose_perm_0)
-        linear_up_node = Linear([trans_out], [linear_up_out], W=matrice_up, b=None)
-        linear_down_node = Linear([trans_out], [linear_down_out], W=matrice_down, b=None)
+        linear_up_node = MatMul([trans_out, up_const], [linear_up_out])
+        linear_down_node = MatMul([trans_out, down_const], [linear_down_out])
         transpose_up_node = Transpose([linear_up_out], [self.node.output[0]], axes=transpose_perm_1)
         transpose_down_node = Transpose([linear_down_out], [self.node.output[1]], axes=transpose_perm_1)
         nodes = [
+            up_const_node,
+            down_const_node,
             transpose_node,
             linear_up_node,
             linear_down_node,
