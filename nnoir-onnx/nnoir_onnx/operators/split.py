@@ -61,11 +61,15 @@ class OpSplit(Op):
 
         def linear_shape(x_shape, w_shape):
             """
-            (batch, channel, n, k), (k, m) -> (batch, channel, n, m)
+            (..., n, k), (k, m) -> (batch, channel, n, m)
             """
 
-            assert x_shape[3] == w_shape[0]
-            return ([x_shape[0], x_shape[1], x_shape[2], w_shape[1]])
+            n = x_shape[-2]
+            k0 = x_shape[-1]
+            k1 = w_shape[0]
+            m = w_shape[1]
+            assert k0 == k1
+            return np.concatenate([x_shape[:-2], [n], [m]])
 
         trans_shape = transpose_shape(shape, transpose_perm_0)
         trans_out = gen_dummy_value(env, trans_shape)
