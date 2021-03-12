@@ -72,6 +72,8 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [Sigmoid](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sigmoid)
 * [Sin](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sin)
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
+* [Split](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Split)
+    * must be from opset version >= 11
 * [Squeeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Squeeze)
 * [Sub](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sub)
     * 1st input must not be `"constant"`
