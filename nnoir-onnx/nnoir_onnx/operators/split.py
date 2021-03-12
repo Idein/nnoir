@@ -2,8 +2,7 @@ from typing import Tuple
 import numpy as np
 
 from nnoir.functions import Transpose, Linear
-from .utils import Op
-from nnoir import Value
+from .utils import Op, gen_unregisterd_node_name, register_node
 
 
 def create_half_split_matrices(k: int) -> Tuple[np.ndarray, np.ndarray]:
@@ -13,6 +12,14 @@ def create_half_split_matrices(k: int) -> Tuple[np.ndarray, np.ndarray]:
     zero = np.zeros((k_2, k_2), dtype="float32")
 
     return (np.concatenate([eye, zero]), np.concatenate([zero, eye]))
+
+
+def gen_dummy_value(env, shape):
+    dummy_arr = np.zeros(shape)
+    name = gen_unregisterd_node_name(env)
+    register_node(env, name, dummy_arr)
+
+    return name
 
 
 class OpSplit(Op):
@@ -54,12 +61,14 @@ class OpSplit(Op):
             assert x_shape[3] == w_shape[1]
             return ([x_shape[0], x_shape[1], x_shape[2], w_shape[0]])
 
-        trans_out = self.node.input[0] + "_transpose_output"
         trans_shape = transpose_shape(shape, transpose_perm_0)
-        linear_up_out = self.node.input[0] + "_linear_up_out"
+        trans_out = gen_dummy_value(env, trans_shape)
+
         linear_up_shape = linear_shape(trans_shape, matrice_up.shape)
-        linear_down_out = self.node.input[0] + "_linear_down_out"
+        linear_up_out = gen_dummy_value(env, linear_up_shape)
+
         linear_down_shape = linear_shape(trans_shape, matrice_down.shape)
+        linear_down_out = gen_dummy_value(env, linear_down_shape)
 
         transpose_node = Transpose(list(self.node.input), [trans_out], axes=transpose_perm_0)
         linear_up_node = Linear([trans_out], [linear_up_out], W=matrice_up, b=None)
@@ -74,8 +83,4 @@ class OpSplit(Op):
             transpose_down_node
         ]
 
-        new_values = [Value(trans_out, shape=trans_shape),
-                      Value(linear_down_out, shape=linear_down_shape),
-                      Value(linear_up_out, shape=linear_up_shape),
-                      ]
-        return (nodes, new_values)
+        return nodes

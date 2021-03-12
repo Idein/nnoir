@@ -21,10 +21,10 @@ class OpFlatten(Op):
         else:
             flattened_shape = (reduce(lambda k, n: k*n, env[x].shape[:self.axis]),
                                reduce(lambda k, n: k*n, env[x].shape[self.axis:]))
-        return ([
+        return [
             Reshape(
                 list(self.node.input),
                 list(self.node.output),
                 shape=flattened_shape
             )
-        ], [])
+        ]

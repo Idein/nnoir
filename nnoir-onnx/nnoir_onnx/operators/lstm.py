@@ -170,7 +170,7 @@ class OpLSTM(Op):
             elif lo == 3:
                 [y, y_h, y_c] = self.node.output
             elif lo == 0:
-                return ([], [])
+                return []
             else:
                 raise UnsupportedONNXOperation(self.node, 'too many outputs')
 
@@ -236,7 +236,7 @@ class OpLSTM(Op):
                 Reshape([y_h], [y], shape=(seq_length, num_directions, batch_size, hidden_size))
             ]
 
-            return (graph, [])
+            return graph
         else:
             raise UnsupportedONNXOperation(self.node, 'direction is not forward')
 

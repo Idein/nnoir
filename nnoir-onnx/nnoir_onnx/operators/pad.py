@@ -50,11 +50,11 @@ class OpPad(Op):
             raise UnsupportedONNXOperation(self.node, 'mode must be "constant"')
 
         n = len(self.pads) // 2
-        return ([
+        return [
             ConstantPadding(
                 input_,
                 list(self.node.output),
                 pads=list(zip(pads[:n], pads[n:])),
                 value=self.value,
             )
-        ], [])
+        ]

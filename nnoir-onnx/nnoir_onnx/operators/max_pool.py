@@ -59,7 +59,7 @@ class OpMaxPool(Op):
             pad_h = auto_pad_to_manual_pad(in_h, kh, sy, 1, self.auto_pad)
             pad_w = auto_pad_to_manual_pad(in_w, kw, sx, 1, self.auto_pad)
 
-        return ([
+        return [
             MaxPooling2D(
                 list(self.node.input),
                 list(self.node.output),
@@ -68,4 +68,4 @@ class OpMaxPool(Op):
                 pad_h=pad_h,
                 pad_w=pad_w,
             )
-        ], [])
+        ]

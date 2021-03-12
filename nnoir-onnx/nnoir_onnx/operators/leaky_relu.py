@@ -13,4 +13,4 @@ class OpLeakyRelu(Op):
                 self.alpha = attr.f
 
     def to_function(self, env, constants):
-        return ([LeakyReLU(list(self.node.input), list(self.node.output), slope=self.alpha)], [])
+        return [LeakyReLU(list(self.node.input), list(self.node.output), slope=self.alpha)]

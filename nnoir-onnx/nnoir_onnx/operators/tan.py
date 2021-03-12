@@ -8,4 +8,4 @@ class OpTan(Op):
         super(OpTan, self).__init__(node, *args)
 
     def to_function(self, env, constants):
-        return ([Tan(list(self.node.input), list(self.node.output))], [])
+        return [Tan(list(self.node.input), list(self.node.output))]

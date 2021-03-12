@@ -13,10 +13,10 @@ class OpSoftmax(Op):
                 self.axis = attr.i
 
     def to_function(self, env, constants):
-        return ([
+        return [
             Softmax(
                 list(self.node.input),
                 list(self.node.output),
                 axis=self.axis
             )
-        ], [])
+        ]

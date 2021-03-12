@@ -22,7 +22,7 @@ class OpLRN(Op):
                 self.size = attr.i
 
     def to_function(self, env, constants):
-        return ([
+        return [
             LocalResponseNormalization(
                 list(self.node.input),
                 list(self.node.output),
@@ -31,4 +31,4 @@ class OpLRN(Op):
                 alpha=self.alpha / self.size,
                 beta=self.beta
             )
-        ], [])
+        ]

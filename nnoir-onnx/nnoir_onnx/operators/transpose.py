@@ -14,10 +14,10 @@ class OpTranspose(Op):
                 self.perm = list(attr.ints)
 
     def to_function(self, env, constants):
-        return ([
+        return [
             Transpose(
                 list(self.node.input),
                 list(self.node.output),
                 axes=self.perm
             )
-        ], [])
+        ]

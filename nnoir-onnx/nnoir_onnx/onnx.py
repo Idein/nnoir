@@ -165,12 +165,9 @@ Set the values with the `--fix_dimension` option.''')
     def to_NNOIR(self):
         inputs = list(map(lambda x: x.name, self.sess.get_inputs()))
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
-        functions, new_values = self._to_NNOIR_functions()
-
-        nodes = new_values
-        for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions))):
-            if n in self.nodes:
-                nodes.append(Value(n, self.nodes[n]))
+        functions = self._to_NNOIR_functions()
+        nodes = [Value(n, self.nodes[n])
+                 for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
         renaming_table = {n.name: f'v{i}'.encode('utf-8') for i, n in enumerate(nodes)}
@@ -243,7 +240,6 @@ Set the values with the `--fix_dimension` option.''')
         visited = []
         known_generator = []
         functions = []
-        values = []
         while outputs != []:
             o = outputs.pop(0)
             if o in visited:
@@ -253,18 +249,16 @@ Set the values with the `--fix_dimension` option.''')
             if generator in known_generator:
                 continue
             if generator is not None:
-                new_functions, new_values = self.op_for_node(generator).to_function(self.nodes, self.constant_nodes)
+                function = self.op_for_node(generator).to_function(self.nodes, self.constant_nodes)
 
-                functions += new_functions
-                values += new_values
-
-                inputs = list(chain.from_iterable(map(lambda x: x.inputs, new_functions)))
+                inputs = list(chain.from_iterable(map(lambda x: x.inputs, function)))
                 outputs += inputs
+                functions += function
                 known_generator.append(generator)
             initializer = self._find_initializer(o)
             if initializer is not None:
                 raise UnsupportedONNXOperation(initializer, 'converting from Constant is undefined')
-        return functions, values
+        return functions
 
     def _list_constant_nodes(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))

@@ -43,7 +43,7 @@ class OpGlobalAveragePool(Op):
         pad_h = (0, 0)
         pad_w = (0, 0)
 
-        return ([
+        return [
             AveragePooling2D(
                 list(self.node.input),
                 list(self.node.output),
@@ -53,4 +53,4 @@ class OpGlobalAveragePool(Op):
                 pad_w=pad_w,
                 count_exclude_pad=self.count_include_pad == 0,
             )
-        ], [])
+        ]

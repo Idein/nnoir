@@ -10,10 +10,10 @@ class OpReshape(Op):
     def to_function(self, env, constants):
         [x, _] = self.node.input
         [y] = self.node.output
-        return ([
+        return [
             Reshape(
                 [x],
                 list(self.node.output),
                 shape=list(map(int, env[y].shape))
             )
-        ], [])
+        ]

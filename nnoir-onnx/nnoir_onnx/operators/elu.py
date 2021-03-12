@@ -13,10 +13,10 @@ class OpElu(Op):
                 self.alpha = attr.f
 
     def to_function(self, env, constants):
-        return ([
+        return [
             ELU(
                 list(self.node.input),
                 list(self.node.output),
                 alpha=self.alpha
             )
-        ], [])
+        ]
