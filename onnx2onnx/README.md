@@ -33,7 +33,6 @@ from onnx2onnxlib import fix
 model = onnx.load("path/to/mymodel.onnx")  # open onnx model
 
 fix.fix_quantize(model)  # apply fixes in-place
-fix.fix_name(model)
 .
 .
 .
@@ -44,20 +43,20 @@ onnx.save(model, "mymodel_fixed.onnx")  # save fixed model
 or using commd line:
 
 ```bash
-user~$ onnx2onnx -o mymodel_fixed.onnx path/to/mymodel.onnx --fixes fix_quantize fix_name
+user~$ onnx2onnx -o mymodel_fixed.onnx path/to/mymodel.onnx --fixes fix_quantize 
 ```
 
 Omitting `fixes` argument applies all fixes (in alphabetical order).
 For models created with Google Cloud Vision, the recommanded fixes are
 
 ```bash
-... --fixes fix_quantize fix_name
+... --fixes fix_quantize 
 ```
 
 And for Azure custom vision models:
 
 ```bash
-... --fixes fix_postprocess fix_name 
+... --fixes fix_postprocess 
 ```
 
 ## Example
