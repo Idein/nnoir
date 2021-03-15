@@ -51,7 +51,7 @@ The error message may help suggest what fix to apply to the model, and here are 
 This can be done with the following command:
 
 ```bash
-user$ onnx2onnx models/custom_vision.onnx --fixes fix_postprocess fix_name fix_freeze
+user$ onnx2onnx models/custom_vision.onnx --fixes fix_postprocess fix_name 
 ```
 
 ### Google Cloud Vision

@@ -57,7 +57,7 @@ For models created with Google Cloud Vision, the recommanded fixes are
 And for Azure custom vision models:
 
 ```bash
-... --fixes fix_postprocess fix_name fix_freeze
+... --fixes fix_postprocess fix_name 
 ```
 
 ## Example
