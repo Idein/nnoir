@@ -1,15 +1,15 @@
 # Classification tutorial
 
-The two sample models in `examples/models` were trainined on a simple flower classification task, using data available [here](https://public.roboflow.com/classification/flowers_classification/2). (licence: Public Domain)
+The two sample models in `examples/models` were trained on a simple flower classification task, using data available [here](https://public.roboflow.com/classification/flowers_classification/2). (license: Public Domain)
 
 ## Preparation
 
 You can use the Docker image from `dockerfiles` folder of this repository to go through the examples as it contains all necessary packages.
 
-Then, we need to install the package of this repository, with the following command:
+Then, we need to install the package of this repository with the following command:
 
 ```bash
-user$ pip3 install .
+user$ pip3 install onnx2onnx
 ```
 
 Azure custom vision allows exporting models directly in onnx format, but google cloud vision does not, so we have to convert the model from tflite format to onnx format using [tflite2onnx](https://github.com/jackwish/tflite2onnx) tool:
@@ -45,7 +45,6 @@ The error message may help suggest what fix to apply to the model, and here are 
 
 - correct the graph name
 - set static dimensions to the input shape
-- use a workaround to avoid unsupported `Split` op
 - remove unsupported (and superfluous) post process
 
 This can be done with the following command:
@@ -67,13 +66,13 @@ This can be done with the following command:
 user$ onnx2onnx models/cloud_automl.onnx --fixes fix_quantize 
 ```
 
-Note: `fix_quantize` correction is not strictly equivalent to the original computation, as it requires performing a rounding operation thaht can not be emulated with nnoir supported ops. This affects the precision of the model to a certain extent, but is minor in this task.
+Note: `fix_quantize` correction is not strictly equivalent to the original computation, as it requires performing a rounding operation that can not be emulated with nnoir supported ops. This affects the precision of the model to a certain extent but is minor in this task.
 
 ## Ready to convert
 
 The fixed models are now ready to be converted!
 
-We can check the models outputs using the same inference script as before, and see that the result is correct (see the note on quantization).
+We can check the models outputs using the same inference script as before and see that the result is correct (see the note on quantization).
 
 Use `nnoir-onnx` conversion command to get your nnoir model: (this make take some time)
 
@@ -81,6 +80,14 @@ Use `nnoir-onnx` conversion command to get your nnoir model: (this make take som
 user$ onnx2nnoir -o models/cloud_automl.nnoir models/cloud_automl_fixed.onnx
 
 user$ onnx2nnoir -o models/custom_vision.nnoir models/custom_vision_fixed.onnx
+```
+
+Sometimes it makes errors due to [dimension variables](https://github.com/onnx/onnx/blob/master/docs/IR.md#static-tensor-shapes).
+onnx allows you to embed dynamic shapes in graphs, but nnoir does not.
+We can specialize and remove them by `--fix_dimension` as an argument of onnx2nnoir.
+
+``` bash
+user$ onnx2nnoir -o models/custom_vision.nnoir --fix_dimension None=1 models/custom_vision_fixed.onnx
 ```
 
 The created models can now be used with [Actcast SDK](https://actcast.io/docs/ForVendor/ApplicationDevelopment/GettingStarted/) to create applications. (available to partners: [partner program](https://actcast.io/docs/files/partner_program.pdf))
