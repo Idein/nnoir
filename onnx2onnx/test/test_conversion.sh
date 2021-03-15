@@ -5,9 +5,9 @@ models="models/cloud_automl.onnx models/custom_vision.onnx"
 a=0
 
 # echo 'Applying fixes...'
-fixonnx4nnoir models/cloud_automl.onnx --fixes fix_quantize fix_name
+onnx2onnx models/cloud_automl.onnx --fixes fix_quantize fix_name
 a=$(($a + $?))
-fixonnx4nnoir models/custom_vision.onnx --fixes fix_postprocess fix_split fix_name fix_freeze
+onnx2onnx models/custom_vision.onnx --fixes fix_postprocess fix_split fix_name fix_freeze
 a=$(($a + $?))
 
 # echo 'Converting to nnoir...'

@@ -1,10 +1,10 @@
 import setuptools
-import onnx2nnoirtools
+import onnx2onnxlib
 
 setuptools.setup(
-    name=onnx2nnoirtools.NAME,
-    version=onnx2nnoirtools.VERSION,
-    description=onnx2nnoirtools.DESCRIPTION,
+    name=onnx2onnxlib.NAME,
+    version=onnx2onnxlib.VERSION,
+    description=onnx2onnxlib.DESCRIPTION,
     packages=setuptools.find_packages(),
     python_requires='>=3.5.*',
 
@@ -12,12 +12,12 @@ setuptools.setup(
     author_email='christian@idein.jp',
 
     project_urls={
-        'Source': 'https://github.com/Idein/onnx2nnoirtools'
+        'Source': 'https://github.com/Idein/onnx2onnxlib'
     },
     install_requires=[
         'numpy',
         'onnx',
         'nnoir-onnx'
     ],
-    scripts=['fixonnx4nnoir']
+    scripts=['onnx2onnx']
 )

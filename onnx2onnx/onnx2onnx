@@ -3,7 +3,7 @@ import argparse
 import sys
 import onnx
 
-from onnx2nnoirtools import fix
+from onnx2onnxlib import fix
 
 
 fix_funcs = [func for func in fix.__dict__ if func.startswith('fix_')]
@@ -19,14 +19,14 @@ if __name__ == "__main__":
     parser.add_argument('--fixes', nargs='+', default=[],
                         help="list with white-spaces of fixes to apply. (Default applies all fixes)"
                              "Possible values:\n '{}'. (order matters)".format(
-                            "', '".join(fix_funcs)
-                        ))
+        "', '".join(fix_funcs)
+    ))
     options = parser.parse_args()
 
     if not set(fix_funcs).issuperset(options.fixes):
         raise ValueError("unknown fix: {}\nPossible values are: '{}'".format(
             set(options.fixes).difference(fix_funcs), "', '".join(fix_funcs)
-    ))
+        ))
 
     if len(options.fixes) == 0:
         options.fixes = fix_funcs

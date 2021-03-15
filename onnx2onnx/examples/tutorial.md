@@ -51,7 +51,7 @@ The error message may help suggest what fix to apply to the model, and here are 
 This can be done with the following command:
 
 ```bash
-user$ fixonnx4nnoir models/custom_vision.onnx --fixes fix_postprocess fix_split fix_name fix_freeze
+user$ onnx2onnx models/custom_vision.onnx --fixes fix_postprocess fix_split fix_name fix_freeze
 ```
 
 ### Google Cloud Vision
@@ -64,7 +64,7 @@ user$ fixonnx4nnoir models/custom_vision.onnx --fixes fix_postprocess fix_split 
 This can be done with the following command:
 
 ```bash
-user$ fixonnx4nnoir models/cloud_automl.onnx --fixes fix_quantize fix_name
+user$ onnx2onnx models/cloud_automl.onnx --fixes fix_quantize fix_name
 ```
 
 Note: `fix_quantize` correction is not strictly equivalent to the original computation, as it requires performing a rounding operation thaht can not be emulated with nnoir supported ops. This affects the precision of the model to a certain extent, but is minor in this task.
