@@ -17,7 +17,8 @@ def get_dl_idx(model: ModelProto, ql_idx: int) -> int:
         raise ValueError("QL has no corresponding DL node")
     dl_idx, _ = res[0]
     if model.graph.node[dl_idx].op_type != DL_op:
-        raise ValueError("QL output is not DL,\nnode name: {}, op_type: {}".format(model.graph.node[dl_idx].name, model.graph.node[dl_idx].op_type))
+        raise ValueError("QL output is not DL,\nnode name: {}, op_type: {}".format(
+            model.graph.node[dl_idx].name, model.graph.node[dl_idx].op_type))
     if model.graph.node[ql_idx].input[1:] != model.graph.node[dl_idx].input[1:]:
         raise ValueError('QL and DL arguments mismatch, op cannot be replaced')
     return dl_idx
@@ -53,13 +54,12 @@ def create_pseudoqldl_block(model: ModelProto,
                             ql_idx: int,
                             dl_idx: int,
                             subname: str = ""
-                    ) -> Tuple[InitsMap, List[NodeProto]]:
+                            ) -> Tuple[InitsMap, List[NodeProto]]:
     """version not allowing min different than 0 in Clip op
     """
 
     scale = get_Qnode_scale(model, ql_idx)
     zero = get_Qnode_zero(model, ql_idx)
-
 
     name_formatter = subname + "_pseudoqldl_clip_{}"
     add1 = name_formatter.format('add1_bias')

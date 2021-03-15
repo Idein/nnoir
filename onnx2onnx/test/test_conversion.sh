@@ -7,7 +7,7 @@ a=0
 # echo 'Applying fixes...'
 onnx2onnx models/cloud_automl.onnx --fixes fix_quantize fix_name
 a=$(($a + $?))
-onnx2onnx models/custom_vision.onnx --fixes fix_postprocess fix_split fix_name fix_freeze
+onnx2onnx models/custom_vision.onnx --fixes fix_postprocess fix_name fix_freeze
 a=$(($a + $?))
 
 # echo 'Converting to nnoir...'
