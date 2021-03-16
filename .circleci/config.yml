@@ -92,12 +92,12 @@ commands:
           command: |
             python3 setup.py install
       - run:
-          name: Test onnx2onnx example
+          name: Test onnx2onnx example & test
           working_directory: onnx2onnx
           command: |
             pip3 install tflite2onnx
-            make -C example/models
-
+            make -C examples/models -j2
+            make -C test -j2
   upload-package:
     parameters:
       library:
