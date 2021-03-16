@@ -79,6 +79,25 @@ commands:
           command: |
             make -C example/mnist
 
+  test-nnoir-onnx:
+    steps:
+      - run:
+          name: Check onnx2onnx library code format
+          working_directory: onnx2onnx
+          command: |
+            [ $(autopep8 --diff --max-line-length 128 -r onnx2onnx | wc -l) = 0 ]
+      - run:
+          name: Install onnx2onnx
+          working_directory: onnx2onnx
+          command: |
+            python3 setup.py install
+      - run:
+          name: Test onnx2onnx example
+          working_directory: onnx2onnx
+          command: |
+            pip3 install tflite2onnx
+            make -C example/models
+
   upload-package:
     parameters:
       library:
