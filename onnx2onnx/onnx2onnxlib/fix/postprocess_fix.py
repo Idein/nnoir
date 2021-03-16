@@ -35,7 +35,9 @@ def fix_postprocess(model: ModelProto):
 
         idx -= 1
 
+    node: onnx.NodeProto
     for node in to_delete_node:
+        print("deleted: {} ({})".format(node.name, node.op_type))
         model.graph.node.remove(node)
 
     remove_by_name(model, to_remove_output, 'output')
