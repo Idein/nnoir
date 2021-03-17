@@ -244,7 +244,7 @@ workflows:
                 library: nnoir-chainer
                 pypi-api-token: $PYPI_API_TOKEN_NNOIR_CHAINER
 
-  release-nnoir2onnx:
+  release-blackonnx:
     jobs:
       - build-test-release:
           name: release blackonnx
@@ -261,5 +261,5 @@ workflows:
             - test-blackonnx
           releases:
             - upload-package:
-                library: nnoir2onnx
+                library: blackonnx
                 pypi-api-token: $PYPI_API_TOKEN_BLACKONNX
