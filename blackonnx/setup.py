@@ -20,7 +20,7 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3 :: Only',
     ],
-    keywords='modify onnx for nnoir',
+    keywords=blackonnxlib.DESCRIPTION,
     packages=setuptools.find_packages(),
     python_requires='>=3.6.*',
     install_requires=[

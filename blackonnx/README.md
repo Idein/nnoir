@@ -10,12 +10,6 @@ Some ONNX operators used in AutoML-generated models may not be supported by nnoi
 
 See #Examples section for use samples.
 
-## Requirements
-
-- Python >= 3.5
-  - onnx
-  - nnoir-onnx
-
 ## Installation
 
 ```bash
