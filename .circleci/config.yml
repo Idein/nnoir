@@ -261,5 +261,5 @@ workflows:
             - test-blackonnx
           releases:
             - upload-package:
-                library: blackonnxlib
+                library: blackonnx
                 pypi-api-token: $PYPI_API_TOKEN_BLACKONNX
