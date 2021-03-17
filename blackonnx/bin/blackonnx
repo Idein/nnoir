@@ -3,7 +3,7 @@ import argparse
 import sys
 import onnx
 
-from blackonnxlib import fix
+from blackonnx import fix
 
 
 fix_funcs = [func for func in fix.__dict__ if func.startswith('fix_')]

@@ -22,7 +22,7 @@ In a python script:
 
 ```python
 import onnx
-from blackonnxlib import fix
+from blackonnx import fix
 
 model = onnx.load("path/to/mymodel.onnx")  # open onnx model
 
