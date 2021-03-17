@@ -8,4 +8,4 @@ RUN apt-get update\
 RUN pip3 install --upgrade pip
 
 RUN apt-get install -y libprotobuf-dev protobuf-compiler cmake
-RUN pip3 install numpy onnx tflite2onnx nnoir-onnx Pillow onnxruntime
+RUN pip3 install numpy onnx tflite2onnx nnoir-onnx Pillow onnxruntime blackonnx
