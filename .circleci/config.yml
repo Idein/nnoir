@@ -79,6 +79,25 @@ commands:
           command: |
             make -C example/mnist
 
+  test-blackonnx:
+    steps:
+      - run:
+          name: Check blackonnx library code format
+          working_directory: blackonnx
+          command: |
+            [ $(autopep8 --diff --max-line-length 128 -r blackonnx | wc -l) = 0 ]
+      - run:
+          name: Install blackonnx
+          working_directory: blackonnx
+          command: |
+            python3 setup.py install
+      - run:
+          name: Test blackonnx example & test
+          working_directory: blackonnx
+          command: |
+            pip3 install tflite2onnx
+            make -C examples/models -j2
+            make -C test -j2
   upload-package:
     parameters:
       library:
@@ -144,12 +163,13 @@ workflows:
   test:
     jobs: &test-only-workflow
       - build-test-release:
-          name: test nnoir & nnoir-onnx
+          name: test nnoir & nnoir-onnx & blackonnx
           context:
             - docker-hub-creds
           tests:
             - test-nnoir
             - test-nnoir-onnx
+            - test-blackonnx
       - build-test-release:
           name: test nnoir & nnoir-chainer
           context:
@@ -223,3 +243,23 @@ workflows:
             - upload-package:
                 library: nnoir-chainer
                 pypi-api-token: $PYPI_API_TOKEN_NNOIR_CHAINER
+
+  release-nnoir2onnx:
+    jobs:
+      - build-test-release:
+          name: release blackonnx
+          context:
+            - docker-hub-creds
+          filters:
+            tags:
+              only: /^blackonnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
+            branches:
+              ignore: /.*/
+          tests:
+            - test-nnoir
+            - test-nnoir-onnx
+            - test-blackonnx
+          releases:
+            - upload-package:
+                library: nnoir2onnx
+                pypi-api-token: $PYPI_API_TOKEN_BLACKONNX
