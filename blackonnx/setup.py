@@ -1,6 +1,5 @@
 import os
 import setuptools
-import blackonnxlib
 
 exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'blackonnxlib', '_version.py')).read())
 
@@ -8,7 +7,7 @@ with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'),
     long_description = f.read()
 
 setuptools.setup(
-    name=blackonnxlib,
+    name="blackonnxlib",
     version=__version__,
     description="Adapt ONNX models to enable nnoir conversion",
     long_description=long_description,
@@ -23,7 +22,7 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3 :: Only',
     ],
-    keywords=blackonnxlib.DESCRIPTION,
+    keywords="Adapt ONNX models to enable nnoir conversion",
     packages=setuptools.find_packages(),
     python_requires='>=3.6.*',
     install_requires=[
