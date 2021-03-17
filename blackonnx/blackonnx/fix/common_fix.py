@@ -22,7 +22,7 @@ It returns a tuple of two elements:
 """
 
 
-def replace_blocks(model: ModelProto, node_idx_getter: IdxGetter, replace_func: FixFunc, max_passes : Optional[int] = None):
+def replace_blocks(model: ModelProto, node_idx_getter: IdxGetter, replace_func: FixFunc, max_passes: Optional[int] = None):
     passes = 0
     next_idx = node_idx_getter(model)
     new_inits = {}  # type: Dict[str, Tuple[TensorProto, ValueInfoProto]]
