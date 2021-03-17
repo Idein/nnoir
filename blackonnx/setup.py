@@ -7,7 +7,7 @@ with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'),
     long_description = f.read()
 
 setuptools.setup(
-    name="blackonnxlib",
+    name="blackonnx",
     version=__version__,
     description="Adapt ONNX models to enable nnoir conversion",
     long_description=long_description,
