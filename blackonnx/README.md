@@ -19,7 +19,7 @@ See #Examples section for use samples.
 ## Installation
 
 ```bash
-pip3 install .
+pip3 install blackonnx
 ```
 
 ## Usage
@@ -66,4 +66,4 @@ Follow the instructions in `examples/tutorial.md` for details.
 ## Origin of the Name
 
 The name `blackonnx` comes from [black onyx](https://en.wikipedia.org/wiki/Onyx) because of the property: artificially colored to black. Our IR is nnoir, which comes from black in french.
-We mean it modifies onnx for nnoir.
+We mean this tool adapt onnx models for nnoir.
