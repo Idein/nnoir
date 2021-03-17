@@ -6,12 +6,6 @@ The two sample models in `examples/models` were trained on a simple flower class
 
 You can use the Docker image from `dockerfiles` folder of this repository to go through the examples as it contains all necessary packages.
 
-Then, we need to install the package of this repository with the following command:
-
-```bash
-user$ pip3 install blackonnx
-```
-
 Azure custom vision allows exporting models directly in onnx format, but google cloud vision does not, so we have to convert the model from tflite format to onnx format using [tflite2onnx](https://github.com/jackwish/tflite2onnx) tool:
 
 ```bash
