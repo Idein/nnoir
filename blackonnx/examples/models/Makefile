@@ -13,4 +13,4 @@ cloud_automl_fixed.nnoir: cloud_automl_fixed.onnx
 	tflite2onnx $< $@
 
 %_fixed.onnx: %.onnx
-	onnx2onnx $< -o $@
+	blackonnx $< -o $@

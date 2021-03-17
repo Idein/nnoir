@@ -1,10 +1,10 @@
 import setuptools
-import onnx2onnxlib
+import blackonnxlib
 
 setuptools.setup(
-    name=onnx2onnxlib.NAME,
-    version=onnx2onnxlib.VERSION,
-    description=onnx2onnxlib.DESCRIPTION,
+    name=blackonnxlib.NAME,
+    version=blackonnxlib.VERSION,
+    description=blackonnxlib.DESCRIPTION,
     packages=setuptools.find_packages(),
     python_requires='>=3.5.*',
 
@@ -19,5 +19,5 @@ setuptools.setup(
         'onnx',
         'nnoir-onnx'
     ],
-    scripts=['onnx2onnx']
+    scripts=['blackonnx']
 )

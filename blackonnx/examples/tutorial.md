@@ -9,7 +9,7 @@ You can use the Docker image from `dockerfiles` folder of this repository to go 
 Then, we need to install the package of this repository with the following command:
 
 ```bash
-user$ pip3 install onnx2onnx
+user$ pip3 install blackonnx
 ```
 
 Azure custom vision allows exporting models directly in onnx format, but google cloud vision does not, so we have to convert the model from tflite format to onnx format using [tflite2onnx](https://github.com/jackwish/tflite2onnx) tool:
@@ -50,7 +50,7 @@ The error message may help suggest what fix to apply to the model, and here are 
 This can be done with the following command:
 
 ```bash
-user$ onnx2onnx models/custom_vision.onnx --fixes fix_postprocess 
+user$ blackonnx models/custom_vision.onnx --fixes fix_postprocess 
 ```
 
 ### Google Cloud Vision
@@ -63,7 +63,7 @@ user$ onnx2onnx models/custom_vision.onnx --fixes fix_postprocess
 This can be done with the following command:
 
 ```bash
-user$ onnx2onnx models/cloud_automl.onnx --fixes fix_quantize 
+user$ blackonnx models/cloud_automl.onnx --fixes fix_quantize 
 ```
 
 Note: `fix_quantize` correction is not strictly equivalent to the original computation, as it requires performing a rounding operation that can not be emulated with nnoir supported ops. This affects the precision of the model to a certain extent but is minor in this task.
