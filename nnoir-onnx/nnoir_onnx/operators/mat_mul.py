@@ -1,6 +1,6 @@
 import numpy as np
 
-from nnoir.functions import MatMul, linear, Constant
+from nnoir.functions import MatMul, Linear, Constant
 from .utils import Op, gen_unregisterd_node_name, register_node
 
 
