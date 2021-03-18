@@ -37,7 +37,6 @@ def test_matmul_00():
     MatMulTester({"x": x}, outputs).run()
 
 
-@pytest.mark.xfail()
 def test_matmul_01():
     '''
     opset version >= 9
@@ -167,3 +166,30 @@ def test_matmul_05():
 
     outputs = ["z"]
     MatMulTester({"x": x, "y": y}, outputs).run()
+
+
+def test_matmul_06():
+    '''
+    opset version >= 9
+    '''
+
+    shape = (3, 1, 1)
+    w_shape = (1, 1)
+    out_shape = (3, 1, 1)
+
+    class MatMulTester(Base):
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node("MatMul", inputs=["x", "W"], outputs=["y"])
+            inputs = [info("x", TensorProto.FLOAT, shape)]
+            outputs = [info("y", TensorProto.FLOAT, out_shape)]
+
+            init_W = from_array(np.random.rand(*w_shape).astype(np.float32), "W")
+
+            graph = make_graph([node], "add_graph", inputs, outputs, initializer=[init_W])
+            model = make_model(graph)
+            return model
+
+    x = np.random.rand(*shape).astype(np.float32)
+
+    outputs = ["y"]
+    MatMulTester({"x": x}, outputs).run()
