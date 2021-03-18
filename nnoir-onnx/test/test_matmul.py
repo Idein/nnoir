@@ -193,3 +193,30 @@ def test_matmul_06():
 
     outputs = ["y"]
     MatMulTester({"x": x}, outputs).run()
+
+
+def test_matmul_07():
+    '''
+    opset version >= 9
+    '''
+
+    shape = (3, 7)
+    w_shape = (7, 11)
+    out_shape = (3, 11)
+
+    class MatMulTester(Base):
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node("MatMul", inputs=["x", "W"], outputs=["y"])
+            inputs = [info("x", TensorProto.FLOAT, shape)]
+            outputs = [info("y", TensorProto.FLOAT, out_shape)]
+
+            init_W = from_array(np.random.rand(*w_shape).astype(np.float32), "W")
+
+            graph = make_graph([node], "add_graph", inputs, outputs, initializer=[init_W])
+            model = make_model(graph)
+            return model
+
+    x = np.random.rand(*shape).astype(np.float32)
+
+    outputs = ["y"]
+    MatMulTester({"x": x}, outputs).run()

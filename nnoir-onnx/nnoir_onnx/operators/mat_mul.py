@@ -18,7 +18,7 @@ class OpMatMul(Op):
 
     def to_function(self, env, constants):
         [x, W] = self.node.input
-        if W in constants and len(constants[W].shape) == 2 and np.prod(env[x].shape[1:]) == constants[W].shape[1]:
+        if W in constants and constants[W].ndim == 2 and env[x].ndim == 2:
             return [
                 Linear(
                     [x],
