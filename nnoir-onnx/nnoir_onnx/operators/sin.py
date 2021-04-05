@@ -1,9 +1,9 @@
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpSin(Op):
-
     def __init__(self, node, *args):
         super(OpSin, self).__init__(node, *args)
 

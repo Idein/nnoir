@@ -1,31 +1,31 @@
 import numpy as np
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpGlobalAveragePool(Op):
-
     def __init__(self, node, *args):
         super(OpGlobalAveragePool, self).__init__(node, *args)
 
         self.kernel_shape = None
-        self.auto_pad = b'NOTSET'
+        self.auto_pad = b"NOTSET"
         self.pads = None
         self.storage_order = 0
         self.strides = (1, 1)
         self.count_include_pad = 0
         for attr in node.attribute:
-            if attr.name == 'kernel_shape':
+            if attr.name == "kernel_shape":
                 self.kernel_shape = attr.ints
-            if attr.name == 'storage_order':
+            if attr.name == "storage_order":
                 self.storage_order = attr.i
-            if attr.name == 'strides':
+            if attr.name == "strides":
                 self.strides = attr.ints
-            if attr.name == 'auto_pad':
+            if attr.name == "auto_pad":
                 self.auto_pad = attr.s
-            if attr.name == 'pads':
+            if attr.name == "pads":
                 self.pads = attr.ints
-            if attr.name == 'count_include_pad':
+            if attr.name == "count_include_pad":
                 self.count_include_pad = attr.i
 
     def to_function(self, env, constants):

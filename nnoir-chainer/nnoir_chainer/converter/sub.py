@@ -1,8 +1,7 @@
 import chainer.functions.math.basic_math as F
 
 
-class ConvertSub():
-
+class ConvertSub:
     def __init__(self, function, inputs, outputs):
         pass
 

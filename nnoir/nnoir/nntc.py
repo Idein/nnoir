@@ -1,6 +1,7 @@
+import io
+
 import msgpack
 import numpy as np
-import io
 
 
 class NNTC:
@@ -11,9 +12,9 @@ class NNTC:
 
     def to_dict(self):
         return {
-            b'version': self.version,
-            b'model': self.model,
-            b'test_case': self.test_case.to_dict()
+            b"version": self.version,
+            b"model": self.model,
+            b"test_case": self.test_case.to_dict(),
         }
 
     def pack(self):
@@ -21,7 +22,7 @@ class NNTC:
 
     def dump(self, file_name):
         result = self.pack()
-        with open(file_name, 'w') as f:
+        with open(file_name, "w") as f:
             f.buffer.write(result)
 
 
@@ -32,8 +33,8 @@ class TestCase:
 
     def to_dict(self):
         return {
-            b'inputs': [i.to_dict() for i in self.inputs],
-            b'outputs': [o.to_dict() for o in self.outputs]
+            b"inputs": [i.to_dict() for i in self.inputs],
+            b"outputs": [o.to_dict() for o in self.outputs],
         }
 
 
@@ -50,7 +51,4 @@ class TestValue:
                 x = out.getvalue()
             return x
 
-        return {
-            b'value_name': self.name,
-            b'ndarray': encode_ndarray(self.ndarray)
-        }
+        return {b"value_name": self.name, b"ndarray": encode_ndarray(self.ndarray)}

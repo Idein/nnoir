@@ -1,6 +1,7 @@
 import io
-import numpy
+
 import nnoir
+import numpy
 
 
 class Function(object):
@@ -21,7 +22,8 @@ class Function(object):
             with io.BytesIO() as out:
                 numpy.save(out, obj.copy())
                 x = out.getvalue()
-            return {b'ndarray': x}
+            return {b"ndarray": x}
+
         binary_params = {}
         for k, v in self.params.items():
             if type(v) is numpy.ndarray:
@@ -31,8 +33,8 @@ class Function(object):
             else:
                 binary_params[k.encode()] = v
         return {
-            b'name': self.__class__.__name__,
-            b'inputs': self.inputs,
-            b'outputs': self.outputs,
-            b'params': binary_params
+            b"name": self.__class__.__name__,
+            b"inputs": self.inputs,
+            b"outputs": self.outputs,
+            b"params": binary_params,
         }

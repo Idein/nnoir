@@ -1,13 +1,13 @@
-from typing import Callable, Optional, List, Tuple, Dict
-from onnx import ModelProto, TensorProto, NodeProto, ValueInfoProto
+from typing import Callable, Dict, List, Optional, Tuple
+
+from onnx import ModelProto, NodeProto, TensorProto, ValueInfoProto
 
 from ..onnx_utils import del_nodes
 
 IdxGetter = Callable[[ModelProto], int]
 InitsMap = Dict[str, Tuple[TensorProto, ValueInfoProto]]
 
-FixFunc = Callable[[ModelProto, int, str],
-                   Tuple[InitsMap, List[NodeProto]]]
+FixFunc = Callable[[ModelProto, int, str], Tuple[InitsMap, List[NodeProto]]]
 """A function FixFunc has the following signature:
 It should take has arguments:
 - the model to operate on
@@ -22,7 +22,12 @@ It returns a tuple of two elements:
 """
 
 
-def replace_blocks(model: ModelProto, node_idx_getter: IdxGetter, replace_func: FixFunc, max_passes: Optional[int] = None):
+def replace_blocks(
+    model: ModelProto,
+    node_idx_getter: IdxGetter,
+    replace_func: FixFunc,
+    max_passes: Optional[int] = None,
+):
     passes = 0
     next_idx = node_idx_getter(model)
     new_inits = {}  # type: Dict[str, Tuple[TensorProto, ValueInfoProto]]

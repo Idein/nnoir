@@ -1,19 +1,28 @@
-import sys
 import os
+import sys
+
 import nnoir
 import numpy as np
 
 
 def single_function_model(function, _inputs, _outputs, **kwargs):
-    inputs = [nnoir.Value(x[0], shape=x[1], dtype='<f4') for x in _inputs]
-    outputs = [nnoir.Value(x[0], shape=x[1], dtype='<f4') for x in _outputs]
+    inputs = [nnoir.Value(x[0], shape=x[1], dtype="<f4") for x in _inputs]
+    outputs = [nnoir.Value(x[0], shape=x[1], dtype="<f4") for x in _outputs]
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]
     output_names = [x.name for x in outputs]
-    functions = [getattr(nnoir.functions, function.partition('_')[0])(input_names, output_names, **kwargs)]
-    actual = nnoir.NNOIR(function.encode(), b'nnoir2chainer_test', "0.1", input_names, output_names, nodes, functions)
-    expected = nnoir.load(os.path.join(os.path.abspath(os.path.dirname(__file__)), function + '.nnoir'))
-    xs = [np.random.randn(*x[1]).astype('<f4') for x in _inputs]
+    functions = [getattr(nnoir.functions, function.partition("_")[0])(input_names, output_names, **kwargs)]
+    actual = nnoir.NNOIR(
+        function.encode(),
+        b"nnoir2chainer_test",
+        "0.1",
+        input_names,
+        output_names,
+        nodes,
+        functions,
+    )
+    expected = nnoir.load(os.path.join(os.path.abspath(os.path.dirname(__file__)), function + ".nnoir"))
+    xs = [np.random.randn(*x[1]).astype("<f4") for x in _inputs]
     actuals = actual.run(*xs)
     expecteds = expected.run(*xs)
     assert len(expecteds) == len(actuals)
@@ -25,17 +34,16 @@ def single_function_model(function, _inputs, _outputs, **kwargs):
 def test_Add():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10)),
-         (b'v1', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10)), (b"v1", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
 def test_AddConstant():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
         value=2.0,
     )
 
@@ -43,8 +51,8 @@ def test_AddConstant():
 def test_AveragePooling2D():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (2, 3, 4, 5))],
-        [(b'v2', (2, 3, 3, 3))],
+        [(b"v0", (2, 3, 4, 5))],
+        [(b"v2", (2, 3, 3, 3))],
         kernel=[2, 3],
         stride=[1, 2],
         pad_h=[0, 0],
@@ -57,8 +65,8 @@ def test_BatchNormalization():
     shape = (2, 3, 4, 5)
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', shape)],
-        [(b'v2', shape)],
+        [(b"v0", shape)],
+        [(b"v2", shape)],
         eps=2e-05,
         avg_mean=np.array([6, 7, 8], dtype=np.float32),
         avg_var=np.array([9, 10, 11], dtype=np.float32),
@@ -70,8 +78,8 @@ def test_BatchNormalization():
 def test_Bias():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (2, 3, 4, 5))],
-        [(b'v2', (2, 3, 4, 5))],
+        [(b"v0", (2, 3, 4, 5))],
+        [(b"v2", (2, 3, 4, 5))],
         axis=1,
         b=np.arange(3).astype(np.float32),
     )
@@ -82,8 +90,8 @@ def test_Bilinear2D():
     out_shape = (2, 3, 4, 5)
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', in_shape)],
-        [(b'v2', out_shape)],
+        [(b"v0", in_shape)],
+        [(b"v2", out_shape)],
         size=tuple(out_shape[2:]),
     )
 
@@ -93,10 +101,10 @@ def test_Bilinear2D_align_none():
     out_shape = (2, 3, 4, 5)
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', in_shape)],
-        [(b'v2', out_shape)],
+        [(b"v0", in_shape)],
+        [(b"v2", out_shape)],
         size=tuple(out_shape[2:]),
-        mode=b'align_none'
+        mode=b"align_none",
     )
 
 
@@ -105,10 +113,10 @@ def test_Bilinear2D_align_corners():
     out_shape = (2, 3, 4, 5)
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', in_shape)],
-        [(b'v2', out_shape)],
+        [(b"v0", in_shape)],
+        [(b"v2", out_shape)],
         size=tuple(out_shape[2:]),
-        mode=b'align_corners'
+        mode=b"align_corners",
     )
 
 
@@ -117,10 +125,10 @@ def test_Bilinear2D_align_centers():
     out_shape = (2, 3, 4, 5)
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', in_shape)],
-        [(b'v2', out_shape)],
+        [(b"v0", in_shape)],
+        [(b"v2", out_shape)],
         size=tuple(out_shape[2:]),
-        mode=b'align_centers'
+        mode=b"align_centers",
     )
 
 
@@ -129,17 +137,17 @@ def test_BroadcastTo():
     out_shape = (2, 3, 4, 5)
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', in_shape)],
-        [(b'v2', out_shape)],
-        shape=out_shape
+        [(b"v0", in_shape)],
+        [(b"v2", out_shape)],
+        shape=out_shape,
     )
 
 
 def test_ClippedReLU():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
         upper=40.0,
     )
 
@@ -147,9 +155,8 @@ def test_ClippedReLU():
 def test_Concat():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 11)),
-         (b'v1', (10, 12))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 11)), (b"v1", (10, 12))],
+        [(b"v2", (10, 10))],
         axis=1,
     )
 
@@ -157,8 +164,8 @@ def test_Concat():
 def test_ConstantPadding():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (2, 3, 4, 5))],
-        [(b'v2', (3, 5, 7, 10))],
+        [(b"v0", (2, 3, 4, 5))],
+        [(b"v2", (3, 5, 7, 10))],
         pads=((1, 0), (1, 1), (1, 2), (0, 5)),
         value=1.0,
     )
@@ -176,8 +183,8 @@ def test_Convolution2D():
     kw = 3
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (batch, in_ch, in_h, in_w))],
-        [(b'v1', (batch, out_ch, out_h, out_w))],
+        [(b"v0", (batch, in_ch, in_h, in_w))],
+        [(b"v1", (batch, out_ch, out_h, out_w))],
         W=np.arange(out_ch * in_ch * kh * kw).reshape(out_ch, in_ch, kh, kw).astype(np.float32),
         b=np.arange(out_ch).astype(np.float32),
         pad_h=(2, 2),
@@ -191,8 +198,8 @@ def test_Convolution2D():
 def test_Cos():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
@@ -211,8 +218,8 @@ def test_DepthwiseConvolution2D():
     dy, dx = (2, 3)
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (batch, in_ch, in_h, in_w))],
-        [(b'v1', (batch, out_ch, out_h, out_w))],
+        [(b"v0", (batch, in_ch, in_h, in_w))],
+        [(b"v1", (batch, out_ch, out_h, out_w))],
         W=np.arange(ch_mul * in_ch * kh * kw).reshape(ch_mul, in_ch, kh, kw).astype(np.float32),
         b=np.arange(out_ch).astype(np.float32),
         pad_h=(1, 1),
@@ -225,25 +232,24 @@ def test_DepthwiseConvolution2D():
 def test_Div():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10)),
-         (b'v1', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10)), (b"v1", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
 def test_Dropout():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
 def test_ELU():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
         alpha=0.5,
     )
 
@@ -251,21 +257,20 @@ def test_ELU():
 def test_Gemm():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (3, 4)),
-         (b'v1', (4, 5))],
-        [(b'v2', (3, 5))],
+        [(b"v0", (3, 4)), (b"v1", (4, 5))],
+        [(b"v2", (3, 5))],
         transA=False,
         transB=False,
         alpha=2.0,
-        beta=1.0
+        beta=1.0,
     )
 
 
 def test_LeakyReLU():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
         slope=0.5,
     )
 
@@ -276,8 +281,8 @@ def test_Linear():
     out_ch = 4
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (batch, in_ch))],
-        [(b'v2', (batch, out_ch))],
+        [(b"v0", (batch, in_ch))],
+        [(b"v2", (batch, out_ch))],
         W=np.arange(out_ch * in_ch).reshape(out_ch, in_ch).astype(np.float32),
         b=np.arange(out_ch).astype(np.float32),
     )
@@ -286,8 +291,8 @@ def test_Linear():
 def test_LocalResponseNormalization():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
         n=6,
         k=3.0,
         alpha=0.0002,
@@ -298,17 +303,16 @@ def test_LocalResponseNormalization():
 def test_MatMul():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (3, 4)),
-         (b'v1', (4, 5))],
-        [(b'v2', (3, 5))]
+        [(b"v0", (3, 4)), (b"v1", (4, 5))],
+        [(b"v2", (3, 5))],
     )
 
 
 def test_MaxPooling2D():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (2, 3, 4, 5))],
-        [(b'v2', (2, 3, 5, 4))],
+        [(b"v0", (2, 3, 4, 5))],
+        [(b"v2", (2, 3, 5, 4))],
         kernel=[2, 3],
         stride=[1, 2],
         pad_h=[1, 1],
@@ -319,17 +323,16 @@ def test_MaxPooling2D():
 def test_Mul():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10)),
-         (b'v1', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10)), (b"v1", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
 def test_MulConstant():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
         value=2.0,
     )
 
@@ -337,16 +340,16 @@ def test_MulConstant():
 def test_ReLU():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
 def test_Reshape():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (5, 20))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (5, 20))],
         shape=(5, 20),
     )
 
@@ -354,8 +357,8 @@ def test_Reshape():
 def test_Scale():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (2, 3, 4, 5))],
-        [(b'v2', (2, 3, 4, 5))],
+        [(b"v0", (2, 3, 4, 5))],
+        [(b"v2", (2, 3, 4, 5))],
         axis=1,
         W=np.arange(3).astype(np.float32),
         b=np.arange(3).astype(np.float32),
@@ -365,24 +368,24 @@ def test_Scale():
 def test_Sigmoid():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
 def test_Sin():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
 def test_Softmax():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
         axis=1,
     )
 
@@ -390,27 +393,26 @@ def test_Softmax():
 def test_Sub():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10)),
-         (b'v1', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10)), (b"v1", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
 def test_Sum():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (2, 3, 4, 5))],
-        [(b'v2', (2, 1, 4, 1))],
+        [(b"v0", (2, 3, 4, 5))],
+        [(b"v2", (2, 1, 4, 1))],
         axes=(1, 3),
-        keepdims=True
+        keepdims=True,
     )
 
 
 def test_Swish():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10, 3))],
-        [(b'v2', (10, 10, 3))],
+        [(b"v0", (10, 10, 3))],
+        [(b"v2", (10, 10, 3))],
         beta=np.arange(10).astype(np.float32),
     )
 
@@ -418,16 +420,16 @@ def test_Swish():
 def test_Tan():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (10, 10))],
-        [(b'v2', (10, 10))],
+        [(b"v0", (10, 10))],
+        [(b"v2", (10, 10))],
     )
 
 
 def test_Transpose():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (2, 3, 4, 5))],
-        [(b'v2', (4, 5, 2, 3))],
+        [(b"v0", (2, 3, 4, 5))],
+        [(b"v2", (4, 5, 2, 3))],
         axes=(2, 3, 0, 1),
     )
 
@@ -442,8 +444,8 @@ def test_Unpooling2D():
     ph, pw = 1, 2
     single_function_model(
         sys._getframe().f_code.co_name[5:],
-        [(b'v0', (batch, ch, in_h, in_w))],
-        [(b'v2', (batch, ch, out_h, out_w))],
+        [(b"v0", (batch, ch, in_h, in_w))],
+        [(b"v2", (batch, ch, out_h, out_w))],
         kh=kh,
         kw=kw,
         sy=sy,

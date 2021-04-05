@@ -1,11 +1,10 @@
-from .utils import *
+import numpy as np
 from nnoir.functions import *
 
-import numpy as np
+from .utils import *
 
 
 class OpLSTM(Op):
-
     def __init__(self, node, *args):
         super(OpLSTM, self).__init__(node, *args)
 
@@ -18,19 +17,19 @@ class OpLSTM(Op):
         self.input_forget = 0
 
         for attr in node.attribute:
-            if attr.name == 'activation_alpha':
+            if attr.name == "activation_alpha":
                 self.activation_alpha = attr.floats
-            if attr.name == 'activation_beta':
+            if attr.name == "activation_beta":
                 self.activation_beta = attr.floats
-            if attr.name == 'activations':
+            if attr.name == "activations":
                 self.activations = attr.strings
-            if attr.name == 'clip':
+            if attr.name == "clip":
                 self.clip = attr.f
-            if attr.name == 'direction':
+            if attr.name == "direction":
                 self.direction = attr.s
-            if attr.name == 'hidden_size':
+            if attr.name == "hidden_size":
                 self.hidden_size = attr.i
-            if attr.name == 'input_forget':
+            if attr.name == "input_forget":
                 self.input_forget = attr.i
 
     def to_function(self, env, constants):
@@ -41,25 +40,27 @@ class OpLSTM(Op):
         hidden_size = self.hidden_size
 
         if seq_length > 1:
-            raise UnsupportedONNXOperation(self.node, 'not support LSTM with seq_length > 1')
+            raise UnsupportedONNXOperation(self.node, "not support LSTM with seq_length > 1")
 
         if num_directions == 1 and self.direction == "forward":
             l = len(self.activations)
             if l == 0:
                 activation_f, activation_g, activation_h = [Sigmoid, Tanh, Tanh]
             elif l == 3:
+
                 def to_op(s):
-                    if s == b'Sigmoid':
+                    if s == b"Sigmoid":
                         return Sigmoid
-                    elif s == b'Tanh':
+                    elif s == b"Tanh":
                         return Tanh
-                    elif s == b'Relu':
+                    elif s == b"Relu":
                         return ReLU
                     else:
-                        raise UnsupportedONNXOperation(self.node, f'{s} is not supported')
+                        raise UnsupportedONNXOperation(self.node, f"{s} is not supported")
+
                 activation_f, activation_g, activation_h = [to_op(f) for f in self.activations]
             else:
-                raise UnsupportedONNXOperation(self.node, 'the number of activations must be 0 or 3')
+                raise UnsupportedONNXOperation(self.node, "the number of activations must be 0 or 3")
 
             graph = []
             init_h = np.zeros((batch_size, hidden_size)).astype(np.float32)
@@ -156,7 +157,7 @@ class OpLSTM(Op):
                 ]
                 Ps = np.split(env[P][0], num_of_peepholes)
             else:
-                raise UnsupportedONNXOperation(self.node, 'too many inputs')
+                raise UnsupportedONNXOperation(self.node, "too many inputs")
 
             lo = len(self.node.output)
             dummy_cell = np.zeros((num_directions, batch_size, hidden_size)).astype(np.float32)
@@ -172,7 +173,7 @@ class OpLSTM(Op):
             elif lo == 0:
                 return []
             else:
-                raise UnsupportedONNXOperation(self.node, 'too many outputs')
+                raise UnsupportedONNXOperation(self.node, "too many outputs")
 
             # i = sigmoid(np.dot(x, W_i) + np.dot(h0, R_i) + WB_i + RB_i + P_i*c0)
             # f = sigmoid(np.dot(x, W_f) + np.dot(h0, R_f) + WB_f + RB_f + P_f*c0)
@@ -203,12 +204,10 @@ class OpLSTM(Op):
                         Constant([], [p], value=P),
                         Mul([p, c], [t3]),
                         Add([t2, t3], [t4]),
-                        f([t4], [res])
+                        f([t4], [res]),
                     ]
                 else:
-                    graph += [
-                        f([t2], [res])
-                    ]
+                    graph += [f([t2], [res])]
 
                 return graph
 
@@ -233,12 +232,16 @@ class OpLSTM(Op):
             graph += [
                 activation_h([y_c], [t2]),
                 Mul([o, t2], [y_h]),
-                Reshape([y_h], [y], shape=(seq_length, num_directions, batch_size, hidden_size))
+                Reshape(
+                    [y_h],
+                    [y],
+                    shape=(seq_length, num_directions, batch_size, hidden_size),
+                ),
             ]
 
             return graph
         else:
-            raise UnsupportedONNXOperation(self.node, 'direction is not forward')
+            raise UnsupportedONNXOperation(self.node, "direction is not forward")
 
 
 def gen_new_node(env, value):

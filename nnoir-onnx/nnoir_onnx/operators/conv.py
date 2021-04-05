@@ -1,31 +1,31 @@
 import numpy as np
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpConv(Op):
-
     def __init__(self, node, *args):
         super(OpConv, self).__init__(node, *args)
 
         self.kernel_shape = None
-        self.auto_pad = b'NOTSET'
+        self.auto_pad = b"NOTSET"
         self.pads = None
         self.strides = (1, 1)
         self.dilations = (1, 1)
         self.group = 1
         for attr in node.attribute:
-            if attr.name == 'kernel_shape':
+            if attr.name == "kernel_shape":
                 self.kernel_shape = attr.ints
-            if attr.name == 'dilations':
+            if attr.name == "dilations":
                 self.dilations = attr.ints
-            if attr.name == 'group':
+            if attr.name == "group":
                 self.group = attr.i
-            if attr.name == 'strides':
+            if attr.name == "strides":
                 self.strides = attr.ints
-            if attr.name == 'auto_pad':
+            if attr.name == "auto_pad":
                 self.auto_pad = attr.s
-            if attr.name == 'pads':
+            if attr.name == "pads":
                 self.pads = attr.ints
 
     def to_function(self, env, constants):
@@ -35,13 +35,13 @@ class OpConv(Op):
         elif len(self.node.input) == 3:
             [x, W, b] = self.node.input
         else:
-            raise 'invalid'
+            raise "invalid"
         if W not in constants:
-            raise UnsupportedONNXOperation(self.node, 'W must be constant')
+            raise UnsupportedONNXOperation(self.node, "W must be constant")
         W = constants[W]
         if b is not None:
             if b not in constants:
-                raise UnsupportedONNXOperation(self.node, 'b must be constant')
+                raise UnsupportedONNXOperation(self.node, "b must be constant")
             b = constants[b]
 
         _input = env[x]
@@ -56,7 +56,7 @@ class OpConv(Op):
         dy = self.dilations[0]
         dx = self.dilations[1]
 
-        if self.auto_pad == b'NOTSET':
+        if self.auto_pad == b"NOTSET":
             pad_h = (0, 0)
             pad_w = (0, 0)
             if self.pads is not None:
@@ -73,7 +73,7 @@ class OpConv(Op):
                 DepthwiseConvolution2D(
                     [x],
                     list(self.node.output),
-                    W=np.rollaxis(W.reshape(self.group, out_channels//self.group, kh, kw), 1, 0),
+                    W=np.rollaxis(W.reshape(self.group, out_channels // self.group, kh, kw), 1, 0),
                     b=b,
                     stride=(sy, sx),
                     pad_h=pad_h,
@@ -92,6 +92,6 @@ class OpConv(Op):
                     pad_h=pad_h,
                     pad_w=pad_w,
                     dilate=(dy, dx),
-                    groups=self.group
+                    groups=self.group,
                 )
             ]

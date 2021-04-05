@@ -1,18 +1,17 @@
-from .utils import *
+import numpy as np
 from nnoir.functions import *
 
-import numpy as np
+from .utils import *
 
 
 class OpSqueeze(Op):
-
     def __init__(self, node, *args):
         super(OpSqueeze, self).__init__(node, *args)
 
         self.axes = []
 
         for attr in node.attribute:
-            if attr.name == 'axes':
+            if attr.name == "axes":
                 self.axes = attr.ints
 
     def to_function(self, env, constants):

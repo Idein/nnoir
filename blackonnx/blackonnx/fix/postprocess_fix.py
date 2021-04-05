@@ -3,7 +3,7 @@ from typing import Set
 import onnx
 from onnx import ModelProto
 
-from ..onnx_utils import remove_by_name, get_by_name
+from ..onnx_utils import get_by_name, remove_by_name
 from ..utils import NNOIR_SUPPORTED_OPS
 
 
@@ -40,7 +40,7 @@ def fix_postprocess(model: ModelProto):
         print("deleted: {} ({})".format(node.name, node.op_type))
         model.graph.node.remove(node)
 
-    remove_by_name(model, to_remove_output, 'output')
+    remove_by_name(model, to_remove_output, "output")
     inferred_model = onnx.shape_inference.infer_shapes(model)
     value_infos = get_by_name(inferred_model, added_output, "value_info")
     model.graph.output.extend(value_infos.values())

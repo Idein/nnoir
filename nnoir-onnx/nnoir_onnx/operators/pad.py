@@ -1,14 +1,14 @@
 import numpy as np
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpPad(Op):
-
     def __init__(self, node, *args):
         super(OpPad, self).__init__(node, *args)
 
-        self.mode = b'constant'
+        self.mode = b"constant"
         self.pads = None
         self.value = 0.0
 
@@ -27,26 +27,26 @@ class OpPad(Op):
                 self.value = constants[self.node.input[2]]  # constant_value
 
             for attr in self.node.attribute:
-                if attr.name == 'mode':
+                if attr.name == "mode":
                     self.mode = attr.s
                 else:
-                    raise UnsupportedONNXOperation(self.node, f'unknown attribute {attr.s}')
+                    raise UnsupportedONNXOperation(self.node, f"unknown attribute {attr.s}")
 
             input_ = [self.node.input[0]]
             pads = list(map(int, self.pads))  # In ONNX specification, the type of `pads` is int64
         else:
             # opset version >= 2
             for attr in self.node.attribute:
-                if attr.name == 'mode':
+                if attr.name == "mode":
                     self.mode = attr.s
-                if attr.name == 'pads':
+                if attr.name == "pads":
                     self.pads = attr.ints
-                if attr.name == 'value':
+                if attr.name == "value":
                     self.value = attr.f
 
             input_ = list(self.node.input)
             pads = self.pads
-        if self.mode != b'constant':
+        if self.mode != b"constant":
             raise UnsupportedONNXOperation(self.node, 'mode must be "constant"')
 
         n = len(self.pads) // 2

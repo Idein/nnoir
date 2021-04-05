@@ -1,28 +1,25 @@
 import io
+
 import numpy as np
 
 
 class InvalidONNXData(Exception):
-
     def __init__(self, message):
         self.message = message
 
 
 class UnsupportedONNXOperation(Exception):
-
     def __init__(self, node, message):
         self.node = node
         self.message = message
 
 
 class UnknownSizedVariable(Exception):
-
     def __init__(self, message):
         self.message = message
 
 
 class Op:
-
     def __init__(self, node, opset_version):
         self.node = node
         self.opset_version = opset_version
@@ -37,7 +34,7 @@ def encode_ndarray(obj):
     else:
         with io.BytesIO() as out:
             np.save(out, obj.copy())
-            return {b'ndarray': out.getvalue()}
+            return {b"ndarray": out.getvalue()}
 
 
 def auto_pad_to_manual_pad(n, k, s, d, auto_pad):
@@ -46,23 +43,23 @@ def auto_pad_to_manual_pad(n, k, s, d, auto_pad):
         pad = max(dk - s, 0)
     else:
         pad = max(dk - n % s, 0)
-    if auto_pad == b'SAME_LOWER':
+    if auto_pad == b"SAME_LOWER":
         pad_before = pad // 2
         pad_after = pad - pad_before
         return (pad_before, pad_after)
-    elif auto_pad == b'SAME_UPPER':
+    elif auto_pad == b"SAME_UPPER":
         pad_after = pad // 2
         pad_before = pad - pad_after
         return (pad_before, pad_after)
-    elif auto_pad == b'VALID':
+    elif auto_pad == b"VALID":
         return (0, 0)
     else:
-        raise 'invalid'
+        raise "invalid"
 
 
 def gen_unregisterd_node_name(env):
     for i in range(len(env)):
-        candidate = f'v{i}'
+        candidate = f"v{i}"
         if candidate not in env:
             return candidate
 

@@ -1,26 +1,23 @@
 import numpy as np
-
 import onnx
-from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info, make_opsetid
 from onnx import TensorProto
+from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor_value_info
 from onnx.numpy_helper import from_array
-
 from util import Base
 
 info = make_tensor_value_info
 
 
 def run_opset_11_tester(input_shape, output_shape, axes=None, keepdims=1):
-
     class ReduceSumTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             kwargs = {
-                'inputs': ["v0"],
-                'outputs': ["v1"],
-                'keepdims': keepdims,
+                "inputs": ["v0"],
+                "outputs": ["v1"],
+                "keepdims": keepdims,
             }
             if axes is not None:
-                kwargs['axes'] = axes
+                kwargs["axes"] = axes
             node = make_node("ReduceSum", **kwargs)
             inputs = [info("v0", TensorProto.FLOAT, input_shape)]
             outputs = [info("v1", TensorProto.FLOAT, output_shape)]
@@ -48,13 +45,12 @@ def test_opset_11_reduce_sum_03():
 
 
 def run_opset_13_tester(input_shape, output_shape, axes=None, keepdims=1):
-
     class ReduceSumTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             kwargs = {
-                'inputs': ["v0"] + ['axes' for _ in [None] if axes is not None],
-                'outputs': ["v1"],
-                'keepdims': keepdims,
+                "inputs": ["v0"] + ["axes" for _ in [None] if axes is not None],
+                "outputs": ["v1"],
+                "keepdims": keepdims,
             }
 
             node = make_node("ReduceSum", **kwargs)

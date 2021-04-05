@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.pooling.unpooling_2d import Unpooling2D
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(Unpooling2D, 'apply'):
+if hasattr(Unpooling2D, "apply"):
     Unpooling2D.apply = patched_function_apply(Unpooling2D.apply)
 else:
     Unpooling2D.__call__ = patched_function_call(Unpooling2D.__call__)

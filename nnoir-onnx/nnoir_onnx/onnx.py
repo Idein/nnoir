@@ -1,14 +1,16 @@
 import copy
+import re
 import tempfile
 from itertools import chain
-import re
+
 import numpy as np
 import onnx
 import onnxruntime
 from nnoir import *
 from nnoir_onnx.operators import *
+
 from .operators.utils import InvalidONNXData, UnknownSizedVariable, UnsupportedONNXOperation
-from .utils import list_dimension_variables, freeze_dimension_variables
+from .utils import freeze_dimension_variables, list_dimension_variables
 
 
 def tensor_to_narray(tensor):
@@ -31,12 +33,11 @@ def narray_to_value_info(name, arr):
 def value_info_to_zero_narray(vi):
     return np.zeros(
         list(map(lambda x: x.dim_value, vi.type.tensor_type.shape.dim)),
-        dtype=onnx.mapping.TENSOR_TYPE_TO_NP_TYPE[vi.type.tensor_type.elem_type]
+        dtype=onnx.mapping.TENSOR_TYPE_TO_NP_TYPE[vi.type.tensor_type.elem_type],
     )
 
 
 class ONNX:
-
     def __init__(self, path, graph_name=None, fix_dimension=None):
         self.model = onnx.load(path)
         if graph_name is not None:
@@ -45,15 +46,19 @@ class ONNX:
             self.model = freeze_dimension_variables(self.model, fix_dimension)
         onnx.checker.check_model(self.model)
         # All names MUST adhere to C identifier syntax rules.
-        if not re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', self.model.graph.name):
-            raise InvalidONNXData(f'''graph name "{self.model.graph.name}" is not C identifier.
+        if not re.match(r"^[_A-Za-z][_0-9A-Za-z]*$", self.model.graph.name):
+            raise InvalidONNXData(
+                f"""graph name "{self.model.graph.name}" is not C identifier.
 see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph.
-You can override the graph name with the `--graph_name` option.''')
+You can override the graph name with the `--graph_name` option."""
+            )
         variables = list_dimension_variables(self.model)
         if len(variables) != 0:
-            raise UnknownSizedVariable(f'''This ONNX model includes dimension variables.
+            raise UnknownSizedVariable(
+                f"""This ONNX model includes dimension variables.
 {variables}
-Set the values with the `--fix_dimension` option.''')
+Set the values with the `--fix_dimension` option."""
+            )
         self._rename_to_c_ident()
         self.sess = onnxruntime.InferenceSession(path)
         constant_nodes = self._list_constant_nodes()
@@ -71,13 +76,13 @@ Set the values with the `--fix_dimension` option.''')
         # Initializer id is not restricted C identifier syntax rules.
         for initializer in self.model.graph.initializer:
             rename_step = 0
-            rename_prefix = 'v_from_initializer'
+            rename_prefix = "v_from_initializer"
             rename_content = initializer.name
-            if re.match(r'^[_A-Za-z][_0-9A-Za-z]*$', rename_content):
-                rename_prefix += '_plain'
+            if re.match(r"^[_A-Za-z][_0-9A-Za-z]*$", rename_content):
+                rename_prefix += "_plain"
             else:
-                rename_content = ''.join(map(lambda c: f'x{ord(c):02x}', rename_content))
-                rename_prefix += '_encoded'
+                rename_content = "".join(map(lambda c: f"x{ord(c):02x}", rename_content))
+                rename_prefix += "_encoded"
             rename_candidate = f"{rename_prefix}_{rename_step}_{rename_content}"
             while True:
                 if rename_candidate not in value_names:
@@ -166,14 +171,14 @@ Set the values with the `--fix_dimension` option.''')
         inputs = list(map(lambda x: x.name, self.sess.get_inputs()))
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
         functions = self._to_NNOIR_functions()
-        nodes = [Value(n, self.nodes[n])
-                 for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
+        nodes = [Value(n, self.nodes[n]) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
-        renaming_table = {n.name: f'v{i}'.encode('utf-8') for i, n in enumerate(nodes)}
+        renaming_table = {n.name: f"v{i}".encode("utf-8") for i, n in enumerate(nodes)}
 
         def rename(x):
             return renaming_table[x]
+
         inputs = list(map(rename, inputs))
         outputs = list(map(rename, outputs))
 
@@ -181,21 +186,23 @@ Set the values with the `--fix_dimension` option.''')
             e.inputs = list(map(rename, e.inputs))
             e.outputs = list(map(rename, e.outputs))
             return e
+
         functions = list(map(rename_function, functions))
 
         def rename_node(n):
             n.name = rename(n.name)
             return n
+
         nodes = list(map(rename_node, nodes))
 
         return NNOIR(
-            self.model.graph.name.encode('utf-8'),
+            self.model.graph.name.encode("utf-8"),
             self.model.producer_name,
             self.model.producer_version,
             inputs,
             outputs,
             nodes,
-            functions
+            functions,
         )
 
     def _eval_nodes(self, nodes):
@@ -229,11 +236,11 @@ Set the values with the `--fix_dimension` option.''')
             results = sess.run(outputs, inputs)
 
     def op_for_node(self, node):
-        op_name = f'Op{node.op_type}'
+        op_name = f"Op{node.op_type}"
         if op_name in globals():
             return globals()[op_name](node, self.opset_version)
         else:
-            raise UnsupportedONNXOperation(node, f'converting from {node.op_type} is undefined')
+            raise UnsupportedONNXOperation(node, f"converting from {node.op_type} is undefined")
 
     def _to_NNOIR_functions(self):
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
@@ -257,7 +264,7 @@ Set the values with the `--fix_dimension` option.''')
                 known_generator.append(generator)
             initializer = self._find_initializer(o)
             if initializer is not None:
-                raise UnsupportedONNXOperation(initializer, 'converting from Constant is undefined')
+                raise UnsupportedONNXOperation(initializer, "converting from Constant is undefined")
         return functions
 
     def _list_constant_nodes(self):
@@ -271,14 +278,14 @@ Set the values with the `--fix_dimension` option.''')
                     pass
                 else:
                     generator = self._find_generator(n)
-                    if generator.op_type == 'Shape':  # In nnoir, array shape is known information.
+                    if generator.op_type == "Shape":  # In nnoir, array shape is known information.
                         result.append(n)
                     else:
                         next_nodes = []
-                        if hasattr(generator, 'input'):
+                        if hasattr(generator, "input"):
                             next_nodes = [i for i in generator.input if i not in visited]
                         dfs(visited, next_nodes, result)
-                        if hasattr(generator, 'input'):
+                        if hasattr(generator, "input"):
                             if all([i in result for i in generator.input]):
                                 for o in generator.output:
                                     result.append(o)
@@ -286,16 +293,20 @@ Set the values with the `--fix_dimension` option.''')
                             for o in generator.output:
                                 result.append(o)
                 visited.append(n)
+
         result = []
         dfs([], outputs, result)
         return result
 
 
 def to_dummy_input(x):
-    if hasattr(x.type, 'tensor_type'):
+    if hasattr(x.type, "tensor_type"):
         if x.type.tensor_type.elem_type == onnx.TensorProto.FLOAT:
-            return np.zeros(tuple(map(lambda d: d.dim_value, x.type.tensor_type.shape.dim)), dtype=np.float32)
+            return np.zeros(
+                tuple(map(lambda d: d.dim_value, x.type.tensor_type.shape.dim)),
+                dtype=np.float32,
+            )
         else:
-            raise 'unsupported'
+            raise "unsupported"
     else:
-        raise 'unsupported'
+        raise "unsupported"

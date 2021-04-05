@@ -1,11 +1,12 @@
 import heapq
-import msgpack
+
 import chainer
-import numpy as np
-from chainer import variable
-from chainer import function_node
 import chainer.functions as F
+import msgpack
 import nnoir
+import numpy as np
+from chainer import function_node, variable
+
 from .patch import encode_ndarray
 
 
@@ -59,7 +60,7 @@ class Graph(object):
 
         out2link = {}
         for child in model.children():
-            if hasattr(child, 'chainer_output_variables'):
+            if hasattr(child, "chainer_output_variables"):
                 out2link.update({id(o): child for o in child.chainer_output_variables})
 
         # Create graph
@@ -77,15 +78,17 @@ class Graph(object):
                     creator = out2link[id(candidate)]
                 else:
                     creator = candidate.creator
-                if hasattr(creator, 'caller') and creator.caller is not None:
+                if hasattr(creator, "caller") and creator.caller is not None:
                     creator = creator.caller
                 if creator is None and id(candidate) not in map(id, input_variables):  # Constant Param
+
                     class Constant:
                         def __init__(self, value):
                             self.value = value
 
                         def to_nnoir_node(self, inputs, outputs):
                             return nnoir.functions.Constant(inputs, outputs, value=encode_ndarray(self.value))
+
                     creator = Constant(candidate.data)
                 if creator is not None and (id(creator), id(candidate)) not in seen_edges:
                     add_candidate(creator)
@@ -96,7 +99,7 @@ class Graph(object):
                     creator_node.add_out_edge(candidate_node)
                     self.nodes.add(creator_node)
             else:
-                if hasattr(candidate, 'chainer_input_variables'):
+                if hasattr(candidate, "chainer_input_variables"):
                     for input_ in reversed(candidate.chainer_input_variables):
                         if input_ is not candidate:
                             add_candidate(input_)
@@ -119,38 +122,48 @@ class Graph(object):
                     for n in node.out_edges:
                         visit(n)
                 sorted_nodes.insert(0, node)
+
         for node in sorted(self.nodes, key=lambda n: n.no):
             visit(node)
         for no, node in enumerate(sorted_nodes):
             node.no = no
 
     def to_nnoir(self, name=None):
-
         def _value(node):
             return nnoir.Value(_variable_elem_name(node), node.node)
 
         sorted_nodes = sorted(self.nodes, key=lambda n: n.no)
-        values = list(map(_value, filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes)))
+        values = list(
+            map(
+                _value,
+                filter(lambda node: isinstance(node.node, variable.Variable), sorted_nodes),
+            )
+        )
         dvalues = {x.name: x for x in values}
 
         def _function(node):
             inputs = list(map(_variable_elem_name, reversed(node.in_edges)))
             outputs = list(map(_variable_elem_name, node.out_edges))
-            return node.node.to_nnoir_node(
-                [dvalues[x] for x in inputs],
-                [dvalues[x] for x in outputs]
-            )
+            return node.node.to_nnoir_node([dvalues[x] for x in inputs], [dvalues[x] for x in outputs])
 
         return nnoir.NNOIR(
             (name or self.model.__class__.__name__).encode(),
-            b'chainer',
+            b"chainer",
             chainer.__version__,
             list(map(_variable_elem_name, self.input_variables)),
             list(map(_variable_elem_name, self.output_variables)),
             values,
-            list(map(_function, filter(lambda node: not isinstance(node.node, variable.Variable), sorted_nodes)))
+            list(
+                map(
+                    _function,
+                    filter(
+                        lambda node: not isinstance(node.node, variable.Variable),
+                        sorted_nodes,
+                    ),
+                )
+            ),
         ).pack()
 
 
 def _variable_elem_name(node):
-    return 'v{:d}'.format(node.no).encode()
+    return "v{:d}".format(node.no).encode()

@@ -1,6 +1,7 @@
-from typing import List, Tuple, Iterable, Dict, Union
+from typing import Dict, Iterable, List, Tuple, Union
 
-from onnx import ModelProto, NodeProto, ValueInfoProto, TensorProto
+from onnx import ModelProto, NodeProto, TensorProto, ValueInfoProto
+
 from .utils import index_of
 
 Leaf = Union[ValueInfoProto, TensorProto]
@@ -13,9 +14,7 @@ def get_next_op_node_idx(model: ModelProto, op: str) -> int:
     return -1
 
 
-def _get_nodes_with_var(model: ModelProto,
-                        var_name: str,
-                        attribute_name: str) -> List[Tuple[int, NodeProto]]:
+def _get_nodes_with_var(model: ModelProto, var_name: str, attribute_name: str) -> List[Tuple[int, NodeProto]]:
     res = []
     for idx, node in enumerate(model.graph.node):
         if var_name in getattr(node, attribute_name):
@@ -24,11 +23,11 @@ def _get_nodes_with_var(model: ModelProto,
 
 
 def get_nodes_with_var_input(model: ModelProto, var_name: str) -> List[Tuple[int, NodeProto]]:
-    return _get_nodes_with_var(model, var_name, 'input')
+    return _get_nodes_with_var(model, var_name, "input")
 
 
 def get_nodes_with_var_output(model: ModelProto, var_name: str) -> List[Tuple[int, NodeProto]]:
-    return _get_nodes_with_var(model, var_name, 'output')
+    return _get_nodes_with_var(model, var_name, "output")
 
 
 def remove_by_name(model: ModelProto, name_iterable: Iterable[str], graph_attr: str):

@@ -1,9 +1,9 @@
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpTan(Op):
-
     def __init__(self, node, *args):
         super(OpTan, self).__init__(node, *args)
 

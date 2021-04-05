@@ -1,18 +1,18 @@
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpReduceMean(Op):
-
     def __init__(self, node, *args):
         super(OpReduceMean, self).__init__(node, *args)
 
         self.axes = None
         self.keepdims = True
         for attr in node.attribute:
-            if attr.name == 'axes':
+            if attr.name == "axes":
                 self.axes = attr.ints
-            if attr.name == 'keepdims':
+            if attr.name == "keepdims":
                 self.keepdims = attr.i > 0
 
     def to_function(self, env, constants):
@@ -30,6 +30,11 @@ class OpReduceMean(Op):
         register_node(env, internal_node, env[y])
 
         return [
-            Sum(list(self.node.input), [internal_node], axes=list(axes), keepdims=self.keepdims),
-            MulConstant([internal_node], list(self.node.output), value=float(1.0 / n))
+            Sum(
+                list(self.node.input),
+                [internal_node],
+                axes=list(axes),
+                keepdims=self.keepdims,
+            ),
+            MulConstant([internal_node], list(self.node.output), value=float(1.0 / n)),
         ]

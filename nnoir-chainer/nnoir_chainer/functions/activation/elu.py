@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.activation.elu import ELU
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(ELU, 'apply'):
+if hasattr(ELU, "apply"):
     ELU.apply = patched_function_apply(ELU.apply)
 else:
     ELU.__call__ = patched_function_call(ELU.__call__)

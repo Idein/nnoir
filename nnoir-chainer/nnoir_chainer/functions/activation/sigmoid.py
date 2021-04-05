@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.activation.sigmoid import Sigmoid
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(Sigmoid, 'apply'):
+if hasattr(Sigmoid, "apply"):
     Sigmoid.apply = patched_function_apply(Sigmoid.apply)
 else:
     Sigmoid.__call__ = patched_function_call(Sigmoid.__call__)

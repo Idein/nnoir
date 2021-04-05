@@ -1,8 +1,7 @@
 import chainer.functions as F
 
 
-class ConvertMul():
-
+class ConvertMul:
     def __init__(self, function, inputs, outputs):
         pass
 

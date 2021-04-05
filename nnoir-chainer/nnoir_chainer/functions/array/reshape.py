@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.array.reshape import Reshape
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(Reshape, 'apply'):
+if hasattr(Reshape, "apply"):
     Reshape.apply = patched_function_apply(Reshape.apply)
 else:
     Reshape.__call__ = patched_function_call(Reshape.__call__)

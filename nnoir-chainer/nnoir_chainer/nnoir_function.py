@@ -1,8 +1,10 @@
-import msgpack
-import chainer
 import sys
-from .converter import *
+
+import chainer
+import msgpack
 from nnoir.load import load
+
+from .converter import *
 
 
 class NNOIRFunction(chainer.Chain):
@@ -29,7 +31,8 @@ class NNOIRFunction(chainer.Chain):
             for function in self.nnoir.functions:
                 if id(function) not in done and set(function.inputs).issubset(variable_dict.keys()):
                     variable_dict[function.outputs[0]] = self.functions[id(function)](
-                        *[variable_dict[x] for x in function.inputs])
+                        *[variable_dict[x] for x in function.inputs]
+                    )
                     done.add(id(function))
                     found = True
                     break

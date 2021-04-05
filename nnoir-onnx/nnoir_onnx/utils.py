@@ -1,13 +1,14 @@
 from typing import Dict, Set
+
 from .operators.utils import UnknownSizedVariable
 
 
 def list_dimension_variables(model) -> Set[str]:
     s = set()
     for x in model.graph.input:
-        if x.type.HasField('tensor_type'):
+        if x.type.HasField("tensor_type"):
             for dim in x.type.tensor_type.shape.dim:
-                if dim.HasField('dim_param'):
+                if dim.HasField("dim_param"):
                     s.add(dim.dim_param)
     return s
 
@@ -19,11 +20,11 @@ def freeze_dimension_variables(model, fix_dimension):
         raise UnknownSizedVariable("missing variables: " + str(diff))
 
     for x in model.graph.input:
-        if x.type.HasField('tensor_type'):
+        if x.type.HasField("tensor_type"):
             for dim in x.type.tensor_type.shape.dim:
-                if dim.HasField('dim_param'):
+                if dim.HasField("dim_param"):
                     v = dim.dim_param
-                    dim.ClearField('dim_param')
+                    dim.ClearField("dim_param")
                     dim.dim_value = fix_dimension[v]
 
     return model
@@ -32,7 +33,7 @@ def freeze_dimension_variables(model, fix_dimension):
 def parse_assign(s: str) -> Dict[str, int]:
     d: Dict[str, int] = dict()
     item: str
-    for item in s.split(','):
-        [v, n] = item.split('=')
+    for item in s.split(","):
+        [v, n] = item.split("=")
         d[v] = int(n)
     return d

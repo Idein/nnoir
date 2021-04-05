@@ -1,6 +1,6 @@
+import nnoir.functions as NNOIR
 from chainer.links import Linear
 from nnoir_chainer.patch import encode_ndarray, patched_link_call
-import nnoir.functions as NNOIR
 
 Linear.__call__ = patched_link_call(Linear.__call__)
 

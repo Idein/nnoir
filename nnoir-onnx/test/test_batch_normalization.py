@@ -1,10 +1,9 @@
-from util import Base
-from onnx import TensorProto
-from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info, make_tensor
-from onnx.numpy_helper import from_array
-import onnx
 import numpy as np
-
+import onnx
+from onnx import TensorProto
+from onnx.helper import make_graph, make_model, make_node, make_tensor, make_tensor_value_info
+from onnx.numpy_helper import from_array
+from util import Base
 
 info = make_tensor_value_info
 
@@ -17,8 +16,11 @@ def test_batch_normalization_00():
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("BatchNormalization", inputs=["x", "gamma",
-                                                           "beta", "mean", "var"], outputs=["v1"])
+            node = make_node(
+                "BatchNormalization",
+                inputs=["x", "gamma", "beta", "mean", "var"],
+                outputs=["v1"],
+            )
             gamma = np.zeros(channel, dtype=np.float32)
             beta = np.zeros(channel, dtype=np.float32)
             mean = np.zeros(channel, dtype=np.float32)
@@ -29,18 +31,39 @@ def test_batch_normalization_00():
             mean[:] = 0.2
             var[:] = 0.8
 
-            node_gamma = make_node("Constant", value=make_tensor(name="c0", data_type=TensorProto.FLOAT,
-                                                                 dims=(channel,), vals=gamma), inputs=[], outputs=["gamma"])
-            node_beta = make_node("Constant", value=make_tensor(name="c1", data_type=TensorProto.FLOAT,
-                                                                dims=(channel,), vals=beta), inputs=[], outputs=["beta"])
-            node_mean = make_node("Constant", value=make_tensor(name="c2", data_type=TensorProto.FLOAT,
-                                                                dims=(channel,), vals=mean), inputs=[], outputs=["mean"])
-            node_var = make_node("Constant", value=make_tensor(name="c3", data_type=TensorProto.FLOAT,
-                                                               dims=(channel,), vals=var), inputs=[], outputs=["var"])
+            node_gamma = make_node(
+                "Constant",
+                value=make_tensor(name="c0", data_type=TensorProto.FLOAT, dims=(channel,), vals=gamma),
+                inputs=[],
+                outputs=["gamma"],
+            )
+            node_beta = make_node(
+                "Constant",
+                value=make_tensor(name="c1", data_type=TensorProto.FLOAT, dims=(channel,), vals=beta),
+                inputs=[],
+                outputs=["beta"],
+            )
+            node_mean = make_node(
+                "Constant",
+                value=make_tensor(name="c2", data_type=TensorProto.FLOAT, dims=(channel,), vals=mean),
+                inputs=[],
+                outputs=["mean"],
+            )
+            node_var = make_node(
+                "Constant",
+                value=make_tensor(name="c3", data_type=TensorProto.FLOAT, dims=(channel,), vals=var),
+                inputs=[],
+                outputs=["var"],
+            )
 
             inputs = [info("x", TensorProto.FLOAT, (1, channel, 4, 5))]
             outputs = [info("v1", TensorProto.FLOAT, (1, channel, 4, 5))]
-            graph = make_graph([node_gamma, node_beta, node_mean, node_var, node], "add_graph", inputs, outputs)
+            graph = make_graph(
+                [node_gamma, node_beta, node_mean, node_var, node],
+                "add_graph",
+                inputs,
+                outputs,
+            )
             model = make_model(graph)
             return model
 
@@ -56,8 +79,11 @@ def test_batch_normalization_01():
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("BatchNormalization", inputs=["x", "gamma",
-                                                           "beta", "mean", "var"], outputs=["v1"])
+            node = make_node(
+                "BatchNormalization",
+                inputs=["x", "gamma", "beta", "mean", "var"],
+                outputs=["v1"],
+            )
             gamma = np.zeros(channel, dtype=np.float32)
             beta = np.zeros(channel, dtype=np.float32)
             mean = np.zeros(channel, dtype=np.float32)
@@ -75,8 +101,13 @@ def test_batch_normalization_01():
 
             inputs = [info("x", TensorProto.FLOAT, (1, channel, 4, 5))]
             outputs = [info("v1", TensorProto.FLOAT, (1, channel, 4, 5))]
-            graph = make_graph([node], "add_graph", inputs, outputs, initializer=[
-                               gamma_init, beta_init, mean_init, var_init])
+            graph = make_graph(
+                [node],
+                "add_graph",
+                inputs,
+                outputs,
+                initializer=[gamma_init, beta_init, mean_init, var_init],
+            )
             model = make_model(graph)
             return model
 

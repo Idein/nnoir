@@ -1,7 +1,8 @@
 from typing import Tuple
-import numpy as np
 
-from nnoir.functions import Transpose, MatMul, Constant
+import numpy as np
+from nnoir.functions import Constant, MatMul, Transpose
+
 from .utils import Op, gen_unregisterd_node_name, register_node
 
 
@@ -97,7 +98,7 @@ class OpSplit(Op):
             linear_up_node,
             linear_down_node,
             transpose_up_node,
-            transpose_down_node
+            transpose_down_node,
         ]
 
         return nodes
