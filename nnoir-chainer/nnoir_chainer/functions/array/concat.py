@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.array.concat import Concat
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(Concat, 'apply'):
+if hasattr(Concat, "apply"):
     Concat.apply = patched_function_apply(Concat.apply)
 else:
     Concat.__call__ = patched_function_call(Concat.__call__)

@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.activation.clipped_relu import ClippedReLU
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(ClippedReLU, 'apply'):
+if hasattr(ClippedReLU, "apply"):
     ClippedReLU.apply = patched_function_apply(ClippedReLU.apply)
 else:
     ClippedReLU.__call__ = patched_function_call(ClippedReLU.__call__)

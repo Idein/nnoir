@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.array.transpose import Transpose
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(Transpose, 'apply'):
+if hasattr(Transpose, "apply"):
     Transpose.apply = patched_function_apply(Transpose.apply)
 else:
     Transpose.__call__ = patched_function_call(Transpose.__call__)

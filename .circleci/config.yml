@@ -19,7 +19,7 @@ commands:
           name: Check nnoir library code format
           working_directory: nnoir
           command: |
-            [ $(autopep8 --diff --max-line-length 128 -r nnoir | wc -l) = 0 ]
+            pysen run_files lint $(find -name "*.py")
       - run:
           name: Install nnoir library
           working_directory: nnoir
@@ -37,7 +37,7 @@ commands:
           name: Check nnoir-onnx library code format
           working_directory: nnoir-onnx
           command: |
-            [ $(autopep8 --diff --max-line-length 128 -r nnoir_onnx | wc -l) = 0 ]
+            pysen run_files lint $(find -name "*.py")
       - run:
           name: Install nnoir-onnx library
           working_directory: nnoir-onnx
@@ -61,7 +61,7 @@ commands:
           name: Check nnoir-chainer library code format
           working_directory: nnoir-chainer
           command: |
-            [ $(autopep8 --diff --max-line-length 128 -r nnoir_chainer | wc -l) = 0 ]
+            pysen run_files lint $(find -name "*.py")
       - run:
           name: Install nnoir-chainer library
           working_directory: nnoir-chainer
@@ -85,7 +85,7 @@ commands:
           name: Check blackonnx library code format
           working_directory: blackonnx
           command: |
-            [ $(autopep8 --diff --max-line-length 128 -r blackonnx | wc -l) = 0 ]
+            pysen run_files lint $(find -name "*.py")
       - run:
           name: Install blackonnx
           working_directory: blackonnx
@@ -149,11 +149,11 @@ jobs:
       - run:
           name: Install python test tools
           command: |
-            pip3 install pytest autopep8
+            pip3 install pytest pysen isort black
       - run:
           name: Install python release tools
           command: |
-            pip3 install pytest autopep8
+            pip3 install pytest pysen isort black
       - steps: << parameters.tests >>
       - steps: << parameters.releases >>
 

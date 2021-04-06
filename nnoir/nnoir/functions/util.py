@@ -18,9 +18,12 @@ def im2col_cpu(img, kernel, stride, ph, pw, dilate=(1, 1), pval=0, cover_all=Fal
     out_h = get_conv_outsize(h, kh, sy, pre_ph, post_ph, cover_all, dy)
     out_w = get_conv_outsize(w, kw, sx, pre_pw, post_pw, cover_all, dx)
 
-    img = np.pad(img,
-                 ((0, 0), (0, 0), (pre_ph, post_ph), (pre_pw, post_pw)),
-                 mode='constant', constant_values=(pval,))
+    img = np.pad(
+        img,
+        ((0, 0), (0, 0), (pre_ph, post_ph), (pre_pw, post_pw)),
+        mode="constant",
+        constant_values=(pval,),
+    )
     col = np.ndarray((n, c, kh, kw, out_h, out_w), dtype=img.dtype)
 
     for j in range(kh):
@@ -45,4 +48,4 @@ def col2im_cpu(col, stride, ph, pw, h, w, dy=1, dx=1):
             idx = i * dx
             i_lim = idx + sx * out_w
             img[:, :, jdy:j_lim:sy, idx:i_lim:sx] += col[:, :, j, i]
-    return img[:, :, ph:h + ph, pw:w + pw]
+    return img[:, :, ph : h + ph, pw : w + pw]

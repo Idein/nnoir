@@ -1,6 +1,7 @@
-import numpy
-import io
 import inspect
+import io
+
+import numpy
 from chainer.link import Link
 from chainer.variable import Variable
 
@@ -10,7 +11,7 @@ def encode_ndarray(obj):
     with io.BytesIO() as out:
         numpy.save(out, obj.copy())
         x = out.getvalue()
-    return {b'ndarray': x}
+    return {b"ndarray": x}
 
 
 def patched_link_call(orig_link_call):
@@ -22,6 +23,7 @@ def patched_link_call(orig_link_call):
         else:
             self.chainer_output_variables = list(outputs)
         return outputs
+
     return call
 
 
@@ -38,6 +40,7 @@ def patched_function_apply(orig_function_apply):
             self.chainer_output_variables = list(outputs)
         self.caller = caller_link()
         return outputs
+
     return apply
 
 
@@ -54,6 +57,7 @@ def patched_function_call(orig_function_call):
             self.chainer_output_variables = list(outputs)
         self.caller = caller_link()
         return outputs
+
     return call
 
 
@@ -62,7 +66,7 @@ def caller_link():
     for framerecord in reversed(framerecords):
         frame = framerecord[0]
         arginfo = inspect.getargvalues(frame)
-        result = arginfo.locals['self'] if 'self' in arginfo.locals else None
-        if isinstance(result, Link) and hasattr(result, 'to_nnoir_node'):
+        result = arginfo.locals["self"] if "self" in arginfo.locals else None
+        if isinstance(result, Link) and hasattr(result, "to_nnoir_node"):
             return result
     return None

@@ -1,40 +1,40 @@
 import numpy as np
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpMaxPool(Op):
-
     def __init__(self, node, *args):
         super(OpMaxPool, self).__init__(node, *args)
 
         self.kernel_shape = None
-        self.auto_pad = b'NOTSET'
+        self.auto_pad = b"NOTSET"
         self.pads = None
         self.storage_order = 0
         self.strides = (1, 1)
         for attr in node.attribute:
-            if attr.name == 'kernel_shape':
+            if attr.name == "kernel_shape":
                 self.kernel_shape = attr.ints
-            elif attr.name == 'storage_order':
+            elif attr.name == "storage_order":
                 self.storage_order = attr.i
-            elif attr.name == 'strides':
+            elif attr.name == "strides":
                 self.strides = attr.ints
-            elif attr.name == 'auto_pad':
+            elif attr.name == "auto_pad":
                 self.auto_pad = attr.s
-            elif attr.name == 'pads':
+            elif attr.name == "pads":
                 self.pads = attr.ints
 
             # opset version >= 10
-            elif attr.name == 'ceil_mode':
+            elif attr.name == "ceil_mode":
                 if attr.i != 0:
-                    raise UnsupportedONNXOperation(self.node, 'only value 0 is supported for attribute `ceil_mode`')
+                    raise UnsupportedONNXOperation(self.node, "only value 0 is supported for attribute `ceil_mode`")
 
             # opset version >= 11
-            elif attr.name == 'dilations':
-                raise UnsupportedONNXOperation(self.node, 'attribute `dilations` is not supported')
+            elif attr.name == "dilations":
+                raise UnsupportedONNXOperation(self.node, "attribute `dilations` is not supported")
             else:
-                raise UnsupportedONNXOperation(self.node, f'unknown attribute {attr.name}')
+                raise UnsupportedONNXOperation(self.node, f"unknown attribute {attr.name}")
 
     def to_function(self, env, constants):
         [x] = self.node.input
@@ -49,7 +49,7 @@ class OpMaxPool(Op):
         sy = self.strides[0]
         sx = self.strides[1]
 
-        if self.auto_pad == b'NOTSET':
+        if self.auto_pad == b"NOTSET":
             pad_h = (0, 0)
             pad_w = (0, 0)
             if self.pads is not None:

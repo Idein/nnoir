@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.activation.relu import ReLU
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(ReLU, 'apply'):
+if hasattr(ReLU, "apply"):
     ReLU.apply = patched_function_apply(ReLU.apply)
 else:
     ReLU.__call__ = patched_function_call(ReLU.__call__)

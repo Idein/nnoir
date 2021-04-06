@@ -1,11 +1,10 @@
-from util import Base
-from onnx import TensorProto
-from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info, make_tensor, make_opsetid
-from onnx.numpy_helper import from_array
-import onnx
 import numpy as np
-
+import onnx
 import pytest
+from onnx import TensorProto
+from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
+from onnx.numpy_helper import from_array
+from util import Base
 
 info = make_tensor_value_info
 
@@ -16,14 +15,20 @@ def test_gemm_00():
     c_shape = (1, 5)
 
     class GemmTester(Base):
-        '''
+        """
         opset version >= 11
-        '''
+        """
 
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("Gemm", inputs=["a", "b", "c"], outputs=["y"],
-                             alpha=0.3, beta=0.35, transA=1, transB=1
-                             )
+            node = make_node(
+                "Gemm",
+                inputs=["a", "b", "c"],
+                outputs=["y"],
+                alpha=0.3,
+                beta=0.35,
+                transA=1,
+                transB=1,
+            )
 
             inputs = [info("a", TensorProto.FLOAT, a_shape)]
             outputs = [info("y", TensorProto.FLOAT, (3, 5))]
@@ -45,22 +50,28 @@ def test_gemm_00():
 
 @pytest.mark.xfail()
 def test_gemm_01():
-    '''
+    """
     unidirectional broadcasting is not supported
-    '''
+    """
     a_shape = (4, 3)
     b_shape = (5, 4)
     c_shape = (3, 5)
 
     class GemmTester(Base):
-        '''
+        """
         opset version >= 11
-        '''
+        """
 
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("Gemm", inputs=["a", "b", "c"], outputs=["y"],
-                             alpha=0.3, beta=0.35, transA=1, transB=1
-                             )
+            node = make_node(
+                "Gemm",
+                inputs=["a", "b", "c"],
+                outputs=["y"],
+                alpha=0.3,
+                beta=0.35,
+                transA=1,
+                transB=1,
+            )
 
             inputs = [info("a", TensorProto.FLOAT, a_shape)]
             outputs = [info("y", TensorProto.FLOAT, (3, 5))]
@@ -86,19 +97,26 @@ def test_gemm_02():
     c_shape = (3, 5)
 
     class GemmTester(Base):
-        '''
+        """
         opset version >= 11
-        '''
+        """
 
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("Gemm", inputs=["a", "b", "c"], outputs=["y"],
-                             alpha=0.3, beta=0.35, transA=1, transB=1
-                             )
+            node = make_node(
+                "Gemm",
+                inputs=["a", "b", "c"],
+                outputs=["y"],
+                alpha=0.3,
+                beta=0.35,
+                transA=1,
+                transB=1,
+            )
 
-            inputs = [info("a", TensorProto.FLOAT, a_shape),
-                      info("b", TensorProto.FLOAT, b_shape),
-                      info("c", TensorProto.FLOAT, c_shape)
-                      ]
+            inputs = [
+                info("a", TensorProto.FLOAT, a_shape),
+                info("b", TensorProto.FLOAT, b_shape),
+                info("c", TensorProto.FLOAT, c_shape),
+            ]
             outputs = [info("y", TensorProto.FLOAT, (3, 5))]
 
             graph = make_graph([node], "gemm_graph", inputs, outputs)
@@ -119,19 +137,26 @@ def test_gemm_03():
     c_shape = (3, 5)
 
     class GemmTester(Base):
-        '''
+        """
         opset version >= 11
-        '''
+        """
 
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("Gemm", inputs=["a", "b", "c"], outputs=["y"],
-                             alpha=0.3, beta=0.35, transA=0, transB=0
-                             )
+            node = make_node(
+                "Gemm",
+                inputs=["a", "b", "c"],
+                outputs=["y"],
+                alpha=0.3,
+                beta=0.35,
+                transA=0,
+                transB=0,
+            )
 
-            inputs = [info("a", TensorProto.FLOAT, a_shape),
-                      info("b", TensorProto.FLOAT, b_shape),
-                      info("c", TensorProto.FLOAT, c_shape)
-                      ]
+            inputs = [
+                info("a", TensorProto.FLOAT, a_shape),
+                info("b", TensorProto.FLOAT, b_shape),
+                info("c", TensorProto.FLOAT, c_shape),
+            ]
             outputs = [info("y", TensorProto.FLOAT, (3, 5))]
 
             graph = make_graph([node], "gemm_graph", inputs, outputs)
@@ -151,18 +176,25 @@ def test_gemm_04():
     b_shape = (4, 5)
 
     class GemmTester(Base):
-        '''
+        """
         opset version >= 11
-        '''
+        """
 
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("Gemm", inputs=["a", "b"], outputs=["y"],
-                             alpha=0.3, beta=0.35, transA=1, transB=0
-                             )
+            node = make_node(
+                "Gemm",
+                inputs=["a", "b"],
+                outputs=["y"],
+                alpha=0.3,
+                beta=0.35,
+                transA=1,
+                transB=0,
+            )
 
-            inputs = [info("a", TensorProto.FLOAT, a_shape),
-                      info("b", TensorProto.FLOAT, b_shape)
-                      ]
+            inputs = [
+                info("a", TensorProto.FLOAT, a_shape),
+                info("b", TensorProto.FLOAT, b_shape),
+            ]
             outputs = [info("y", TensorProto.FLOAT, (3, 5))]
 
             graph = make_graph([node], "gemm_graph", inputs, outputs)

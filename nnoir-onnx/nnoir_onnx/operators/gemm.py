@@ -1,9 +1,9 @@
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpGemm(Op):
-
     def __init__(self, node, *args):
         super(OpGemm, self).__init__(node, *args)
 
@@ -12,13 +12,13 @@ class OpGemm(Op):
         self.transA = 0
         self.transB = 0
         for attr in node.attribute:
-            if attr.name == 'alpha':
+            if attr.name == "alpha":
                 self.alpha = attr.f
-            if attr.name == 'beta':
+            if attr.name == "beta":
                 self.beta = attr.f
-            if attr.name == 'transA':
+            if attr.name == "transA":
                 self.transA = attr.i
-            if attr.name == 'transB':
+            if attr.name == "transB":
                 self.transB = attr.i
 
     def to_function(self, env, constants):
@@ -35,7 +35,7 @@ class OpGemm(Op):
                     alpha=self.alpha,
                     beta=self.beta,
                     transA=self.transA != 0,
-                    transB=self.transB != 0
+                    transB=self.transB != 0,
                 )
             ]
 
@@ -45,23 +45,19 @@ class OpGemm(Op):
         c = env[C]
 
         if len(c.shape) == 2 and c.shape[0] != 1:
-            raise UnsupportedONNXOperation(self.node, 'shapes mismatch')
+            raise UnsupportedONNXOperation(self.node, "shapes mismatch")
 
         if self.transA == 1:
             internal_node = f"{A}_{id(A)}"
             env[internal_node] = env[A].T
             return [
-                Transpose(
-                    [A],
-                    [internal_node],
-                    axes=[1, 0]
-                ),
+                Transpose([A], [internal_node], axes=[1, 0]),
                 Linear(
                     [internal_node],
                     list(self.node.output),
                     W=self.alpha * b,
-                    b=self.beta * c.ravel()
-                )
+                    b=self.beta * c.ravel(),
+                ),
             ]
         else:
             return [
@@ -69,6 +65,6 @@ class OpGemm(Op):
                     [A],
                     list(self.node.output),
                     W=self.alpha * b,
-                    b=self.beta * c.ravel()
+                    b=self.beta * c.ravel(),
                 )
             ]

@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.loss.softmax_cross_entropy import SoftmaxCrossEntropy
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(SoftmaxCrossEntropy, 'apply'):
+if hasattr(SoftmaxCrossEntropy, "apply"):
     SoftmaxCrossEntropy.apply = patched_function_apply(SoftmaxCrossEntropy.apply)
 else:
     SoftmaxCrossEntropy.__call__ = patched_function_call(SoftmaxCrossEntropy.__call__)

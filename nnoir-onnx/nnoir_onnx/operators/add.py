@@ -1,9 +1,9 @@
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpAdd(Op):
-
     def __init__(self, node, *args):
         super(OpAdd, self).__init__(node, *args)
 
@@ -15,7 +15,7 @@ class OpAdd(Op):
             register_node(env, internal_node, env[w])
             return [
                 Constant([], [internal_node], value=constants[w]),
-                Add([v, internal_node], list(self.node.output))
+                Add([v, internal_node], list(self.node.output)),
             ]
 
         if a in constants and b not in constants:
@@ -25,4 +25,4 @@ class OpAdd(Op):
         elif a not in constants and b not in constants:
             return [Add(list(self.node.input), list(self.node.output))]
         else:
-            raise UnsupportedONNXOperation(self.node, 'bug! (unreachable here)')
+            raise UnsupportedONNXOperation(self.node, "bug! (unreachable here)")

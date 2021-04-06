@@ -1,10 +1,8 @@
 import numpy as np
-
 import onnx
-from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info, make_opsetid
 from onnx import TensorProto
+from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor_value_info
 from onnx.numpy_helper import from_array
-
 from util import Base
 
 info = make_tensor_value_info
@@ -37,8 +35,8 @@ def test_softmax_01():
 
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node("Softmax", inputs=["v0"], outputs=["v1"], axis=0)
-            inputs = [info("v0", TensorProto.FLOAT, (60, ))]
-            outputs = [info("v1", TensorProto.FLOAT, (60, ))]
+            inputs = [info("v0", TensorProto.FLOAT, (60,))]
+            outputs = [info("v1", TensorProto.FLOAT, (60,))]
 
             graph = make_graph([node], "add_graph", inputs, outputs)
             model = make_model(graph)

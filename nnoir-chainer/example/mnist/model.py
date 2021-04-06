@@ -4,7 +4,6 @@ import chainer.links as L
 
 
 class CNN(chainer.Chain):
-
     def __init__(self):
         super(CNN, self).__init__()
         with self.init_scope():

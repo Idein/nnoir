@@ -1,28 +1,24 @@
 import numpy as np
-
 import onnx
-from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info, make_opsetid
-from onnx.numpy_helper import from_array
 from onnx import TensorProto
-
+from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor_value_info
+from onnx.numpy_helper import from_array
 from util import Base
 
 info = make_tensor_value_info
 
 
 def run_opset_11_tester(input_shape, output_shape, axes=None):
-
     class SqueezeTester(Base):
-
         def __init__(self, inputs, outputs):
             super(SqueezeTester, self).__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node(
-                'Squeeze',
-                inputs=['x'],
-                outputs=['y'],
-                **{'axes': axes for _ in [None] if axes is not None}
+                "Squeeze",
+                inputs=["x"],
+                outputs=["y"],
+                **{"axes": axes for _ in [None] if axes is not None},
             )
 
             inputs = [info("x", TensorProto.FLOAT, input_shape)]
@@ -59,17 +55,15 @@ def test_opset_11_squeeze_05():
 
 
 def run_opset_13_tester(input_shape, output_shape, axes=None):
-
     class SqueezeTester(Base):
-
         def __init__(self, inputs, outputs):
             super(SqueezeTester, self).__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node(
-                'Squeeze',
-                inputs=['x'] + ['axes' for _ in [None] if axes is not None],
-                outputs=['y'],
+                "Squeeze",
+                inputs=["x"] + ["axes" for _ in [None] if axes is not None],
+                outputs=["y"],
             )
 
             inputs = [info("x", TensorProto.FLOAT, input_shape)]

@@ -1,9 +1,8 @@
-from util import Base
-from onnx import TensorProto
-from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info
-import onnx
 import numpy as np
-
+import onnx
+from onnx import TensorProto
+from onnx.helper import make_graph, make_model, make_node, make_tensor_value_info
+from util import Base
 
 info = make_tensor_value_info
 
@@ -33,7 +32,13 @@ def test_average_pooling_2d_01():
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("AveragePool", inputs=["v0"], outputs=["v1"], kernel_shape=[2, 2], pads=[0, 0, 1, 1])
+            node = make_node(
+                "AveragePool",
+                inputs=["v0"],
+                outputs=["v1"],
+                kernel_shape=[2, 2],
+                pads=[0, 0, 1, 1],
+            )
             inputs = [info("v0", TensorProto.FLOAT, (1, 3, 4, 5))]
             outputs = [info("v1", TensorProto.FLOAT, (1, 3, 4, 5))]
             graph = make_graph([node], "add_graph", inputs, outputs)
@@ -52,7 +57,13 @@ def test_average_pooling_2d_02():
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
-            node = make_node("AveragePool", inputs=["v0"], outputs=["v1"], kernel_shape=[3, 3], pads=[1, 1, 1, 1])
+            node = make_node(
+                "AveragePool",
+                inputs=["v0"],
+                outputs=["v1"],
+                kernel_shape=[3, 3],
+                pads=[1, 1, 1, 1],
+            )
             inputs = [info("v0", TensorProto.FLOAT, (1, 3, 4, 5))]
             outputs = [info("v1", TensorProto.FLOAT, (1, 3, 4, 5))]
             graph = make_graph([node], "add_graph", inputs, outputs)

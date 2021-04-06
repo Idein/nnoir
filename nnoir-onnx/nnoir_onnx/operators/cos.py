@@ -1,9 +1,9 @@
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpCos(Op):
-
     def __init__(self, node, *args):
         super(OpCos, self).__init__(node, *args)
 

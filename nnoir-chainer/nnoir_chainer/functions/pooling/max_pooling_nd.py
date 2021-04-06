@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.pooling.max_pooling_nd import MaxPoolingND
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(MaxPoolingND, 'apply'):
+if hasattr(MaxPoolingND, "apply"):
     MaxPoolingND.apply = patched_function_apply(MaxPoolingND.apply)
 else:
     MaxPoolingND.__call__ = patched_function_call(MaxPoolingND.__call__)

@@ -1,18 +1,18 @@
-from util import Base
-from onnx import TensorProto
-from onnx.helper import make_node, make_graph, make_model, make_tensor_value_info, make_tensor, make_opsetid
-from onnx.numpy_helper import from_array
-import onnx
 import numpy as np
+import onnx
+from onnx import TensorProto
+from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
+from onnx.numpy_helper import from_array
+from util import Base
 
 info = make_tensor_value_info
 
 
 def test_clip_00():
     class ClipTester(Base):
-        '''
+        """
         IR version == 11
-        '''
+        """
 
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node("Clip", inputs=["x", "min", "max"], outputs=["y"])
@@ -31,9 +31,9 @@ def test_clip_00():
 
 def test_clip_01():
     class ClipTester(Base):
-        '''
+        """
         IR version == 6
-        '''
+        """
 
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node("Clip", inputs=["x"], outputs=["y"], min=0.0, max=6.0)

@@ -1,8 +1,8 @@
+import nnoir.functions as NNOIR
 from chainer.functions.array.broadcast import BroadcastTo
 from nnoir_chainer.patch import patched_function_apply, patched_function_call
-import nnoir.functions as NNOIR
 
-if hasattr(BroadcastTo, 'apply'):
+if hasattr(BroadcastTo, "apply"):
     BroadcastTo.apply = patched_function_apply(BroadcastTo.apply)
 else:
     BroadcastTo.__call__ = patched_function_call(BroadcastTo.__call__)

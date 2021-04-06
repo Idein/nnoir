@@ -1,22 +1,16 @@
 from nnoir.functions import *
+
 from .utils import *
 
 
 class OpElu(Op):
-
     def __init__(self, node, *args):
         super(OpElu, self).__init__(node, *args)
 
-        self.alpha = 1.
+        self.alpha = 1.0
         for attr in self.node.attribute:
-            if attr.name == 'alpha':
+            if attr.name == "alpha":
                 self.alpha = attr.f
 
     def to_function(self, env, constants):
-        return [
-            ELU(
-                list(self.node.input),
-                list(self.node.output),
-                alpha=self.alpha
-            )
-        ]
+        return [ELU(list(self.node.input), list(self.node.output), alpha=self.alpha)]

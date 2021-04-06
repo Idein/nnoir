@@ -1,5 +1,6 @@
-from .function import Function
 import numpy as np
+
+from .function import Function
 
 
 class Tanh(Function):

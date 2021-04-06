@@ -1,11 +1,10 @@
-from typing import List, Dict, Optional
 import tempfile
-
-import onnx
-import onnxruntime
-import numpy as np
+from typing import Dict, List, Optional
 
 import nnoir
+import numpy as np
+import onnx
+import onnxruntime
 from nnoir import NNOIR
 from nnoir_onnx import ONNX
 
@@ -14,7 +13,7 @@ epsilon = 0.0001
 TMP_REMOVE = True
 
 
-class Base():
+class Base:
     def __init__(self, inputs, outputs):
         self.inputs: Dict[str, np.ndarray] = inputs
         self.outputs: List[str] = outputs
@@ -31,11 +30,11 @@ class Base():
         nnoir_result = self.execute_nnoir(self.nnoir)
 
         for a, b in zip(onnx_result, nnoir_result):
-            assert(np.all(abs(a - b) < epsilon))
+            assert np.all(abs(a - b) < epsilon)
 
         rerun_result = self.save_and_run(self.nnoir)
         for a, b in zip(rerun_result, nnoir_result):
-            assert(np.all(abs(a - b) < epsilon))
+            assert np.all(abs(a - b) < epsilon)
 
     def save_and_run(self, model: NNOIR):
         with tempfile.NamedTemporaryFile(delete=TMP_REMOVE) as f:
