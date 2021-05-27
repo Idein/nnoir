@@ -12,16 +12,16 @@ class OpDiv(Op):
 
         def scale(v, w):
             internal_node = gen_unregisterd_node_name(env)
-            register_node(env, internal_node, env[w])
+            register_node(env, internal_node, w)
             return [
-                Constant([], [internal_node], value=constants[w]),
+                Constant([], [internal_node], value=w),
                 Mul([v, internal_node], list(self.node.output)),
             ]
 
         if a in constants and b not in constants:
             raise UnsupportedONNXOperation(self.node, "unimplemented yet")
         elif a not in constants and b in constants:
-            return scale(a, 1 / b)
+            return scale(a, 1 / constants[b])
         elif a not in constants and b not in constants:
             return [Div(list(self.node.input), list(self.node.output))]
         else:

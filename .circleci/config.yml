@@ -149,11 +149,11 @@ jobs:
       - run:
           name: Install python test tools
           command: |
-            pip3 install pytest pysen isort black
+            pip3 install pytest pysen isort black==20.8b1
       - run:
           name: Install python release tools
           command: |
-            pip3 install pytest pysen isort black
+            pip3 install pytest pysen isort black==20.8b1
       - steps: << parameters.tests >>
       - steps: << parameters.releases >>
 
