@@ -29,6 +29,6 @@ setuptools.setup(
     keywords="Adapt ONNX models to enable nnoir conversion",
     packages=setuptools.find_packages(),
     python_requires=">=3.6.*",
-    install_requires=["numpy", "onnx", "nnoir-onnx"],
+    install_requires=["numpy", "onnx<1.9.0", "nnoir-onnx"],
     scripts=["bin/blackonnx"],
 )
