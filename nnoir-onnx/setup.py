@@ -31,7 +31,7 @@ setup(
     install_requires=[
         "numpy",
         "msgpack",
-        "onnx<1.9.0",
+        "onnx",
         "onnxruntime>=1.2.0",
         "nnoir",
         "protobuf>=3.8",
