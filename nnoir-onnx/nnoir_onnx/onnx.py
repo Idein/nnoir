@@ -44,12 +44,63 @@ class ONNX:
             self.model.graph.name = graph_name
         if fix_dimension is not None:
             self.model = freeze_dimension_variables(self.model, fix_dimension)
+        c_keywords = [
+            "auto",
+            "break",
+            "case",
+            "char",
+            "const",
+            "continue",
+            "default",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "extern",
+            "float",
+            "for",
+            "goto",
+            "if",
+            "inline",
+            "int",
+            "long",
+            "register",
+            "restrict",
+            "return",
+            "short",
+            "signed",
+            "sizeof",
+            "static",
+            "struct",
+            "switch",
+            "typedef",
+            "union",
+            "unsigned",
+            "void",
+            "volatile",
+            "while",
+            "_Alignas",
+            "_Alignof",
+            "_Atomic",
+            "_Bool",
+            "_Complex",
+            "_Generic",
+            "_Imaginary",
+            "_Noreturn",
+            "_Static_assert",
+            "_Thread_local",
+        ]
         onnx.checker.check_model(self.model)
         # All names MUST adhere to C identifier syntax rules.
-        if not re.match(r"^[_A-Za-z][_0-9A-Za-z]*$", self.model.graph.name):
+        if not re.match(r"^[_A-Za-z][_0-9A-Za-z]*$", self.model.graph.name) or self.model.graph.name in c_keywords:
             raise InvalidONNXData(
                 f"""graph name "{self.model.graph.name}" is not C identifier.
 see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph.
+You can override the graph name with the `--graph_name` option."""
+            )
+        if self.model.graph.name == "main":
+            print(
+                """Warning: the graph name "main" conflicts with the main function of C, if you use the nnoir from C.
 You can override the graph name with the `--graph_name` option."""
             )
         variables = list_dimension_variables(self.model)
