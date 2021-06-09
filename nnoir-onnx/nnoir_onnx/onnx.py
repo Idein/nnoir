@@ -98,6 +98,11 @@ class ONNX:
 see https://github.com/onnx/onnx/blob/master/docs/IR.md#names-within-a-graph.
 You can override the graph name with the `--graph_name` option."""
             )
+        if self.model.graph.name == "main":
+            print(
+                """Warning: the graph name "main" conflicts with the main function of C, if you use the nnoir from C.
+You can override the graph name with the `--graph_name` option."""
+            )
         variables = list_dimension_variables(self.model)
         if len(variables) != 0:
             raise UnknownSizedVariable(
