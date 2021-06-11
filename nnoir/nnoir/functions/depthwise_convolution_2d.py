@@ -7,7 +7,7 @@ from .function import Function
 class DepthwiseConvolution2D(Function):
     def __init__(self, inputs, outputs, **params):
         required_params = {"W", "b", "stride", "pad_h", "pad_w", "dilate"}
-        optional_params = set()
+        optional_params = {"y_scale", "y_zero", "w_scale", "w_zero"}
         super(DepthwiseConvolution2D, self).__init__(inputs, outputs, params, required_params, optional_params)
 
     def run(self, x):

@@ -7,7 +7,7 @@ from .function import Function
 class Convolution2D(Function):
     def __init__(self, inputs, outputs, **params):
         required_params = {"W", "b", "pad_h", "pad_w", "stride", "dilate", "groups"}
-        optional_params = set()
+        optional_params = {"y_scale", "y_zero", "w_scale", "w_zero"}
         super(Convolution2D, self).__init__(inputs, outputs, params, required_params, optional_params)
 
     def grouped_convolution(self, x):

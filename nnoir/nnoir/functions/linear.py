@@ -6,7 +6,7 @@ from .function import Function
 class Linear(Function):
     def __init__(self, inputs, outputs, **params):
         required_params = {"W", "b"}  # (out_ch, in_ch)
-        optional_params = set()
+        optional_params = {"y_scale", "y_zero", "w_scale", "w_zero"}
         super(Linear, self).__init__(inputs, outputs, params, required_params, optional_params)
 
     def run(self, x):
