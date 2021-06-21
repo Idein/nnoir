@@ -49,3 +49,26 @@ def col2im_cpu(col, stride, ph, pw, h, w, dy=1, dx=1):
             i_lim = idx + sx * out_w
             img[:, :, jdy:j_lim:sy, idx:i_lim:sx] += col[:, :, j, i]
     return img[:, :, ph : h + ph, pw : w + pw]
+
+
+def get_quantization_factors(_min, _max):
+    _max = max(_max, 0)
+    _min = min(_min, 0)
+    scale = ((_max - _min) / 255).astype("float32")
+    zero = -_min / scale
+    zero = np.round(zero.clip(0, 255)).astype("uint8")
+    return np.asscalar(scale), np.asscalar(zero)
+
+
+def quantize_variable(x):
+    scale, zero = get_quantization_factors(x.astype("float32").min(), x.astype("float32").max())
+    quantized_x = np.round((x / scale + zero).clip(0, 255)).astype("uint8")
+    return quantized_x, scale, zero
+
+
+def calc_with_uint8_weight(func, x_fp32, w_uint8, w_scale, w_zero):
+    x_uint8, x_scale, x_zero = quantize_variable(x_fp32)
+    x = x_uint8.astype("int32") - int(x_zero)
+    w = w_uint8.astype("int32") - int(w_zero)
+    y = func(x, w).astype("float32") * x_scale * w_scale
+    return y
