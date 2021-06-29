@@ -24,7 +24,14 @@ class OpPad(Op):
                 if not self.node.input[2] in constants:
                     raise UnsupportedONNXOperation(self.node, 'constant_value must be "constant"')
 
-                self.value = constants[self.node.input[2]]  # constant_value
+                v = constants[self.node.input[2]]  # constant_value
+                if type(v) == np.ndarray:
+                    try:
+                        self.value = float(v.item())
+                    except ValueError:
+                        raise UnsupportedONNXOperation(self.node, "constant_value must be scalar")
+                else:
+                    self.value = float(v)
 
             for attr in self.node.attribute:
                 if attr.name == "mode":
