@@ -63,3 +63,30 @@ def test_pad_01():
 
     outputs = ["v1"]
     PadTester({"v0": v0}, outputs).run()
+
+
+def test_pad_02():
+    """
+    opset version >= 11 and 0-dimension ndarray value
+    """
+
+    class PadTester(Base):
+        def __init__(self, inputs, outputs):
+            super().__init__(inputs, outputs)
+
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node("Pad", inputs=["v0", "pads", "value"], outputs=["v1"], mode="constant")
+            inputs = [info("v0", TensorProto.FLOAT, (1, 3, 4, 5))]
+            outputs = [info("v1", TensorProto.FLOAT, (1, 5, 6, 7))]
+
+            init_pad = from_array(np.array([0, 1, 1, 1, 0, 1, 1, 1]).astype(np.int64), "pads")
+            pad_value = from_array(np.array(1.0).astype(np.float32), "value")
+
+            graph = make_graph([node], "add_graph", inputs, outputs, initializer=[init_pad, pad_value])
+            model = make_model(graph)
+            return model
+
+    v0 = np.random.rand(1, 3, 4, 5).astype(np.float32)
+
+    outputs = ["v1"]
+    PadTester({"v0": v0}, outputs).run()
