@@ -38,3 +38,4 @@ from .tan import Tan
 from .tanh import Tanh
 from .transpose import Transpose
 from .unpooling_2d import Unpooling2D
+from .exp import Exp
