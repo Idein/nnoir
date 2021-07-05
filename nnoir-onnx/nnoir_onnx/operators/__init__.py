@@ -8,6 +8,7 @@ from .cos import OpCos
 from .div import OpDiv
 from .dropout import OpDropout
 from .elu import OpElu
+from .exp import OpExp
 from .flatten import OpFlatten
 from .gemm import OpGemm
 from .global_average_pool import OpGlobalAveragePool
@@ -35,4 +36,3 @@ from .tan import OpTan
 from .tanh import OpTanh
 from .transpose import OpTranspose
 from .unsqueeze import OpUnsqueeze
-from .exp import OpExp
