@@ -37,6 +37,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [Dropout](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Dropout)
     * equivalent identity function
 * [Elu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Elu)
+* [Exp](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Exp)
 * [Flatten](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Flatten)
 * [Gemm](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Gemm)
     * `B` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
