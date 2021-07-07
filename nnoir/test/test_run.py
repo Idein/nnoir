@@ -254,6 +254,14 @@ def test_ELU():
     )
 
 
+def test_Exp():
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b"v1", (1, 3, 4, 5))],
+        [(b"v0", (1, 3, 4, 5))],
+    )
+
+
 def test_Gemm():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
@@ -455,12 +463,4 @@ def test_Unpooling2D():
         cover_all=False,
         outh=out_h,
         outw=out_w,
-    )
-
-
-def test_Exp():
-    single_function_model(
-        sys._getframe().f_code.co_name[5:],
-        [(b"v1", (1, 3, 4, 5))],
-        [(b"v0", (1, 3, 4, 5))],
     )
