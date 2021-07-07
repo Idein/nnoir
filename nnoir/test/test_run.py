@@ -254,6 +254,14 @@ def test_ELU():
     )
 
 
+def test_Exp():
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b"v1", (1, 3, 4, 5))],
+        [(b"v0", (1, 3, 4, 5))],
+    )
+
+
 def test_Gemm():
     single_function_model(
         sys._getframe().f_code.co_name[5:],

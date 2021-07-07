@@ -14,6 +14,7 @@ from .depthwise_convolution_2d import DepthwiseConvolution2D
 from .div import Div
 from .dropout import Dropout
 from .elu import ELU
+from .exp import Exp
 from .function import Function
 from .gemm import Gemm
 from .leaky_relu import LeakyReLU
