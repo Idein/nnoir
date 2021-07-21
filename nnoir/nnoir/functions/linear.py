@@ -14,7 +14,7 @@ class Linear(Function):
         x_ = x.reshape(x.shape[0], -1)
         w_ = np.transpose(self.params["W"])
         if self.params["W"].dtype == np.uint8:
-            func = lambda x, w: x.dot(w_)
+            func = lambda x, w: x.dot(w)
             result = util.calc_with_uint8_weight(func, x_, w_, self.params["w_scale"], self.params["w_zero"])
         else:
             assert self.params["W"].dtype == np.float32
