@@ -39,6 +39,7 @@ def value_info_to_zero_narray(vi):
 
 class ONNX:
     def __init__(self, path, graph_name=None, fix_dimension=None):
+        self.onnx_path = path
         self.model = onnx.load(path)
         if graph_name is not None:
             self.model.graph.name = graph_name
@@ -221,7 +222,11 @@ Set the values with the `--fix_dimension` option."""
     def to_NNOIR(self):
         inputs = list(map(lambda x: x.name, self.sess.get_inputs()))
         outputs = list(map(lambda x: x.name, self.sess.get_outputs()))
-        functions = self._to_NNOIR_functions()
+        try:
+            functions = self._to_NNOIR_functions()
+        except UnsupportedONNXOperation as e:
+            self._dump_dot()
+            raise e
         nodes = [Value(n, self.nodes[n]) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
 
         # rename to C ident (some frameworks don't satisfy the onnx spec.)
@@ -349,6 +354,81 @@ Set the values with the `--fix_dimension` option."""
         dfs([], outputs, result)
         return result
 
+    def _dot_box_color(self, node):
+        if not all([o in self.constant_nodes for o in node.output]):
+            try:
+                _ = self.op_for_node(node).to_function(self.nodes, self.constant_nodes)
+            except Exception:
+                return "sandybrown"
+
+            return "aquamarine"
+
+        else:
+            return "white"
+
+    def _dump_dot(self):
+        dot_path = f"{self.onnx_path}.dot"
+        ln = "&#92;l"
+
+        value_name_table = NameTable("val")
+        function_name_table = NameTable("fun")
+
+        def is_used(name):
+            for n in self.model.graph.node:
+                if name in n.input:
+                    return True
+            return False
+
+        model_input_names = [v.name for v in self.model.graph.input if is_used(v.name)]
+        model_output_names = [v.name for v in self.model.graph.output]
+
+        model_input = "\n  ".join([f'{value_name_table[n]} [label="{n}",shape="oval"];' for n in model_input_names])
+        model_output = "\n  ".join([f'{value_name_table[n]} [label="{n}",shape="oval"];' for n in model_output_names])
+        op_dot = []
+        for n in self.model.graph.node:
+            op_output_values = "\n  ".join(
+                [f'{value_name_table[o]} [xlabel="{o}",shape="point"];' for o in n.output if o not in model_output_names]
+            )
+            op_input = ", ".join([i for i in n.input if not self._has_initializer(i)])
+            op_output = ", ".join([o for o in n.output])
+            op_label = f"{n.op_type}{ln}name: {n.name}{ln}input: {op_input}{ln}output: {op_output}{ln}"
+            op_info = f'{function_name_table[n.name]} [label="{{{op_label}}}", shape="record", style="filled", fillcolor="{self._dot_box_color(n)}"];'
+            op_input_edge = "  ".join(
+                [f"{value_name_table[i]} -> {function_name_table[n.name]};" for i in n.input if not self._has_initializer(i)]
+            )
+            op_output_edge = "  ".join([f"{function_name_table[n.name]} -> {value_name_table[o]};" for o in n.output])
+            op_dot.append(
+                f"""{op_output_values}
+  {op_info}
+  {op_input_edge}
+  {op_output_edge}"""
+            )
+
+        operators = "\n  ".join(op_dot)
+
+        dot = f"""digraph graphname {{ rankdir=TB;
+  subgraph input {{
+    {model_input}
+  }}
+  subgraph output {{
+    {model_output}
+  }}
+  {operators}
+}}
+"""
+        with open(dot_path, "w") as f:
+            f.write(dot)
+        print(
+            f"""######################################################################
+  Generate {dot_path}.
+  Check unsupported operators by `dot -O -Tsvg {dot_path}`.
+  The color of the node means
+    - green  -> supported operator
+    - orange -> unsupported operator
+    - white  -> operator which is folded into a constant value.
+######################################################################"""
+        )
+
 
 def to_dummy_input(x):
     if hasattr(x.type, "tensor_type"):
@@ -361,3 +441,14 @@ def to_dummy_input(x):
             raise "unsupported"
     else:
         raise "unsupported"
+
+
+class NameTable:
+    def __init__(self, prefix: str) -> None:
+        self.tbl = dict()
+        self.prefix = prefix
+
+    def __getitem__(self, key: str) -> str:
+        if not (key in self.tbl):
+            self.tbl[key] = f"{self.prefix}{len(self.tbl)}"
+        return self.tbl[key]
