@@ -391,12 +391,15 @@ Set the values with the `--fix_dimension` option."""
             )
             op_input = ", ".join([i for i in n.input if not self._has_initializer(i)])
             op_output = ", ".join([o for o in n.output])
+            op_ident = function_name_table[f"{n.name} {n.op_type} {op_input} {op_output}"]
             op_label = f"{n.op_type}{ln}name: {n.name}{ln}input: {op_input}{ln}output: {op_output}{ln}"
-            op_info = f'{function_name_table[n.name]} [label="{{{op_label}}}", shape="record", style="filled", fillcolor="{self._dot_box_color(n)}"];'
-            op_input_edge = "  ".join(
-                [f"{value_name_table[i]} -> {function_name_table[n.name]};" for i in n.input if not self._has_initializer(i)]
+            op_info = (
+                f'{op_ident} [label="{{{op_label}}}", shape="record", style="filled", fillcolor="{self._dot_box_color(n)}"];'
             )
-            op_output_edge = "  ".join([f"{function_name_table[n.name]} -> {value_name_table[o]};" for o in n.output])
+            op_input_edge = "  ".join(
+                [f"{value_name_table[i]} -> {op_ident};" for i in n.input if not self._has_initializer(i)]
+            )
+            op_output_edge = "  ".join([f"{op_ident} -> {value_name_table[o]};" for o in n.output])
             op_dot.append(
                 f"""{op_output_values}
   {op_info}
