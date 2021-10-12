@@ -131,4 +131,7 @@ class NNOIR:
                     break
             return env[n]
 
-        return [eval(o) for o in self.outputs]
+        result = [eval(o) for o in self.outputs]
+        del cast
+        del eval
+        return result
