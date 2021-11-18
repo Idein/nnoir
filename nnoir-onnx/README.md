@@ -68,8 +68,10 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 * [Reshape](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Reshape)
 * [Resize](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Resize)
     * must be from opset version >= 11
-    * `mode` must be `"linear"`
-    * `coordinate_transformation_mode` must be either `"pytorch_half_pixel"` or `"align_corners"`
+    * `mode` must be `"linear"` or `"nearest"`
+    * `nearest_mode` must be `"floor"`
+    * `coordinate_transformation_mode` must be either `"pytorch_half_pixel"` or `"align_corners"` for `"linear"` mode
+    * `coordinate_transformation_mode` must be either `"asymmetric"` for `"nearest"` mode
 * [Sigmoid](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sigmoid)
 * [Sin](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sin)
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
