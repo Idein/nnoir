@@ -362,6 +362,17 @@ def test_Reshape():
     )
 
 
+def test_Resize2D():
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b"v0", (1, 2, 3, 4))],
+        [(b"v1", (1, 2, 6, 8))],
+        size=[6, 8],
+        interpolation_mode=b"nearest-floor",
+        coordinate_transformation_mode=b"asymmetric",
+    )
+
+
 def test_Scale():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
