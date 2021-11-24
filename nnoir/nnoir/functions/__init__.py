@@ -27,6 +27,7 @@ from .mul_constant import MulConstant
 from .pad import ConstantPadding
 from .relu import ReLU
 from .reshape import Reshape
+from .resize_2d import Resize2D
 from .scale import Scale
 from .sigmoid import Sigmoid
 from .sin import Sin

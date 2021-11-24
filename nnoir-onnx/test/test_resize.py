@@ -75,3 +75,73 @@ def test_resize_01():
     inputs = {"x": (np.random.rand(1, 3, 10, 10).astype(np.float32) * 10.0)}
     outputs = ["y"]
     ResizeTester(inputs, outputs).run()
+
+
+def test_resize_02():
+    """
+    opset version >= 11
+    """
+
+    class ResizeTester(Base):
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node(
+                "Resize",
+                inputs=["x", "roi", "scales"],
+                outputs=["y"],
+                mode="nearest",
+                nearest_mode="floor",
+                coordinate_transformation_mode="asymmetric",
+            )
+            inputs = [info("x", TensorProto.FLOAT, (1, 128, 13, 13))]
+            outputs = [info("y", TensorProto.FLOAT, (1, 128, 26, 26))]
+
+            init_roi = from_array(np.array([]).astype(np.float32), "roi")
+            init_scales = from_array(np.array([1, 1, 2, 2]).astype(np.float32), "scales")
+
+            graph = make_graph(
+                [node],
+                "add_graph",
+                inputs,
+                outputs,
+                initializer=[init_roi, init_scales],
+            )
+            return make_model(graph)
+
+    inputs = {"x": (np.random.rand(1, 128, 13, 13).astype(np.float32) * 10.0)}
+    outputs = ["y"]
+    ResizeTester(inputs, outputs).run()
+
+
+def test_resize_03():
+    """
+    opset version >= 11
+    """
+
+    class ResizeTester(Base):
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node(
+                "Resize",
+                inputs=["x", "roi", "scales"],
+                outputs=["y"],
+                mode="nearest",
+                nearest_mode="floor",
+                coordinate_transformation_mode="asymmetric",
+            )
+            inputs = [info("x", TensorProto.FLOAT, (1, 128, 26, 26))]
+            outputs = [info("y", TensorProto.FLOAT, (1, 128, 13, 13))]
+
+            init_roi = from_array(np.array([]).astype(np.float32), "roi")
+            init_scales = from_array(np.array([1, 1, 0.5, 0.5]).astype(np.float32), "scales")
+
+            graph = make_graph(
+                [node],
+                "add_graph",
+                inputs,
+                outputs,
+                initializer=[init_roi, init_scales],
+            )
+            return make_model(graph)
+
+    inputs = {"x": (np.random.rand(1, 128, 26, 26).astype(np.float32) * 10.0)}
+    outputs = ["y"]
+    ResizeTester(inputs, outputs).run()

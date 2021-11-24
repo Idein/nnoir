@@ -4,7 +4,7 @@ references:
 
   defaults: &defaults
     docker:
-      - image: python:3.7-buster
+      - image: python:3.9-buster
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
