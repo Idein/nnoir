@@ -18,7 +18,7 @@ class Resize2D(Function):
         elif modes[0] == "nearest":
             return _run_nearest(x, out_h, out_w, self.params["coordinate_transformation_mode"], modes[1])
         else:
-            raise Exception("unkonw Resize mode")
+            raise Exception("unknow Resize mode")
 
 
 def _run_linear(x, out_h, out_w, coordinate_transformation_mode):
