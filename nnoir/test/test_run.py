@@ -373,6 +373,17 @@ def test_Resize2D():
     )
 
 
+def test_Resize2D_linear():
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b"v0", (1, 2, 3, 4))],
+        [(b"v1", (1, 2, 6, 8))],
+        size=[6, 8],
+        interpolation_mode=b"linear",
+        coordinate_transformation_mode=b"align_centers",
+    )
+
+
 def test_Scale():
     single_function_model(
         sys._getframe().f_code.co_name[5:],
