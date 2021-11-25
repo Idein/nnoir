@@ -52,3 +52,20 @@ class TestValue:
             return x
 
         return {b"value_name": self.name, b"ndarray": encode_ndarray(self.ndarray)}
+
+
+def _load_test_value(v):
+    name = v[b"value_name"]
+    arr = np.load(io.BytesIO(v[b"ndarray"]))
+    return TestValue(name, arr)
+
+
+def load_nntc(file_name):
+    with open(file_name, "rb") as f:
+        nntc = msgpack.unpackb(f.read(), raw=True)
+    version = nntc[b"version"]
+    model = nntc[b"model"]
+    inputs = [_load_test_value(v) for v in nntc[b"test_case"][b"inputs"]]
+    outputs = [_load_test_value(v) for v in nntc[b"test_case"][b"outputs"]]
+    assert version == 0
+    return NNTC(model, inputs, outputs)
