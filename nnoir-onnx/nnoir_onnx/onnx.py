@@ -430,14 +430,17 @@ Set the values with the `--fix_dimension` option."""
         with open(dot_path, "w") as f:
             f.write(dot)
         print(
-            f"""######################################################################
+            f"""############################################################################################
   Generate {dot_path}.
   Check unsupported operators by `dot -O -Tsvg {dot_path}`.
   The color of the node means
     - green  -> supported operator
     - orange -> unsupported operator
     - white  -> operator which is folded into a constant value.
-######################################################################"""
+
+  Extract the subgraph which has only supported operators. (Use a tool such as onnigiri.)
+  Then convert the subgraph to nnoir.
+############################################################################################"""
         )
 
 
