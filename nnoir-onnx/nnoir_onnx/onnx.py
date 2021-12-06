@@ -112,7 +112,9 @@ You can override the graph name with the `--graph_name` option."""
 Set the values with the `--fix_dimension` option."""
             )
         self._rename_to_c_ident()
-        self.sess = onnxruntime.InferenceSession(path)
+        sess_opts = onnxruntime.SessionOptions()
+        sess_opts.log_severity_level = 3
+        self.sess = onnxruntime.InferenceSession(path, sess_options=sess_opts)
         constant_nodes = self._list_constant_nodes()
         self.nodes = self._try_run(constant_nodes)
         self.constant_nodes = {n: self.nodes[n] for n in constant_nodes}
@@ -190,7 +192,9 @@ Set the values with the `--fix_dimension` option."""
                 m.graph.initializer.extend([n for n in model.graph.initializer if n.name in initializers])
 
                 onnx.save(m, f.name)
-                sess = onnxruntime.InferenceSession(f.name)
+                sess_opts = onnxruntime.SessionOptions()
+                sess_opts.log_severity_level = 3
+                sess = onnxruntime.InferenceSession(f.name, sess_options=sess_opts)
                 for k, v in zip(outputs, sess.run(outputs, {i: dummy_inputs[i] for i in inputs})):
                     if k not in constant_nodes:
                         # save memory usage
@@ -268,7 +272,9 @@ Set the values with the `--fix_dimension` option."""
         m.graph.output.extend(map(lambda n: narray_to_value_info(n, self.nodes[n]), nodes))
         with tempfile.NamedTemporaryFile() as f:
             onnx.save(m, f.name)
-            dummy_sess = onnxruntime.InferenceSession(f.name)
+            sess_opts = onnxruntime.SessionOptions()
+            sess_opts.log_severity_level = 3
+            dummy_sess = onnxruntime.InferenceSession(f.name, sess_options=sess_opts)
         inputs = dict([(x.name, self.nodes[x.name]) for x in dummy_sess.get_inputs()])
         output_names = list(map(lambda x: x.name, dummy_sess.get_outputs()))
         if output_names != []:
@@ -286,7 +292,9 @@ Set the values with the `--fix_dimension` option."""
             for n in m.graph.input:
                 m.graph.output.remove(n)
             onnx.save(m, tmpf.name)
-            sess = onnxruntime.InferenceSession(tmpf.name)
+            sess_opts = onnxruntime.SessionOptions()
+            sess_opts.log_severity_level = 3
+            sess = onnxruntime.InferenceSession(tmpf.name, sess_options=sess_opts)
             inputs = {x.name: np.zeros(tuple(x.shape), dtype=np.float32) for x in sess.get_inputs()}
             outputs = [x.name for x in sess.get_inputs()]
             results = sess.run(outputs, inputs)
@@ -422,14 +430,17 @@ Set the values with the `--fix_dimension` option."""
         with open(dot_path, "w") as f:
             f.write(dot)
         print(
-            f"""######################################################################
+            f"""############################################################################################
   Generate {dot_path}.
   Check unsupported operators by `dot -O -Tsvg {dot_path}`.
   The color of the node means
     - green  -> supported operator
     - orange -> unsupported operator
     - white  -> operator which is folded into a constant value.
-######################################################################"""
+
+  Extract the subgraph which has only supported operators. (Use a tool such as onnigiri.)
+  Then convert the subgraph to nnoir.
+############################################################################################"""
         )
 
 
