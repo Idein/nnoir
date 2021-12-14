@@ -204,7 +204,7 @@ jobs:
 workflows:
   version: 2
 
-  test:
+  commit:
     jobs: &test-only-workflow
       - build-test-release:
           name: test nnoir-onnx & blackonnx
