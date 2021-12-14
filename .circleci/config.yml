@@ -13,6 +13,33 @@ references:
 
 commands:
 
+  install-python-dev-tools:
+    steps:
+      - run:
+          name: Install python dev tools and dependencies
+          command: |
+            apt-get update
+            apt-get install -y --no-install-recommends python3-pip
+
+  poetry-install:
+    parameters:
+      dir:
+        type: string
+    steps:
+      - install-python-dev-tools
+      - run:
+          name: install poetry
+          command: |
+            curl -sSL https://install.python-poetry.org | python -
+            echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
+            poetry config virtualenvs.in-project true
+      - run:
+          name: poetry install in << parameters.dir >>
+          working_directory: << parameters.dir >>
+          command: |
+            poetry install
+
   test-nnoir:
     steps:
       - run:
@@ -157,26 +184,44 @@ jobs:
       - steps: << parameters.tests >>
       - steps: << parameters.releases >>
 
+  check-nnoir:
+    <<: *defaults
+    steps:
+      - checkout
+      - poetry-install:
+          dir: nnoir
+      - run:
+          name: Lint nnoir
+          working_directory: nnoir
+          command: |
+            poetry run pysen run lint
+      - run:
+          name: Test nnoir
+          working_directory: nnoir
+          command: |
+            poetry run pytest -v
+
 workflows:
   version: 2
 
   test:
     jobs: &test-only-workflow
       - build-test-release:
-          name: test nnoir & nnoir-onnx & blackonnx
+          name: test nnoir-onnx & blackonnx
           context:
             - docker-hub-creds
           tests:
-            - test-nnoir
             - test-nnoir-onnx
             - test-blackonnx
       - build-test-release:
-          name: test nnoir & nnoir-chainer
+          name: test nnoir-chainer
           context:
             - docker-hub-creds
           tests:
-            - test-nnoir
             - test-nnoir-chainer
+      - check-nnoir:
+          context:
+            - docker-hub-creds
 
   nightly:
     triggers:
