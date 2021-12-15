@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "blackonnx"
+version = "1.0.0"
+description = "Adapt ONNX models to enable nnoir conversion"
+authors = ["Idein Inc."]
+license = "MIT"
+readme = "README.md"
+keywords = ["nnoir", "onnx", "machine learning"]
+repository = "https://github.com/Idein/nnoir/nnoir-onnx"
+classifiers=[
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+]
+[tool.poetry.dependencies]
+python = "^3.7"
+numpy = "^1"
+onnx = "<1.11.0"
+nnoir-onnx = "^1"
+importlib-metadata = "^4"
+
+[tool.poetry.dev-dependencies]
+pysen = {version = "^0.10.1"}
+black = "21.10b0"
+flake8 = "4.0.1"
+flake8-bugbear = "21.9.2"
+isort = "5.9.3"
+mypy = "0.812"
+pytest = "^6.2.5"
+nnoir-onnx = {path = "../nnoir-onnx/", develop = true }
+
+[tool.poetry.scripts]
+blackonnx = "blackonnx.main:main"
+
+[tool.pysen]
+version = "0.10"
+
+[tool.pysen.lint]
+enable_black = true
+enable_flake8 = false  # disabled due to too many errors
+enable_isort = true
+enable_mypy = false    # disabled currently
+mypy_preset = "strict"
+line_length = 128
+py_version = "py37"
+[[tool.pysen.lint.mypy_targets]]
+  paths = ["."]
