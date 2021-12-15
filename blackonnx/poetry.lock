@@ -454,6 +454,31 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "tflite"
+version = "2.4.0"
+description = "Parsing TensorFlow Lite Models (*.tflite) Easily"
+category = "dev"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,<4,>=2.7"
+
+[package.dependencies]
+flatbuffers = "*"
+numpy = "*"
+
+[[package]]
+name = "tflite2onnx"
+version = "0.4.0"
+description = "Convert TensorFlow Lite models to ONNX"
+category = "dev"
+optional = false
+python-versions = "<4,>=3.5.*"
+
+[package.dependencies]
+numpy = "*"
+onnx = "*"
+tflite = ">=2.4.0"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -516,7 +541,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "447fe0fd3332b18ef36ca8a52ef60715528706f1d6b9be14ab32dd598c13ba36"
+content-hash = "bb736b77f9a5bc4a41b79b263f0f3a2ccc8821ad3aac72769d5ed4d92c544103"
 
 [metadata.files]
 atomicwrites = [
@@ -855,6 +880,14 @@ six = [
 smmap = [
     {file = "smmap-5.0.0-py3-none-any.whl", hash = "sha256:2aba19d6a040e78d8b09de5c57e96207b09ed71d8e55ce0959eeee6c8e190d94"},
     {file = "smmap-5.0.0.tar.gz", hash = "sha256:c840e62059cd3be204b0c9c9f74be2c09d5648eddd4580d9314c3ecde0b30936"},
+]
+tflite = [
+    {file = "tflite-2.4.0-py2.py3-none-any.whl", hash = "sha256:0796f6ce6eb2aef4a318f5509e5fb0ce808e29cd3094801b4abbb1d8575a28cd"},
+    {file = "tflite-2.4.0.tar.gz", hash = "sha256:0510db1b48a3eec86bf9bb8d2749cd9d6d26d6a4fb329fd141bde5b4404932d1"},
+]
+tflite2onnx = [
+    {file = "tflite2onnx-0.4.0-py3-none-any.whl", hash = "sha256:bdf82c5300416d2e93377171251d4cd429b9bdacbf3e22e684bbfb6caf483fbc"},
+    {file = "tflite2onnx-0.4.0.tar.gz", hash = "sha256:1197ceb9ffc6ec026100ffbe12ea9ccc3212d4340aacfc3f21d04b7273dae8fc"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
