@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
 import argparse
 import onnx
 import sys
 from nnoir_onnx import ONNX, utils
 
-
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='ONNX to NNOIR Converter')
     parser.add_argument('-o', '--output', dest='output', type=str, required=True,
                         metavar='NNOIR', help='output(NNOIR) file path')
@@ -20,3 +18,7 @@ if __name__ == '__main__':
         ONNX(args.input, args.graph_name, args.fix_dimension).to_NNOIR().dump(args.output)
     except Exception as e:
         sys.exit(f"Error: {e}")
+
+if __name__ == '__main__':
+    main()
+
