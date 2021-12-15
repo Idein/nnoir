@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import argparse
 from nnoir import load, NNTC, TestValue
 import numpy as np
@@ -67,6 +65,3 @@ def main():
               pack_values(nnoir_model.outputs, outputs))
     tc.dump(args.output)
 
-
-if __name__ == "__main__":
-    main()

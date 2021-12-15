@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import msgpack
 import sys
 import io
@@ -105,7 +103,7 @@ def to_dot(nnoir, rankdir = 'TB'):
     ret += "}"
     return ret
 
-if __name__ == '__main__':
+def nnoir2dot():
     parser = argparse.ArgumentParser(description='NNOIR to Graphviz(dot) Converter')
     parser.add_argument(dest='input', type=str,
                         metavar='NNOIR', help='input(NNOIR) file path')
