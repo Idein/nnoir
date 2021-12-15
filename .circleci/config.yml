@@ -153,6 +153,25 @@ jobs:
             poetry run make -C examples/models -j2
             poetry run make -C test -j2
 
+  release:
+    <<: *defaults
+    parameters:
+      dir:
+        type: string
+      package-name:
+        type: string
+      token:
+        type: string
+    steps:
+      - checkout
+      - poetry-install:
+          dir: << parameters.dir >>
+      - validate-version-with-tag:
+          dir: << parameters.dir >>
+          package-name: << parameters.package-name >>
+      - publish:
+          dir: << parameters.dir >>
+          token: << parameters.token >>
 
 workflows:
   version: 2
@@ -182,78 +201,58 @@ workflows:
                 - master
     jobs: *test-only-workflow
 
-  # release-nnoir:
-  #   jobs:
-  #     - build-test-release:
-  #         name: release nnoir
-  #         context:
-  #           - docker-hub-creds
-  #         filters:
-  #           tags:
-  #             only: /^nnoir-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
-  #           branches:
-  #             ignore: /.*/
-  #         tests:
-  #           - test-nnoir
-  #         releases:
-  #           - upload-package:
-  #               library: nnoir
-  #               pypi-api-token: $PYPI_API_TOKEN_NNOIR
+  release-nnoir:
+    jobs:
+      - release:
+          context:
+            - docker-hub-creds
+          filters:
+            tags:
+              only: /^nnoir-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
+            branches:
+              ignore: /.*/
+          dir: nnoir
+          package-name: nnoir
+          token: $PYPI_API_TOKEN_NNOIR
 
-  # release-nnoir-onnx:
-  #   jobs:
-  #     - build-test-release:
-  #         name: release nnoir-onnx
-  #         context:
-  #           - docker-hub-creds
-  #         filters:
-  #           tags:
-  #             only: /^nnoir-onnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
-  #           branches:
-  #             ignore: /.*/
-  #         tests:
-  #           - test-nnoir
-  #           - test-nnoir-onnx
-  #         releases:
-  #           - upload-package:
-  #               library: nnoir-onnx
-  #               pypi-api-token: $PYPI_API_TOKEN_NNOIR_ONNX
+  release-nnoir-onnx:
+    jobs:
+      - release:
+          context:
+            - docker-hub-creds
+          filters:
+            tags:
+              only: /^nnoir-onnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
+            branches:
+              ignore: /.*/
+          dir: nnoir-onnx
+          package-name: nnoir-onnx
+          token: $PYPI_API_TOKEN_NNOIR_ONNX
 
-  # release-nnoir-chainer:
-  #   jobs:
-  #     - build-test-release:
-  #         name: release nnoir-chainer
-  #         context:
-  #           - docker-hub-creds
-  #         filters:
-  #           tags:
-  #             only: /^nnoir-chainer-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
-  #           branches:
-  #             ignore: /.*/
-  #         tests:
-  #           - test-nnoir
-  #           - test-nnoir-chainer
-  #         releases:
-  #           - upload-package:
-  #               library: nnoir-chainer
-  #               pypi-api-token: $PYPI_API_TOKEN_NNOIR_CHAINER
+  release-nnoir-chainer:
+    jobs:
+      - release:
+          context:
+            - docker-hub-creds
+          filters:
+            tags:
+              only: /^nnoir-chainer-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
+            branches:
+              ignore: /.*/
+          dir: nnoir-chainer
+          package-name: nnoir-chainer
+          token: $PYPI_API_TOKEN_NNOIR_CHAINER
 
-  # release-blackonnx:
-  #   jobs:
-  #     - build-test-release:
-  #         name: release blackonnx
-  #         context:
-  #           - docker-hub-creds
-  #         filters:
-  #           tags:
-  #             only: /^blackonnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
-  #           branches:
-  #             ignore: /.*/
-  #         tests:
-  #           - test-nnoir
-  #           - test-nnoir-onnx
-  #           - test-blackonnx
-  #         releases:
-  #           - upload-package:
-  #               library: blackonnx
-  #               pypi-api-token: $PYPI_API_TOKEN_BLACKONNX
+  release-blackonnx:
+    jobs:
+      - release:
+          context:
+            - docker-hub-creds
+          filters:
+            tags:
+              only: /^blackonnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
+            branches:
+              ignore: /.*/
+          dir: blackonnx
+          package-name: blackonnx
+          token: $PYPI_API_TOKEN_BLACKONNX
