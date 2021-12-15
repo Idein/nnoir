@@ -201,17 +201,39 @@ jobs:
           command: |
             poetry run pytest -v
 
+  check-nnoir-onnx:
+    <<: *defaults
+    steps:
+      - checkout
+      - poetry-install:
+          dir: nnoir-onnx
+      - run:
+          name: Lint nnoir-onnx
+          working_directory: nnoir-onnx
+          command: |
+            poetry run pysen run lint
+      - run:
+          name: Test nnoir-onnx
+          working_directory: nnoir-onnx
+          command: |
+            poetry run pytest -v
+      - run:
+          name: Test nnoir-onnx example
+          working_directory: nnoir-onnx
+          command: |
+            poetry run make -C example/mobilenetv2
+            poetry run make -C example/super_resolution
+
 workflows:
   version: 2
 
-  commit:
+  test:
     jobs: &test-only-workflow
       - build-test-release:
-          name: test nnoir-onnx & blackonnx
+          name: blackonnx
           context:
             - docker-hub-creds
           tests:
-            - test-nnoir-onnx
             - test-blackonnx
       - build-test-release:
           name: test nnoir-chainer
@@ -220,6 +242,9 @@ workflows:
           tests:
             - test-nnoir-chainer
       - check-nnoir:
+          context:
+            - docker-hub-creds
+      - check-nnoir-onnx:
           context:
             - docker-hub-creds
 
