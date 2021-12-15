@@ -13,170 +13,164 @@ references:
 
 commands:
 
-  test-nnoir:
+  install-python-dev-tools:
     steps:
       - run:
-          name: Check nnoir library code format
-          working_directory: nnoir
+          name: Install python dev tools and dependencies
           command: |
-            pysen run_files lint $(find -name "*.py")
-      - run:
-          name: Install nnoir library
-          working_directory: nnoir
-          command: |
-            python3 setup.py install
-      - run:
-          name: Test nnoir library
-          working_directory: nnoir
-          command: |
-            pytest -v
+            apt-get update
+            apt-get install -y --no-install-recommends python3-pip
 
-  test-nnoir-onnx:
-    steps:
-      - run:
-          name: Check nnoir-onnx library code format
-          working_directory: nnoir-onnx
-          command: |
-            pysen run_files lint $(find -name "*.py")
-      - run:
-          name: Install nnoir-onnx library
-          working_directory: nnoir-onnx
-          command: |
-            python3 setup.py install
-      - run:
-          name: Test nnoir-onnx
-          working_directory: nnoir-onnx
-          command: |
-            pytest -v
-      - run:
-          name: Test nnoir-onnx example
-          working_directory: nnoir-onnx
-          command: |
-            make -C example/mobilenetv2
-            make -C example/super_resolution
-
-  test-nnoir-chainer:
-    steps:
-      - run:
-          name: Check nnoir-chainer library code format
-          working_directory: nnoir-chainer
-          command: |
-            pysen run_files lint $(find -name "*.py")
-      - run:
-          name: Install nnoir-chainer library
-          working_directory: nnoir-chainer
-          command: |
-            pip3 install chainer
-            python3 setup.py install
-      - run:
-          name: Test nnoir-chainer library
-          working_directory: nnoir-chainer
-          command: |
-            pytest -v
-      - run:
-          name: Test nnoir-chainer example
-          working_directory: nnoir-chainer
-          command: |
-            make -C example/mnist
-
-  test-blackonnx:
-    steps:
-      - run:
-          name: Check blackonnx library code format
-          working_directory: blackonnx
-          command: |
-            pysen run_files lint $(find -name "*.py")
-      - run:
-          name: Install blackonnx
-          working_directory: blackonnx
-          command: |
-            python3 setup.py install
-      - run:
-          name: Test blackonnx example & test
-          working_directory: blackonnx
-          command: |
-            pip3 install tflite2onnx
-            make -C examples/models -j2
-            make -C test -j2
-  upload-package:
+  poetry-install:
     parameters:
-      library:
-        description: target library
+      dir:
         type: string
-      pypi-api-token:
-        description: pypi API token
+    steps:
+      - install-python-dev-tools
+      - run:
+          name: install poetry
+          command: |
+            curl -sSL https://install.python-poetry.org | python -
+            echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
+            poetry config virtualenvs.in-project true
+      - run:
+          name: poetry install in << parameters.dir >>
+          working_directory: << parameters.dir >>
+          command: |
+            poetry install
+
+  lint:
+    parameters:
+      dir:
+        type: string
+    steps:
+      - run:
+          name: Lint << parameters.dir >>
+          working_directory: << parameters.dir >>
+          command: |
+            poetry run pysen run lint
+
+  validate-version-with-tag:
+    parameters:
+      dir:
+        type: string
+      package-name:
         type: string
     steps:
       - run:
           name: Check if git tag name is appropriate for package version
-          working_directory: << parameters.library >>
+          working_directory: << parameters.dir >>
           command: |
-            export IMPORT_NAME=$(echo -n '<< parameters.library >>' | sed 's/-/_/g')
-            export TAG=$(echo ${CIRCLE_TAG} |sed -e 's/<< parameters.library >>-//')
-            export VERSION=$(python -c "import ${IMPORT_NAME}; print(${IMPORT_NAME}.__version__)")
+            TAG=$(echo ${CIRCLE_TAG} |sed -e 's/<< parameters.package-name >>-//')
+            VERSION=$(poetry run python -c 'import pkg_resources; print(pkg_resources.get_distribution("<< parameters.package-name >>").version)')
             echo "Git tag: $TAG"
             echo "Package version: $VERSION"
             test "$VERSION" = "$TAG"
+
+  publish:
+    parameters:
+      dir:
+        type: string
+      token:
+        type: string
+    steps:
       - run:
-          name: Packaging << parameters.library >>
-          working_directory: << parameters.library >>
+          name: Publish << parameters.dir >>
+          working_directory: << parameters.dir >>
+          environment:
+            PYPI_TOKEN: << parameters.token >>
           command: |
-            python3 setup.py sdist bdist_wheel
-      - run:
-          name: Publish wheel & sdist to PyPI
-          working_directory: << parameters.library >>
-          command: |
-            pip3 install twine
-            export TWINE_USERNAME=__token__
-            export TWINE_PASSWORD=<< parameters.pypi-api-token >>
-            python -m twine upload --non-interactive --repository pypi dist/*
+            poetry publish --build --username "__token__" --password $PYPI_TOKEN --no-interaction
 
 jobs:
 
-  build-test-release:
+  check-nnoir:
     <<: *defaults
-    parameters:
-      tests:
-        description: test steps
-        type: steps
-        default: []
-      releases:
-        description: release steps
-        type: steps
-        default: []
     steps:
       - checkout
+      - poetry-install:
+          dir: nnoir
+      - lint:
+          dir: nnoir
       - run:
-          name: Install python test tools
+          name: Test nnoir
+          working_directory: nnoir
           command: |
-            pip3 install pytest pysen isort black==20.8b1
+            poetry run pytest -v
+
+  check-nnoir-onnx:
+    <<: *defaults
+    steps:
+      - checkout
+      - poetry-install:
+          dir: nnoir-onnx
+      - lint:
+          dir: nnoir-onnx
       - run:
-          name: Install python release tools
+          name: Test nnoir-onnx
+          working_directory: nnoir-onnx
           command: |
-            pip3 install pytest pysen isort black==20.8b1
-      - steps: << parameters.tests >>
-      - steps: << parameters.releases >>
+            poetry run pytest -v
+      - run:
+          name: Test nnoir-onnx example
+          working_directory: nnoir-onnx
+          command: |
+            poetry run make -C example/mobilenetv2
+            poetry run make -C example/super_resolution
+
+  check-nnoir-chainer:
+    <<: *defaults
+    steps:
+      - checkout
+      - poetry-install:
+          dir: nnoir-chainer
+      - lint:
+          dir: nnoir-chainer
+      - run:
+          name: Test nnoir-chainer library
+          working_directory: nnoir-chainer
+          command: |
+            poetry run pytest -v
+      - run:
+          name: Test nnoir-chainer example
+          working_directory: nnoir-chainer
+          command: |
+            poetry run make -C example/mnist
+
+  check-blackonnx:
+    <<: *defaults
+    steps:
+      - checkout
+      - poetry-install:
+          dir: blackonnx
+      - lint:
+          dir: blackonnx
+      - run:
+          name: Test blackonnx example & test
+          working_directory: blackonnx
+          command: |
+            poetry run make -C examples/models -j2
+            poetry run make -C test -j2
+
 
 workflows:
   version: 2
 
   test:
     jobs: &test-only-workflow
-      - build-test-release:
-          name: test nnoir & nnoir-onnx & blackonnx
+      - check-nnoir:
           context:
             - docker-hub-creds
-          tests:
-            - test-nnoir
-            - test-nnoir-onnx
-            - test-blackonnx
-      - build-test-release:
-          name: test nnoir & nnoir-chainer
+      - check-nnoir-onnx:
           context:
             - docker-hub-creds
-          tests:
-            - test-nnoir
-            - test-nnoir-chainer
+      - check-nnoir-chainer:
+          context:
+            - docker-hub-creds
+      - check-blackonnx:
+          context:
+            - docker-hub-creds
 
   nightly:
     triggers:
@@ -188,78 +182,78 @@ workflows:
                 - master
     jobs: *test-only-workflow
 
-  release-nnoir:
-    jobs:
-      - build-test-release:
-          name: release nnoir
-          context:
-            - docker-hub-creds
-          filters:
-            tags:
-              only: /^nnoir-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
-            branches:
-              ignore: /.*/
-          tests:
-            - test-nnoir
-          releases:
-            - upload-package:
-                library: nnoir
-                pypi-api-token: $PYPI_API_TOKEN_NNOIR
+  # release-nnoir:
+  #   jobs:
+  #     - build-test-release:
+  #         name: release nnoir
+  #         context:
+  #           - docker-hub-creds
+  #         filters:
+  #           tags:
+  #             only: /^nnoir-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
+  #           branches:
+  #             ignore: /.*/
+  #         tests:
+  #           - test-nnoir
+  #         releases:
+  #           - upload-package:
+  #               library: nnoir
+  #               pypi-api-token: $PYPI_API_TOKEN_NNOIR
 
-  release-nnoir-onnx:
-    jobs:
-      - build-test-release:
-          name: release nnoir-onnx
-          context:
-            - docker-hub-creds
-          filters:
-            tags:
-              only: /^nnoir-onnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
-            branches:
-              ignore: /.*/
-          tests:
-            - test-nnoir
-            - test-nnoir-onnx
-          releases:
-            - upload-package:
-                library: nnoir-onnx
-                pypi-api-token: $PYPI_API_TOKEN_NNOIR_ONNX
+  # release-nnoir-onnx:
+  #   jobs:
+  #     - build-test-release:
+  #         name: release nnoir-onnx
+  #         context:
+  #           - docker-hub-creds
+  #         filters:
+  #           tags:
+  #             only: /^nnoir-onnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
+  #           branches:
+  #             ignore: /.*/
+  #         tests:
+  #           - test-nnoir
+  #           - test-nnoir-onnx
+  #         releases:
+  #           - upload-package:
+  #               library: nnoir-onnx
+  #               pypi-api-token: $PYPI_API_TOKEN_NNOIR_ONNX
 
-  release-nnoir-chainer:
-    jobs:
-      - build-test-release:
-          name: release nnoir-chainer
-          context:
-            - docker-hub-creds
-          filters:
-            tags:
-              only: /^nnoir-chainer-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
-            branches:
-              ignore: /.*/
-          tests:
-            - test-nnoir
-            - test-nnoir-chainer
-          releases:
-            - upload-package:
-                library: nnoir-chainer
-                pypi-api-token: $PYPI_API_TOKEN_NNOIR_CHAINER
+  # release-nnoir-chainer:
+  #   jobs:
+  #     - build-test-release:
+  #         name: release nnoir-chainer
+  #         context:
+  #           - docker-hub-creds
+  #         filters:
+  #           tags:
+  #             only: /^nnoir-chainer-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
+  #           branches:
+  #             ignore: /.*/
+  #         tests:
+  #           - test-nnoir
+  #           - test-nnoir-chainer
+  #         releases:
+  #           - upload-package:
+  #               library: nnoir-chainer
+  #               pypi-api-token: $PYPI_API_TOKEN_NNOIR_CHAINER
 
-  release-blackonnx:
-    jobs:
-      - build-test-release:
-          name: release blackonnx
-          context:
-            - docker-hub-creds
-          filters:
-            tags:
-              only: /^blackonnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
-            branches:
-              ignore: /.*/
-          tests:
-            - test-nnoir
-            - test-nnoir-onnx
-            - test-blackonnx
-          releases:
-            - upload-package:
-                library: blackonnx
-                pypi-api-token: $PYPI_API_TOKEN_BLACKONNX
+  # release-blackonnx:
+  #   jobs:
+  #     - build-test-release:
+  #         name: release blackonnx
+  #         context:
+  #           - docker-hub-creds
+  #         filters:
+  #           tags:
+  #             only: /^blackonnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
+  #           branches:
+  #             ignore: /.*/
+  #         tests:
+  #           - test-nnoir
+  #           - test-nnoir-onnx
+  #           - test-blackonnx
+  #         releases:
+  #           - upload-package:
+  #               library: blackonnx
+  #               pypi-api-token: $PYPI_API_TOKEN_BLACKONNX
