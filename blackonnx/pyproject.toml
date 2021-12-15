@@ -34,6 +34,10 @@ nnoir-onnx = {path = "../nnoir-onnx/", develop = true }
 [tool.poetry.scripts]
 blackonnx = "blackonnx.main:main"
 
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.pysen]
 version = "0.10"
 

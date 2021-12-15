@@ -38,6 +38,10 @@ nnoir = {path = "../nnoir/", develop = true }
 onnx2nnoir = "nnoir_onnx.onnx2nnoir:main"
 freeze_onnx = "nnoir_onnx.freeze:freeze"
 
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.pysen]
 version = "0.10"
 

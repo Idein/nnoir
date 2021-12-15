@@ -32,6 +32,10 @@ mypy = "0.812"
 pytest = "^6.2.5"
 nnoir = {path = "../nnoir/", develop = true }
 
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.pysen]
 version = "0.10"
 
