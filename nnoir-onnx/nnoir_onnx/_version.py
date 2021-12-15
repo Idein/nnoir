@@ -1,1 +1,3 @@
-__version__ = "1.0.14"
+from importlib.metadata import version
+
+__version__ = version("nnoir-onnx")
