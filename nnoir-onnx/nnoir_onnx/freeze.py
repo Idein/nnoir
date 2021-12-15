@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from typing import Dict, Set
 
 import argparse
@@ -19,7 +18,7 @@ def command_freeze(args) -> None:
     onnx.save(fixed_model, args.output)
 
 
-if __name__ == '__main__':
+def freeze():
     print('Warning: freeze_onnx is deprecated. Instead use `onnx2nnoir --fix_dimension`.')
     parser = argparse.ArgumentParser(description='ONNX Freezer')
     subparsers = parser.add_subparsers()
@@ -46,3 +45,4 @@ if __name__ == '__main__':
         args.handler(args)
     else:
         parser.print_help()
+
