@@ -9,15 +9,41 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         py = pkgs.python38;
-        nnoirPkg = pkgs.poetry2nix.mkPoetryApplication {
+        customOverrides = self: super: {
+            platformdirs = py.pkgs.platformdirs;
+            pytest = super.pytest.overridePythonAttrs (
+              old: {
+                postPatch = "";
+              }
+            );
+            zipp = super.zipp.overridePythonAttrs (
+              old: {
+                prePatch = "";
+              }
+            );
+        };
+        nnoir = pkgs.poetry2nix.mkPoetryApplication {
           projectDir = ./nnoir;
           python = py;
-          overrides = [ pkgs.poetry2nix.defaultPoetryOverrides ];
+          overrides = pkgs.poetry2nix.overrides.withDefaults (
+            customOverrides
+          );
+          preferWheels = true;
+        };
+        nnoir-onnx = pkgs.poetry2nix.mkPoetryApplication {
+          projectDir = ./nnoir-onnx;
+          python = py;
+          overrides = pkgs.poetry2nix.overrides.withDefaults (
+            customOverrides
+          );
           preferWheels = true;
         };
       in
       {
-        packages.nnoir = nnoirPkg;
+        packages.nnoir = nnoir;
+        packages.nnoir-onnx = nnoir-onnx;
+
+        defaultPackage = self.packages.${system}.nnoir-onnx;
 
         devShell = pkgs.mkShell {
           buildInputs = [
