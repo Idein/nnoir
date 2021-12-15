@@ -9,8 +9,16 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         py = pkgs.python38;
+        nnoirPkg = pkgs.poetry2nix.mkPoetryApplication {
+          projectDir = ./nnoir;
+          python = py;
+          overrides = [ pkgs.poetry2nix.defaultPoetryOverrides ];
+          preferWheels = true;
+        };
       in
       {
+        packages.nnoir = nnoirPkg;
+
         devShell = pkgs.mkShell {
           buildInputs = [
             pkgs.protobuf
