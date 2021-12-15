@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import argparse
 import sys
 import onnx
@@ -8,9 +7,7 @@ from blackonnx import fix
 
 fix_funcs = [func for func in fix.__dict__ if func.startswith('fix_')]
 
-
-if __name__ == "__main__":
-
+def main():
     parser = argparse.ArgumentParser("Apply fixes to onnx model")
     parser.add_argument(dest='input', type=str,
                         help='path to input onnx file to correct')
