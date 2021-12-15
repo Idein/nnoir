@@ -40,48 +40,6 @@ commands:
           command: |
             poetry install
 
-  test-nnoir:
-    steps:
-      - run:
-          name: Check nnoir library code format
-          working_directory: nnoir
-          command: |
-            pysen run_files lint $(find -name "*.py")
-      - run:
-          name: Install nnoir library
-          working_directory: nnoir
-          command: |
-            python3 setup.py install
-      - run:
-          name: Test nnoir library
-          working_directory: nnoir
-          command: |
-            pytest -v
-
-  test-nnoir-onnx:
-    steps:
-      - run:
-          name: Check nnoir-onnx library code format
-          working_directory: nnoir-onnx
-          command: |
-            pysen run_files lint $(find -name "*.py")
-      - run:
-          name: Install nnoir-onnx library
-          working_directory: nnoir-onnx
-          command: |
-            python3 setup.py install
-      - run:
-          name: Test nnoir-onnx
-          working_directory: nnoir-onnx
-          command: |
-            pytest -v
-      - run:
-          name: Test nnoir-onnx example
-          working_directory: nnoir-onnx
-          command: |
-            make -C example/mobilenetv2
-            make -C example/super_resolution
-
   test-nnoir-chainer:
     steps:
       - run:
@@ -125,6 +83,7 @@ commands:
             pip3 install tflite2onnx
             make -C examples/models -j2
             make -C test -j2
+
   upload-package:
     parameters:
       library:
@@ -224,6 +183,52 @@ jobs:
             poetry run make -C example/mobilenetv2
             poetry run make -C example/super_resolution
 
+  validate-version-with-tag:
+    <<: *defaults
+    parameters:
+      dir:
+        type: string
+      package-name:
+        type: string
+    steps:
+      - checkout
+      - poetry-install:
+          dir: << parameters.dir >>
+      - run:
+          name: Check if git tag name is appropriate for package version
+          working_directory: << parameters.dir >>
+          command: |
+            TAG=$(echo ${CIRCLE_TAG} |sed -e 's/<< parameters.package-name >>-//')
+            VERSION=$(poetry run python -c 'import pkg_resources; print(pkg_resources.get_distribution("<< parameters.package-name >>").version)')
+            echo "Git tag: $TAG"
+            echo "Package version: $VERSION"
+            test "$VERSION" = "$TAG"
+
+  deploy-nnoir:
+    <<: *defaults
+    steps:
+      - checkout
+      - poetry-install:
+          dir: nnoir
+      - run:
+          name: Publish wheel & sdist to PyPI
+          working_directory: nnoir
+          command: |
+            poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR" --no-interaction
+
+  deploy-nnoir-onnx:
+    <<: *defaults
+    steps:
+      - checkout
+      - poetry-install:
+          dir: nnoir-onnx
+      - run:
+          name: Publish wheel & sdist to PyPI
+          working_directory: nnoir-onnx
+          command: |
+            poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR_ONNX" --no-interaction
+
+
 workflows:
   version: 2
 
@@ -260,40 +265,41 @@ workflows:
 
   release-nnoir:
     jobs:
-      - build-test-release:
-          name: release nnoir
+      - validate-version-with-tag:
+          dir: nnoir
+          package-name: nnoir
           context:
             - docker-hub-creds
-          filters:
+          filters: &release-filter
             tags:
               only: /^nnoir-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
             branches:
               ignore: /.*/
-          tests:
-            - test-nnoir
-          releases:
-            - upload-package:
-                library: nnoir
-                pypi-api-token: $PYPI_API_TOKEN_NNOIR
+      - deploy-nnoir:
+          context:
+            - docker-hub-creds
+          requires:
+            - validate-version-with-tag
+          filters: *release-filter
 
   release-nnoir-onnx:
     jobs:
-      - build-test-release:
-          name: release nnoir-onnx
+      - validate-version-with-tag:
+          dir: nnoir-onnx
+          package-name: nnoir-onnx
           context:
             - docker-hub-creds
-          filters:
+          filters: &release-filter
             tags:
               only: /^nnoir-onnx-[0-9]+(\.[0-9]+){2}((a|b|rc)[0-9]+)?(.post[0-9])?(.dev[0-9])?$/
             branches:
               ignore: /.*/
-          tests:
-            - test-nnoir
-            - test-nnoir-onnx
-          releases:
-            - upload-package:
-                library: nnoir-onnx
-                pypi-api-token: $PYPI_API_TOKEN_NNOIR_ONNX
+      - deploy-nnoir-onnx:
+          context:
+            - docker-hub-creds
+          requires:
+            - validate-version-with-tag
+          filters: *release-filter
 
   release-nnoir-chainer:
     jobs:
