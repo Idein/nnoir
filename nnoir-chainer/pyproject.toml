@@ -6,7 +6,7 @@ authors = ["Idein Inc."]
 license = "MIT"
 readme = "README.md"
 keywords = ["nnoir", "chainer", "machine learning"]
-repository = "https://github.com/Idein/nnoir/nnoir-chainer"
+repository = "https://github.com/Idein/nnoir/tree/master/nnoir-chainer"
 classifiers=[
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",

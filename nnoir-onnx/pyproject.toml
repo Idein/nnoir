@@ -6,7 +6,7 @@ authors = ["Idein Inc."]
 license = "MIT"
 readme = "README.md"
 keywords = ["nnoir", "onnx", "machine learning"]
-repository = "https://github.com/Idein/nnoir/nnoir-onnx"
+repository = "https://github.com/Idein/nnoir/tree/master/nnoir-onnx"
 classifiers=[
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
