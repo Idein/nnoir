@@ -126,4 +126,4 @@ $RECYCLE.BIN/
 
 # End of https://www.gitignore.io/api/emacs,vim,macos,linux,windows
 
-result
+result*
