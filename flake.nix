@@ -10,7 +10,11 @@
         pkgs = nixpkgs.legacyPackages.${system};
         py = pkgs.python38;
         customOverrides = self: super: {
-            platformdirs = py.pkgs.platformdirs;
+            platformdirs = super.platformdirs.overridePythonAttrs (
+              old: {
+                postPatch = "";
+              }
+            );
             pytest = super.pytest.overridePythonAttrs (
               old: {
                 postPatch = "";
@@ -42,8 +46,6 @@
       {
         packages.nnoir = nnoir;
         packages.nnoir-onnx = nnoir-onnx;
-
-        defaultPackage = self.packages.${system}.nnoir-onnx;
 
         devShell = pkgs.mkShell {
           buildInputs = [
