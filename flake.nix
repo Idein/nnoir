@@ -10,21 +10,33 @@
         pkgs = nixpkgs.legacyPackages.${system};
         py = pkgs.python38;
         customOverrides = self: super: {
-            platformdirs = super.platformdirs.overridePythonAttrs (
-              old: {
-                postPatch = "";
-              }
-            );
-            pytest = super.pytest.overridePythonAttrs (
-              old: {
-                postPatch = "";
-              }
-            );
-            zipp = super.zipp.overridePythonAttrs (
-              old: {
-                prePatch = "";
-              }
-            );
+          platformdirs = super.platformdirs.overridePythonAttrs (
+            old: {
+              postPatch = "";
+            }
+          );
+          pytest = super.pytest.overridePythonAttrs (
+            old: {
+              postPatch = "";
+            }
+          );
+          zipp = super.zipp.overridePythonAttrs (
+            old: {
+              prePatch = "";
+            }
+          );
+          onnxruntime = super.onnxruntime.overridePythonAttrs (
+            old: {
+              nativeBuildInputs = [ ];
+              postFixup =
+                let rPath = pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ];
+                in
+                ''
+                  rrPath=${rPath}
+                  find $out/lib -name '*.so' -exec patchelf --add-rpath "$rrPath" {} \;
+                '';
+            }
+          );
         };
         nnoir = pkgs.poetry2nix.mkPoetryApplication {
           projectDir = ./nnoir;
