@@ -182,7 +182,7 @@ Set the values with the `--fix_dimension` option."""
                 node = model.graph.node.pop(0)
                 m.graph.node.append(node)
 
-                inputs = [i for i in node.input if i not in inits]
+                inputs = [i for i in node.input if i not in inits and len(i) > 0]
                 m.graph.input.extend([n for n in model.graph.input if n.name in inputs])
 
                 outputs = node.output
@@ -347,7 +347,7 @@ Set the values with the `--fix_dimension` option."""
                     else:
                         next_nodes = []
                         if hasattr(generator, "input"):
-                            next_nodes = [i for i in generator.input if i not in visited]
+                            next_nodes = [i for i in generator.input if i not in visited and len(i) > 0]
                         dfs(visited, next_nodes, result)
                         if hasattr(generator, "input"):
                             if all([i in result for i in generator.input]):
