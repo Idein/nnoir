@@ -83,6 +83,19 @@ commands:
           command: |
             poetry publish --build --username "__token__" --password "$PYPI_TOKEN" --no-interaction
 
+
+  publish-nnoir:
+    parameters:
+      dir:
+        type: string
+    steps:
+      - run:
+          name: Publish << parameters.dir >>
+          working_directory: << parameters.dir >>
+          command: |
+            poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR" --no-interaction
+
+
 jobs:
 
   check-nnoir:
@@ -173,6 +186,24 @@ jobs:
           dir: << parameters.dir >>
           token: << parameters.token >>
 
+  release-nnoir:
+    <<: *defaults
+    parameters:
+      dir:
+        type: string
+      package-name:
+        type: string
+    steps:
+      - checkout
+      - poetry-install:
+          dir: << parameters.dir >>
+      - validate-version-with-tag:
+          dir: << parameters.dir >>
+          package-name: << parameters.package-name >>
+      - publish-nnoir:
+          dir: << parameters.dir >>
+
+
 workflows:
   version: 2
 
@@ -203,7 +234,7 @@ workflows:
 
   release-nnoir:
     jobs:
-      - release:
+      - release-nnoir:
           context:
             - docker-hub-creds
           filters:
@@ -213,7 +244,6 @@ workflows:
               ignore: /.*/
           dir: nnoir
           package-name: nnoir
-          token: $PYPI_API_TOKEN_NNOIR
 
   release-nnoir-onnx:
     jobs:
