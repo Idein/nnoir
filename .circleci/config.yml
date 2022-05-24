@@ -68,36 +68,8 @@ commands:
             echo "Package version: $VERSION"
             test "$VERSION" = "$TAG"
 
-  publish:
-    parameters:
-      dir:
-        type: string
-      token:
-        type: string
-    steps:
-      - run:
-          name: Publish << parameters.dir >>
-          working_directory: << parameters.dir >>
-          environment:
-            PYPI_TOKEN: << parameters.token >>
-          command: |
-            poetry publish --build --username "__token__" --password "$PYPI_TOKEN" --no-interaction
-
-
-  publish-nnoir:
-    parameters:
-      dir:
-        type: string
-    steps:
-      - run:
-          name: Publish << parameters.dir >>
-          working_directory: << parameters.dir >>
-          command: |
-            poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR" --no-interaction
-
 
 jobs:
-
   check-nnoir:
     <<: *defaults
     steps:
@@ -166,26 +138,6 @@ jobs:
             poetry run make -C examples/models -j2
             poetry run make -C test -j2
 
-  release:
-    <<: *defaults
-    parameters:
-      dir:
-        type: string
-      package-name:
-        type: string
-      token:
-        type: string
-    steps:
-      - checkout
-      - poetry-install:
-          dir: << parameters.dir >>
-      - validate-version-with-tag:
-          dir: << parameters.dir >>
-          package-name: << parameters.package-name >>
-      - publish:
-          dir: << parameters.dir >>
-          token: << parameters.token >>
-
   release-nnoir:
     <<: *defaults
     parameters:
@@ -200,8 +152,75 @@ jobs:
       - validate-version-with-tag:
           dir: << parameters.dir >>
           package-name: << parameters.package-name >>
-      - publish-nnoir:
+      - run:
+          name: Publish << parameters.dir >>
+          working_directory: << parameters.dir >>
+          command: |
+            poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR" --no-interaction
+
+
+  release-nnoir-onnx:
+    <<: *defaults
+    parameters:
+      dir:
+        type: string
+      package-name:
+        type: string
+    steps:
+      - checkout
+      - poetry-install:
           dir: << parameters.dir >>
+      - validate-version-with-tag:
+          dir: << parameters.dir >>
+          package-name: << parameters.package-name >>
+      - run:
+          name: Publish << parameters.dir >>
+          working_directory: << parameters.dir >>
+          command: |
+            poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR_ONNX" --no-interaction
+
+
+  release-nnoir-chainer:
+    <<: *defaults
+    parameters:
+      dir:
+        type: string
+      package-name:
+        type: string
+    steps:
+      - checkout
+      - poetry-install:
+          dir: << parameters.dir >>
+      - validate-version-with-tag:
+          dir: << parameters.dir >>
+          package-name: << parameters.package-name >>
+      - run:
+          name: Publish << parameters.dir >>
+          working_directory: << parameters.dir >>
+          command: |
+            poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR_CHAINER" --no-interaction
+
+
+  release-blackonnx:
+    <<: *defaults
+    parameters:
+      dir:
+        type: string
+      package-name:
+        type: string
+    steps:
+      - checkout
+      - poetry-install:
+          dir: << parameters.dir >>
+      - validate-version-with-tag:
+          dir: << parameters.dir >>
+          package-name: << parameters.package-name >>
+      - run:
+          name: Publish << parameters.dir >>
+          working_directory: << parameters.dir >>
+          command: |
+            poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_BLACKONNX" --no-interaction
+
 
 
 workflows:
@@ -247,7 +266,7 @@ workflows:
 
   release-nnoir-onnx:
     jobs:
-      - release:
+      - release-nnoir-onnx:
           context:
             - docker-hub-creds
           filters:
@@ -257,11 +276,10 @@ workflows:
               ignore: /.*/
           dir: nnoir-onnx
           package-name: nnoir-onnx
-          token: $PYPI_API_TOKEN_NNOIR_ONNX
 
   release-nnoir-chainer:
     jobs:
-      - release:
+      - release-nnoir-chainer:
           context:
             - docker-hub-creds
           filters:
@@ -271,11 +289,10 @@ workflows:
               ignore: /.*/
           dir: nnoir-chainer
           package-name: nnoir-chainer
-          token: $PYPI_API_TOKEN_NNOIR_CHAINER
 
   release-blackonnx:
     jobs:
-      - release:
+      - release-blackonnx:
           context:
             - docker-hub-creds
           filters:
@@ -285,4 +302,3 @@ workflows:
               ignore: /.*/
           dir: blackonnx
           package-name: blackonnx
-          token: $PYPI_API_TOKEN_BLACKONNX
