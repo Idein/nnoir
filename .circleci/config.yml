@@ -81,7 +81,7 @@ commands:
           environment:
             PYPI_TOKEN: << parameters.token >>
           command: |
-            poetry publish --build --username "__token__" --password $PYPI_TOKEN --no-interaction
+            poetry publish --build --username "__token__" --password "$PYPI_TOKEN" --no-interaction
 
 jobs:
 
