@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nnoir"
-version = "1.0.8"
+version = "1.0.9"
 description = "API for NNOIR"
 authors = ["Idein Inc."]
 license = "MIT"
@@ -22,7 +22,7 @@ importlib-metadata = "^4"
 
 [tool.poetry.dev-dependencies]
 pysen = {version = "^0.10.1"}
-black = "21.10b0"
+black = "22.3.0"
 flake8 = "4.0.1"
 flake8-bugbear = "21.9.2"
 isort = "5.9.3"
