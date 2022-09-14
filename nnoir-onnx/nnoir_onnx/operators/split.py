@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 from nnoir.functions import Constant, MatMul, Transpose
 
-from .utils import Op, gen_unregisterd_node_name, register_node
+from .utils import Op, UnsupportedONNXOperation, gen_unregisterd_node_name, register_node
 
 
 def create_half_split_matrices(k: int) -> Tuple[np.ndarray, np.ndarray]:
@@ -36,7 +36,9 @@ class OpSplit(Op):
 
     def to_function(self, env, constants):
         if len(self.node.input) > 1:
-            raise Exception("TODO")
+            raise UnsupportedONNXOperation(self.node, "the number of inputs must be 1.")
+        if len(self.node.output) > 2:
+            raise UnsupportedONNXOperation(self.node, "the number of outputs must be 2.")
 
         split_axis = 0
         for attr in self.node.attribute:
