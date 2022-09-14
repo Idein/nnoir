@@ -237,7 +237,10 @@ Set the values with the `--fix_dimension` option."""
         renaming_table = {n.name: f"v{i}".encode("utf-8") for i, n in enumerate(nodes)}
 
         def rename(x):
-            return renaming_table[x]
+            try:
+                return renaming_table[x]
+            except Exception as e:
+                raise RuntimeError(f"not found key {x} in renaming_table")
 
         inputs = list(map(rename, inputs))
         outputs = list(map(rename, outputs))
