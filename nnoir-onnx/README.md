@@ -12,7 +12,7 @@ pip install nnoir-onnx
 From [Dockerhub](https://hub.docker.com/repository/docker/idein/nnoir-tools):
 
 ```
-docker pull idein/nnoir-tools:released
+docker pull idein/nnoir-tools:YYYYMMDD # YYYYMMDD is released date.
 or
 docker pull idein/nnoir-tools:latest
 ```
