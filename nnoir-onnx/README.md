@@ -12,9 +12,7 @@ pip install nnoir-onnx
 From [Dockerhub](https://hub.docker.com/repository/docker/idein/nnoir-tools):
 
 ```
-docker pull idein/nnoir-tools:YYYYMMDD # YYYYMMDD is released date.
-or
-docker pull idein/nnoir-tools:latest
+docker pull idein/nnoir-tools:20221014
 ```
 
 ## Example
@@ -28,7 +26,7 @@ onnx2nnoir -o model.nnoir mnist/model.onnx
 With docker:
 
 ```
-docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:latest onnx2nnoir --graph_name "mobilenet" -o mobilenetv2-1.0.nnoir mobilenetv2-1.0.onnx
+docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20221014 onnx2nnoir --graph_name "mobilenet" -o mobilenetv2-1.0.nnoir mobilenetv2-1.0.onnx
 ```
 
 ## Supported ONNX Operators
