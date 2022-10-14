@@ -154,7 +154,7 @@ jobs:
           username: $DOCKER_USER
           password: $DOCKER_PASS
     environment:
-      TZ: "Asia/Tokyo"
+      TZ: "JST-9"
     steps:
       - checkout
       - run:
@@ -182,13 +182,12 @@ jobs:
             - run:
                 name: Change image tag
                 command: |
-                  docker tag idein/nnoir-tools:latest idein/nnoir-tools:released
                   docker tag idein/nnoir-tools:latest idein/nnoir-tools:$(date +%Y%m%d)
+                  docker images
             - run:
                 name: Push image
                 command: |
                   docker push idein/nnoir-tools:latest
-                  docker push idein/nnoir-tools:released
                   docker push idein/nnoir-tools:$(date +%Y%m%d)
       - unless:
           condition: << parameters.release >>
@@ -197,6 +196,7 @@ jobs:
                 name: Change image tag
                 command: |
                   docker tag idein/nnoir-tools:latest idein/nnoir-tools:build-${CIRCLE_BUILD_NUM}
+                  docker images
             - run:
                 name: Push image
                 command: |
