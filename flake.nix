@@ -59,6 +59,20 @@
         packages.nnoir = nnoir;
         packages.nnoir-onnx = nnoir-onnx;
 
+        packages.dockerimage = pkgs.dockerTools.buildImage {
+          name = "idein/nnoir-tools";
+          tag = "latest";
+          created = "now";
+          contents = [
+            nnoir
+            nnoir-onnx
+          ];
+          config = {
+            WorkingDir = "/work";
+            Env = [ "PATH=/bin:$PATH" ];
+          };
+        };
+
         devShell = pkgs.mkShell {
           buildInputs = [
             pkgs.protobuf
