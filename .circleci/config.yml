@@ -191,7 +191,6 @@ jobs:
             - run:
                 name: Change image tag
                 command: |
-                  docker tag idein/nnoir-tools:latest idein/nnoir-tools:$(date +%Y%m%d)
                   docker tag idein/nnoir-tools:latest idein/nnoir-tools:build-${CIRCLE_BUILD_NUM}
                   docker images
             - run:
