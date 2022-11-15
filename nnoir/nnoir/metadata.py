@@ -88,7 +88,7 @@ def main(file_name: str, key: Optional[str], value: Optional[str]):
 
 
 def nnoir_metadata():
-    parser = argparse.ArgumentParser(description="edit NNOIR meta data")
+    parser = argparse.ArgumentParser(description="read/write NNOIR meta data")
     parser.add_argument(dest="input", type=str, metavar="NNOIR", help="input(NNOIR) file path")
     parser.add_argument(dest="key", type=str, nargs="?", metavar="<key>", help="meta data key")
     parser.add_argument(dest="value", type=str, nargs="?", metavar="<value>", help="meta data value")
