@@ -31,15 +31,21 @@ add_nnoir = nnoir.load('add.nnoir')
 ### Read/Write metadata from command line
 
 ```bash
-$ nnoir-metadata mobilenet_v2.nnoir
-name = MobileNet_v2
+$ nnoir-metadata resnet_50.nnoir
+name = CaffeFunction
 description =
 generator.name = chainer
 generator.version = 7.7.0
-$ nnoir-metadata mobilenet_v2.nnoir description "This is Mobilet V2 (description added by nnoir-metadata)"
-$ nnoir-metadata mobilenet_v2.nnoir
-name = MobileNet_v2
-description = This is Mobilet V2 (description added by nnoir-metadata)
+$ nnoir-metadata resnet_50.nnoir --write-description "This is resnet_50 (written by nnoir-metada)"
+$ nnoir-metadata resnet_50.nnoir                                            
+name = CaffeFunction
+description = This is resnet_50 (written by nnoir-metada)
+generator.name = chainer
+generator.version = 7.7.0
+$ nnoir-metadata resnet_50.nnoir --write-name "CaffeFunction_V2"
+$ nnoir-metadata resnet_50.nnoir
+name = CaffeFunction_V2
+description = This is resnet_50 (written by nnoir-metada)
 generator.name = chainer
 generator.version = 7.7.0
 ```
