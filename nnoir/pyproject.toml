@@ -32,6 +32,7 @@ pytest = "^6.2.5"
 [tool.poetry.scripts]
 nnoir2dot = "nnoir.dot:nnoir2dot"
 nnrunner = "nnoir.runner:main"
+nnoir-metadata = "nnoir.metadata:nnoir_metadata"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

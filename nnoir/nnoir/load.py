@@ -13,12 +13,15 @@ def load(nnoir_file):
         nnoir = msgpack.unpackb(f.read(), raw=True)
     name = nnoir[b"nnoir"][b"model"][b"name"]
     generator_name = nnoir[b"nnoir"][b"model"][b"generator"][b"name"]
+    description = b""
+    if b"description" in nnoir[b"nnoir"][b"model"]:
+        description = nnoir[b"nnoir"][b"model"][b"description"]
     generator_version = nnoir[b"nnoir"][b"model"][b"generator"][b"version"]
     inputs = nnoir[b"nnoir"][b"model"][b"inputs"]
     outputs = nnoir[b"nnoir"][b"model"][b"outputs"]
     vs = [_decode_value(v) for v in nnoir[b"nnoir"][b"model"][b"values"]]
     fs = [_decode_function(f) for f in nnoir[b"nnoir"][b"model"][b"functions"]]
-    return NNOIR(name, generator_name, generator_version, inputs, outputs, vs, fs)
+    return NNOIR(name, generator_name, generator_version, inputs, outputs, vs, fs, description)
 
 
 def _decode_function(function):

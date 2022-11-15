@@ -9,16 +9,7 @@ class InvalidNNOIRData(Exception):
 
 
 class NNOIR:
-    def __init__(
-        self,
-        name,
-        generator_name,
-        generator_version,
-        inputs,
-        outputs,
-        values,
-        functions,
-    ):
+    def __init__(self, name, generator_name, generator_version, inputs, outputs, values, functions, description=b""):
         cident = re.compile(rb"^[_A-Za-z][_0-9A-Za-z]*$")
         c_keywords = [
             "auto",
@@ -69,6 +60,7 @@ class NNOIR:
         if not cident.match(name) or name.decode() in c_keywords:
             raise InvalidNNOIRData('graph name "{}" MUST be C identifier.'.format(name))
         self.name = name
+        self.description = description
         self.generator_name = generator_name
         self.generator_version = generator_version
         self.inputs = inputs
@@ -83,6 +75,7 @@ class NNOIR:
     def to_model(self):
         return {
             b"name": self.name,
+            b"description": self.description,
             b"generator": {
                 b"name": self.generator_name,
                 b"version": self.generator_version,
