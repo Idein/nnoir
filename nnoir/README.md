@@ -10,7 +10,7 @@ pip install nnoir
 
 ### Create & Save
 
-```
+```python
 inputs  = [nnoir.Value(b'v0', dtype='<f4', shape=(10,10)),
            nnoir.Value(b'v1', dtype='<f4', shape=(10,10))]
 outputs = [nnoir.Value(b'v2', dtype='<f4', shape=(10,10))]
@@ -24,6 +24,22 @@ result.dump('add.nnoir')
 
 ### Load
 
-```
+```python
 add_nnoir = nnoir.load('add.nnoir')
+```
+
+### Read/Write metadata from command line
+
+```bash
+$ nnoir-metadata mobilenet_v2.nnoir
+name = MobileNet_v2
+description =
+generator.name = chainer
+generator.version = 7.7.0
+$ nnoir-metadata mobilenet_v2.nnoir description "This is Mobilet V2 (description added by nnoir-metadata)"
+$ nnoir-metadata mobilenet_v2.nnoir
+name = MobileNet_v2
+description = This is Mobilet V2 (description added by nnoir-metadata)
+generator.name = chainer
+generator.version = 7.7.0
 ```
