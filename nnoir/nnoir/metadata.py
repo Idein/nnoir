@@ -1,34 +1,30 @@
 import argparse
 
-import msgpack
+from .load import load
 
 
 def read_name(nnoir) -> str:
-    return nnoir[b"nnoir"][b"model"][b"name"].decode("utf-8")
+    return nnoir.name.decode("utf-8")
 
 
 def read_description(nnoir) -> str:
-    description = ""
-    if b"description" in nnoir[b"nnoir"][b"model"]:
-        description = nnoir[b"nnoir"][b"model"][b"description"].decode("utf-8")
-
-    return description
+    return nnoir.description.decode("utf-8")
 
 
 def read_generator_name(nnoir) -> str:
-    return nnoir[b"nnoir"][b"model"][b"generator"][b"name"].decode("utf-8")
+    return nnoir.generator_name.decode("utf-8")
 
 
 def read_generator_version(nnoir) -> str:
-    return nnoir[b"nnoir"][b"model"][b"generator"][b"version"].decode("utf-8")
+    return nnoir.generator_version.decode("utf-8")
 
 
 def write_name(nnoir, name: str):
-    name = nnoir[b"nnoir"][b"model"][b"name"] = name.encode(encoding="utf-8")
+    nnoir.name = name.encode(encoding="utf-8")
 
 
 def write_description(nnoir, description: str) -> str:
-    nnoir[b"nnoir"][b"model"][b"description"] = description.encode(encoding="utf-8")
+    nnoir.description = description.encode(encoding="utf-8")
 
 
 def print_metadata(nnoir):
@@ -47,16 +43,14 @@ def nnoir_metadata():
     parser.add_argument("--write-name", type=str, dest="new_name", metavar="<new name>", help="overwrite name")
 
     args = parser.parse_args()
-    with open(args.input, "rb") as f:
-        nnoir = msgpack.unpackb(f.read(), raw=True)
+    nnoir = load(args.input)
 
     if args.new_description is None and args.new_name is None:
         return print_metadata(nnoir)
 
-    if args.new_description:
+    if args.new_description is not None:
         write_description(nnoir, args.new_description)
-    if args.new_name:
+    if args.new_name is not None:
         write_name(nnoir, args.new_name)
 
-    with open(args.input, "wb") as f:
-        f.write(msgpack.packb(nnoir, use_bin_type=False))
+    nnoir.dump(args.input)
