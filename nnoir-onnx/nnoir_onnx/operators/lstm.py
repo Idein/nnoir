@@ -122,7 +122,7 @@ class OpLSTM(Op):
                 h0 = gen_new_node(env, env[H0][0])
                 c0 = gen_new_node(env, init_c)
                 graph += [
-                    Constant([], [h0], value=env[H0][0]),
+                    Reshape([H0], [h0], shape=(batch_size, hidden_size)),
                     Constant([], [c0], value=init_c),
                 ]
                 Ps = ps
@@ -137,8 +137,8 @@ class OpLSTM(Op):
                 h0 = gen_new_node(env, env[H0][0])
                 c0 = gen_new_node(env, env[C0][0])
                 graph += [
-                    Constant([], [h0], value=env[H0][0]),
-                    Constant([], [c0], value=env[C0][0]),
+                    Reshape([H0], [h0], shape=(batch_size, hidden_size)),
+                    Reshape([C0], [c0], shape=(batch_size, hidden_size)),
                 ]
                 Ps = ps
             elif li == 8:
@@ -152,8 +152,8 @@ class OpLSTM(Op):
                 h0 = gen_new_node(env, env[H0][0])
                 c0 = gen_new_node(env, env[C0][0])
                 graph += [
-                    Constant([], [h0], value=env[H0][0]),
-                    Constant([], [c0], value=env[C0][0]),
+                    Reshape([H0], [h0], shape=(batch_size, hidden_size)),
+                    Reshape([C0], [c0], shape=(batch_size, hidden_size)),
                 ]
                 Ps = np.split(env[P][0], num_of_peepholes)
             else:
@@ -220,20 +220,25 @@ class OpLSTM(Op):
             t1 = gen_new_node(env, dummy_res)
             t2 = gen_new_node(env, dummy_res)
 
+            res_c = gen_new_node(env, dummy_res)
+            res_h = gen_new_node(env, dummy_res)
+
             graph += gate(env, i, x0, h0, Ws[0], Rs[0], WBs[0], RBs[0], activation_f, c0, Ps[0])
             graph += gate(env, f, x0, h0, Ws[2], Rs[2], WBs[2], RBs[2], activation_f, c0, Ps[2])
             graph += gate(env, g, x0, h0, Ws[3], Rs[3], WBs[3], RBs[3], activation_g)
             graph += [
                 Mul([f, c0], [t0]),
                 Mul([g, i], [t1]),
-                Add([t0, t1], [y_c]),
+                Add([t0, t1], [res_c]),
+                Reshape([res_c], [y_c], shape=dummy_cell.shape),
             ]
-            graph += gate(env, o, x0, h0, Ws[1], Rs[1], WBs[1], RBs[1], activation_f, y_c, Ps[1])
+            graph += gate(env, o, x0, h0, Ws[1], Rs[1], WBs[1], RBs[1], activation_f, res_c, Ps[1])
             graph += [
-                activation_h([y_c], [t2]),
-                Mul([o, t2], [y_h]),
+                activation_h([res_c], [t2]),
+                Mul([o, t2], [res_h]),
+                Reshape([res_h], [y_h], shape=dummy_cell.shape),
                 Reshape(
-                    [y_h],
+                    [res_h],
                     [y],
                     shape=(seq_length, num_directions, batch_size, hidden_size),
                 ),
