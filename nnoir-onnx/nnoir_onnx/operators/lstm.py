@@ -121,8 +121,13 @@ class OpLSTM(Op):
                 sequence_lens = env[seq_lens]
                 h0 = gen_new_node(env, env[H0][0])
                 c0 = gen_new_node(env, init_c)
+                if H0 in constants:
+                    graph += [Constant([], [h0], value=env[H0][0])]
+                else:
+                    graph += [
+                        Reshape([H0], [h0], shape=(batch_size, hidden_size)),
+                    ]
                 graph += [
-                    Reshape([H0], [h0], shape=(batch_size, hidden_size)),
                     Constant([], [c0], value=init_c),
                 ]
                 Ps = ps
@@ -136,10 +141,18 @@ class OpLSTM(Op):
                 sequence_lens = env[seq_lens]
                 h0 = gen_new_node(env, env[H0][0])
                 c0 = gen_new_node(env, env[C0][0])
-                graph += [
-                    Reshape([H0], [h0], shape=(batch_size, hidden_size)),
-                    Reshape([C0], [c0], shape=(batch_size, hidden_size)),
-                ]
+                if H0 in constants:
+                    graph += [Constant([], [h0], value=env[H0][0])]
+                else:
+                    graph += [
+                        Reshape([H0], [h0], shape=(batch_size, hidden_size)),
+                    ]
+                if C0 in constants:
+                    graph += [Constant([], [c0], value=env[C0][0])]
+                else:
+                    graph += [
+                        Reshape([C0], [c0], shape=(batch_size, hidden_size)),
+                    ]
                 Ps = ps
             elif li == 8:
                 [x, W, R, B, seq_lens, H0, C0, P] = self.node.input
@@ -151,10 +164,18 @@ class OpLSTM(Op):
                 sequence_lens = env[seq_lens]
                 h0 = gen_new_node(env, env[H0][0])
                 c0 = gen_new_node(env, env[C0][0])
-                graph += [
-                    Reshape([H0], [h0], shape=(batch_size, hidden_size)),
-                    Reshape([C0], [c0], shape=(batch_size, hidden_size)),
-                ]
+                if H0 in constants:
+                    graph += [Constant([], [h0], value=env[H0][0])]
+                else:
+                    graph += [
+                        Reshape([H0], [h0], shape=(batch_size, hidden_size)),
+                    ]
+                if C0 in constants:
+                    graph += [Constant([], [c0], value=env[C0][0])]
+                else:
+                    graph += [
+                        Reshape([C0], [c0], shape=(batch_size, hidden_size)),
+                    ]
                 Ps = np.split(env[P][0], num_of_peepholes)
             else:
                 raise UnsupportedONNXOperation(self.node, "too many inputs")
