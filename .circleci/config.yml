@@ -38,7 +38,7 @@ commands:
           name: poetry install in << parameters.dir >>
           working_directory: << parameters.dir >>
           command: |
-            poetry install
+            poetry install --no-ansi
 
   lint:
     parameters:
