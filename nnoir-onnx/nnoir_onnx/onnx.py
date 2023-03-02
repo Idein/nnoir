@@ -323,6 +323,7 @@ Set the values with the `--fix_dimension` option."""
             if generator in known_generator:
                 continue
             if generator is not None:
+
                 function = self.op_for_node(generator).to_function(self.nodes, self.constant_nodes)
 
                 inputs = list(chain.from_iterable(map(lambda x: x.inputs, function)))
