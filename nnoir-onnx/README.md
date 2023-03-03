@@ -56,6 +56,7 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20221014 onnx
     * `B` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `C` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
 * [GlobalAveragePool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#GlobalAveragePool)
+* [HardSwish](https://github.com/onnx/onnx/blob/main/docs/Operators.md#hardswish)
 * [LeakyRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LeakyRelu)
 * [LRN](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LRN)
 * [LSTM](https://github.com/onnx/onnx/blob/master/docs/Operators.md#lstm)
