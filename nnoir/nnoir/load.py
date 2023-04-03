@@ -1,4 +1,5 @@
 import io
+from typing import Any, Dict
 
 import msgpack
 import numpy
@@ -8,7 +9,7 @@ from .nnoir import NNOIR
 from .value import Value
 
 
-def load(nnoir_file):
+def load(nnoir_file: str) -> NNOIR:
     with open(nnoir_file, "rb") as f:
         nnoir = msgpack.unpackb(f.read(), raw=True)
     name = nnoir[b"nnoir"][b"model"][b"name"]
@@ -24,18 +25,18 @@ def load(nnoir_file):
     return NNOIR(name, generator_name, generator_version, inputs, outputs, vs, fs, description)
 
 
-def _decode_function(function):
+def _decode_function(function: Dict[bytes, Any]) -> Function:
     inputs = function[b"inputs"]
     outputs = function[b"outputs"]
     params = {}
     for k, v in function[b"params"].items():
         if type(v) is dict:
-            params[k.decode()] = numpy.load(io.BytesIO(v[b"ndarray"]))
+            params[k.decode()] = numpy.load(io.BytesIO(v[b"ndarray"]))  # type: ignore
         else:
             params[k.decode()] = v
     name = function[b"name"].decode()
-    return globals()[name](inputs, outputs, **params)
+    return globals()[name](inputs, outputs, **params)  # type: ignore
 
 
-def _decode_value(value):
+def _decode_value(value: Dict[bytes, Any]) -> Value:
     return Value(value[b"name"], np_array=None, dtype=value[b"dtype"], shape=value[b"shape"])
