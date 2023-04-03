@@ -1,13 +1,20 @@
 import os
 import sys
+from typing import Any, Iterable, Tuple
 
 import nnoir
 import numpy as np
 
 
-def single_function_model(function, _inputs, _outputs, **kwargs):
-    inputs = [nnoir.Value(x[0], shape=x[1], dtype="<f4") for x in _inputs]
-    outputs = [nnoir.Value(x[0], shape=x[1], dtype="<f4") for x in _outputs]
+def single_function_model(
+    function: str,
+    _inputs: Iterable[Tuple[bytes, Tuple[int, ...]]],
+    _outputs: Iterable[Tuple[bytes, Tuple[int, ...]]],
+    **kwargs: Any,
+) -> None:
+    print(f"function: {function}, _inputs: {type(_inputs)},output {type(_outputs)} ")
+    inputs = [nnoir.Value(x[0], shape=x[1], dtype=b"<f4") for x in _inputs]
+    outputs = [nnoir.Value(x[0], shape=x[1], dtype=b"<f4") for x in _outputs]
     nodes = inputs + outputs
     input_names = [x.name for x in inputs]
     output_names = [x.name for x in outputs]
@@ -31,7 +38,7 @@ def single_function_model(function, _inputs, _outputs, **kwargs):
         assert (a == e).all()
 
 
-def test_Add():
+def test_Add() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10)), (b"v1", (10, 10))],
@@ -39,7 +46,7 @@ def test_Add():
     )
 
 
-def test_AddConstant():
+def test_AddConstant() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -48,7 +55,7 @@ def test_AddConstant():
     )
 
 
-def test_AveragePooling2D():
+def test_AveragePooling2D() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (2, 3, 4, 5))],
@@ -61,7 +68,7 @@ def test_AveragePooling2D():
     )
 
 
-def test_BatchNormalization():
+def test_BatchNormalization() -> None:
     shape = (2, 3, 4, 5)
     single_function_model(
         sys._getframe().f_code.co_name[5:],
@@ -75,7 +82,7 @@ def test_BatchNormalization():
     )
 
 
-def test_Bias():
+def test_Bias() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (2, 3, 4, 5))],
@@ -85,7 +92,7 @@ def test_Bias():
     )
 
 
-def test_Bilinear2D():
+def test_Bilinear2D() -> None:
     in_shape = (2, 3, 9, 10)
     out_shape = (2, 3, 4, 5)
     single_function_model(
@@ -96,7 +103,7 @@ def test_Bilinear2D():
     )
 
 
-def test_Bilinear2D_align_none():
+def test_Bilinear2D_align_none() -> None:
     in_shape = (2, 3, 9, 10)
     out_shape = (2, 3, 4, 5)
     single_function_model(
@@ -108,7 +115,7 @@ def test_Bilinear2D_align_none():
     )
 
 
-def test_Bilinear2D_align_corners():
+def test_Bilinear2D_align_corners() -> None:
     in_shape = (2, 3, 9, 10)
     out_shape = (2, 3, 4, 5)
     single_function_model(
@@ -120,7 +127,7 @@ def test_Bilinear2D_align_corners():
     )
 
 
-def test_Bilinear2D_align_centers():
+def test_Bilinear2D_align_centers() -> None:
     in_shape = (2, 3, 9, 10)
     out_shape = (2, 3, 4, 5)
     single_function_model(
@@ -132,7 +139,7 @@ def test_Bilinear2D_align_centers():
     )
 
 
-def test_BroadcastTo():
+def test_BroadcastTo() -> None:
     in_shape = (1, 1, 4, 5)
     out_shape = (2, 3, 4, 5)
     single_function_model(
@@ -143,7 +150,7 @@ def test_BroadcastTo():
     )
 
 
-def test_ClippedReLU():
+def test_ClippedReLU() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -152,7 +159,7 @@ def test_ClippedReLU():
     )
 
 
-def test_Concat():
+def test_Concat() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 11)), (b"v1", (10, 12))],
@@ -161,7 +168,7 @@ def test_Concat():
     )
 
 
-def test_ConstantPadding():
+def test_ConstantPadding() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (2, 3, 4, 5))],
@@ -171,7 +178,7 @@ def test_ConstantPadding():
     )
 
 
-def test_Convolution2D():
+def test_Convolution2D() -> None:
     batch = 2
     in_ch = 4
     in_h = 10
@@ -195,7 +202,7 @@ def test_Convolution2D():
     )
 
 
-def test_Cos():
+def test_Cos() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -203,7 +210,7 @@ def test_Cos():
     )
 
 
-def test_DepthwiseConvolution2D():
+def test_DepthwiseConvolution2D() -> None:
     sy, sx = 2, 3
     ph, pw = 1, 3
     kh, kw = 3, 4
@@ -229,7 +236,7 @@ def test_DepthwiseConvolution2D():
     )
 
 
-def test_Div():
+def test_Div() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10)), (b"v1", (10, 10))],
@@ -237,7 +244,7 @@ def test_Div():
     )
 
 
-def test_Dropout():
+def test_Dropout() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -245,7 +252,7 @@ def test_Dropout():
     )
 
 
-def test_ELU():
+def test_ELU() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -254,7 +261,7 @@ def test_ELU():
     )
 
 
-def test_Exp():
+def test_Exp() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v1", (1, 3, 4, 5))],
@@ -262,7 +269,7 @@ def test_Exp():
     )
 
 
-def test_Gemm():
+def test_Gemm() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (3, 4)), (b"v1", (4, 5))],
@@ -274,7 +281,7 @@ def test_Gemm():
     )
 
 
-def test_LeakyReLU():
+def test_LeakyReLU() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -283,7 +290,7 @@ def test_LeakyReLU():
     )
 
 
-def test_Linear():
+def test_Linear() -> None:
     batch = 2
     in_ch = 3
     out_ch = 4
@@ -296,7 +303,7 @@ def test_Linear():
     )
 
 
-def test_LocalResponseNormalization():
+def test_LocalResponseNormalization() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -308,7 +315,7 @@ def test_LocalResponseNormalization():
     )
 
 
-def test_MatMul():
+def test_MatMul() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (3, 4)), (b"v1", (4, 5))],
@@ -316,7 +323,7 @@ def test_MatMul():
     )
 
 
-def test_MaxPooling2D():
+def test_MaxPooling2D() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (2, 3, 4, 5))],
@@ -328,7 +335,7 @@ def test_MaxPooling2D():
     )
 
 
-def test_Mul():
+def test_Mul() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10)), (b"v1", (10, 10))],
@@ -336,7 +343,7 @@ def test_Mul():
     )
 
 
-def test_MulConstant():
+def test_MulConstant() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -345,7 +352,7 @@ def test_MulConstant():
     )
 
 
-def test_ReLU():
+def test_ReLU() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -353,7 +360,7 @@ def test_ReLU():
     )
 
 
-def test_Reshape():
+def test_Reshape() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -362,7 +369,7 @@ def test_Reshape():
     )
 
 
-def test_Resize2D():
+def test_Resize2D() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (1, 2, 3, 4))],
@@ -373,7 +380,7 @@ def test_Resize2D():
     )
 
 
-def test_Resize2D_linear():
+def test_Resize2D_linear() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (1, 2, 3, 4))],
@@ -384,7 +391,7 @@ def test_Resize2D_linear():
     )
 
 
-def test_Scale():
+def test_Scale() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (2, 3, 4, 5))],
@@ -395,7 +402,7 @@ def test_Scale():
     )
 
 
-def test_Sigmoid():
+def test_Sigmoid() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -403,7 +410,7 @@ def test_Sigmoid():
     )
 
 
-def test_Sin():
+def test_Sin() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -411,7 +418,7 @@ def test_Sin():
     )
 
 
-def test_Softmax():
+def test_Softmax() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -420,7 +427,7 @@ def test_Softmax():
     )
 
 
-def test_Sub():
+def test_Sub() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10)), (b"v1", (10, 10))],
@@ -428,7 +435,7 @@ def test_Sub():
     )
 
 
-def test_Sum():
+def test_Sum() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (2, 3, 4, 5))],
@@ -438,7 +445,7 @@ def test_Sum():
     )
 
 
-def test_Swish():
+def test_Swish() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10, 3))],
@@ -447,7 +454,7 @@ def test_Swish():
     )
 
 
-def test_Tan():
+def test_Tan() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (10, 10))],
@@ -455,7 +462,7 @@ def test_Tan():
     )
 
 
-def test_Transpose():
+def test_Transpose() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (2, 3, 4, 5))],
@@ -464,7 +471,7 @@ def test_Transpose():
     )
 
 
-def test_Unpooling2D():
+def test_Unpooling2D() -> None:
     kh, kw = 2, 3
     sy, sx = 1, 2
     batch = 2
