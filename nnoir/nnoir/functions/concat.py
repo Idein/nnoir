@@ -11,5 +11,5 @@ class Concat(Function):
         optional_params: Set[str] = set()
         super(Concat, self).__init__(inputs, outputs, params, required_params, optional_params)
 
-    def run(self, *xs):
-        return np.concatenate(xs, self.params["axis"])
+    def run(self, *xs):  # type: ignore
+        return np.concatenate(xs, self.params["axis"])  # type: ignore

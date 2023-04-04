@@ -9,5 +9,5 @@ class Mul(Function):
         optional_params: Set[str] = set()
         super(Mul, self).__init__(inputs, outputs, params, required_params, optional_params)
 
-    def run(self, x1, x2):  #type: ignore
+    def run(self, x1, x2):  # type: ignore
         return x1 * x2

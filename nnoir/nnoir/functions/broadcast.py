@@ -12,4 +12,4 @@ class BroadcastTo(Function):
         super(BroadcastTo, self).__init__(inputs, outputs, params, required_params, optional_params)
 
     def run(self, x):  # type: ignore
-        return np.broadcast_to(x, self.params["shape"])
+        return np.broadcast_to(x, self.params["shape"])  # type: ignore

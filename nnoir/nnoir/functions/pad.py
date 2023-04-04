@@ -12,7 +12,7 @@ class ConstantPadding(Function):
         super(ConstantPadding, self).__init__(inputs, outputs, params, required_params, optional_params)
 
     def run(self, x):  # type: ignore
-        return np.pad(
+        return np.pad(  # type: ignore
             x,
             self.params["pads"],
             mode="constant",

@@ -16,9 +16,9 @@ class Resize2D(Function):
         out_w = self.params["size"][1]
         modes = self.params["interpolation_mode"].decode("utf-8").split("-")
         if modes[0] == "linear":
-            return _run_linear(x, out_h, out_w, self.params["coordinate_transformation_mode"])  #type: ignore
-        elif modes[0] == "nearest": 
-            return _run_nearest(x, out_h, out_w, self.params["coordinate_transformation_mode"], modes[1])  #type: ignore
+            return _run_linear(x, out_h, out_w, self.params["coordinate_transformation_mode"])  # type: ignore
+        elif modes[0] == "nearest":
+            return _run_nearest(x, out_h, out_w, self.params["coordinate_transformation_mode"], modes[1])  # type: ignore
         else:
             raise Exception("unknow Resize mode")
 
@@ -86,7 +86,7 @@ def _get_original_index(i, l0, l1, coordinate_transformation_mode, nearest_mode)
         i_ori = i * scale
     else:
         raise Exception("unsupported coordinate_transformation_mode")
-    return _round_index(i_ori, nearest_mode)  #type: ignore
+    return _round_index(i_ori, nearest_mode)  # type: ignore
 
 
 def _run_nearest(x, out_h, out_w, coordinate_transformation_mode, nearest_mode):  # type: ignore
@@ -95,8 +95,8 @@ def _run_nearest(x, out_h, out_w, coordinate_transformation_mode, nearest_mode):
     for b in np.arange(batch):
         for c in np.arange(ch):
             for i1 in np.arange(out_h):
-                i0 = _get_original_index(i1, in_h, out_h, coordinate_transformation_mode, nearest_mode)  #type: ignore
+                i0 = _get_original_index(i1, in_h, out_h, coordinate_transformation_mode, nearest_mode)  # type: ignore
                 for j1 in np.arange(out_w):
-                    j0 = _get_original_index(j1, in_w, out_w, coordinate_transformation_mode, nearest_mode)  #type: ignore
+                    j0 = _get_original_index(j1, in_w, out_w, coordinate_transformation_mode, nearest_mode)  # type: ignore
                     y[b, c, i1, j1] = x[b, c, i0, j0]
     return y

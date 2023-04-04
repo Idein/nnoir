@@ -30,7 +30,7 @@ class DepthwiseConvolution2D(Function):
         w_ = W.transpose(1, 2, 3, 0).reshape((C, KY * KX, D))
         if self.params["W"].dtype == np.uint8:
             func = lambda x, w: np.matmul(x, w).astype(col.dtype, copy=False)
-            y = util.calc_with_uint8_weight(func, c_, w_, self.params["w_scale"], self.params["w_zero"])  #type: ignore
+            y = util.calc_with_uint8_weight(func, c_, w_, self.params["w_scale"], self.params["w_zero"])  # type: ignore
         else:
             assert self.params["W"].dtype == np.float32
             y = np.matmul(c_, w_).astype(col.dtype, copy=False)

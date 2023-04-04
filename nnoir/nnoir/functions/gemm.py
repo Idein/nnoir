@@ -14,7 +14,7 @@ class Gemm(Function):
     def run(self, a, b, c=None):  # type: ignore
         a = a if not self.params["transA"] else a.T
         b = b if not self.params["transB"] else b.T
-        result = self.params["alpha"] * np.dot(a, b)  #type: ignore
+        result = self.params["alpha"] * np.dot(a, b)  # type: ignore
         if c is not None:
             result += self.params["beta"] * c
         return result
