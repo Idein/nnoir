@@ -1,9 +1,10 @@
 import io
+from typing import Any, Dict, List
 
 import msgpack
 import numpy as np
 from numpy.typing import NDArray
-from typing import Any, Dict, List
+
 
 class TestValue:
     def __init__(self, name: bytes, ndarray: NDArray[Any]):
@@ -14,11 +15,12 @@ class TestValue:
         def encode_ndarray(obj: NDArray[Any]) -> bytes:
             x = None
             with io.BytesIO() as out:
-                np.save(out, obj.copy()) # type: ignore
+                np.save(out, obj.copy())  # type: ignore
                 x = out.getvalue()
             return x
 
         return {b"value_name": self.name, b"ndarray": encode_ndarray(self.ndarray)}
+
 
 class TestCase:
     def __init__(self, inputs: List[TestValue], outputs: List[TestValue]):
@@ -30,6 +32,7 @@ class TestCase:
             b"inputs": [i.to_dict() for i in self.inputs],
             b"outputs": [o.to_dict() for o in self.outputs],
         }
+
 
 class NNTC:
     def __init__(self, model_name: bytes, inputs: List[TestValue], outputs: List[TestValue]):
@@ -45,7 +48,7 @@ class NNTC:
         }
 
     def pack(self) -> bytes:
-        return msgpack.packb(self.to_dict(), use_bin_type=False) # type: ignore
+        return msgpack.packb(self.to_dict(), use_bin_type=False)  # type: ignore
 
     def dump(self, file_name: str) -> None:
         result = self.pack()
@@ -53,10 +56,9 @@ class NNTC:
             f.buffer.write(result)
 
 
-
 def _load_test_value(v: Dict[bytes, Any]) -> TestValue:
     name = v[b"value_name"]
-    arr = np.load(io.BytesIO(v[b"ndarray"])) # type: ignore
+    arr = np.load(io.BytesIO(v[b"ndarray"]))  # type: ignore
     return TestValue(name, arr)
 
 

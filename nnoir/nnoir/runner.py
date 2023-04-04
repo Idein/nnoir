@@ -1,9 +1,9 @@
 import argparse
 import sys
+from typing import List
 
 import numpy as np
-from nnoir import NNTC, Value, TestValue, load
-from typing import List
+from nnoir import NNTC, TestValue, Value, load
 from numpy.typing import NDArray
 
 
@@ -15,7 +15,7 @@ def generate_inputs(vs: List[Value], seed: int, base: float, scale: float) -> Li
     inputs = []
     np.random.seed(seed)
     for v in vs:
-        x = base + scale * np.random.randn(*v.shape).astype(np.float32) # type: ignore
+        x = base + scale * np.random.randn(*v.shape).astype(np.float32)  # type: ignore
         inputs.append(x)
     return inputs
 
@@ -41,4 +41,3 @@ def main() -> None:
 
     tc = NNTC(nnoir_model.name, pack_values(nnoir_model.inputs, inputs), pack_values(nnoir_model.outputs, outputs))
     tc.dump(args.output)
-
