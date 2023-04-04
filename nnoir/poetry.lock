@@ -542,8 +542,10 @@ description = "Python linting made easy. Also a casual yet honorific way to addr
 category = "dev"
 optional = false
 python-versions = "*"
-files = []
-develop = false
+files = [
+    {file = "pysen-0.10.3-py3-none-any.whl", hash = "sha256:08e79588bf0aa1e9233554d84ac277679d4998dede7768bc7ca8cc5fee6fc846"},
+    {file = "pysen-0.10.3.tar.gz", hash = "sha256:3023f48789a90fe660bcacc59a2e57d62297a04c50222ac5d72aff254b53e55c"},
+]
 
 [package.dependencies]
 colorlog = ">=4.0.0,<5.0.0"
@@ -554,12 +556,6 @@ unidiff = ">=0.6.0,<1.0.0"
 
 [package.extras]
 lint = ["black (>=19.10b0,<=22.10)", "flake8 (>=3.7,<5)", "flake8-bugbear", "isort (>=4.3,<5.2.0)", "mypy (>=0.770,<0.800)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/pfnet/pysen.git"
-reference = "7d88ecc7b5af83681315640a00852ff51531eda6"
-resolved_reference = "7d88ecc7b5af83681315640a00852ff51531eda6"
 
 [[package]]
 name = "pytest"
@@ -712,4 +708,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "7883484a583cc49853cbc3c550aa57a9d5c38b62553bcbb9f3df51a8bf3c71ac"
+content-hash = "fb995ee58a9005f7419ae7236a2dedfc6a45b03169ef289af8729219c1dec609"
