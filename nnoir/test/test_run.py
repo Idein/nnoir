@@ -22,7 +22,7 @@ def single_function_model(
     actual = nnoir.NNOIR(
         function.encode(),
         b"nnoir2chainer_test",
-        "0.1",
+        b"0.1",
         input_names,
         output_names,
         nodes,

@@ -19,7 +19,7 @@ class NNOIR:
         self,
         name: bytes,
         generator_name: bytes,
-        generator_version: str,
+        generator_version: bytes,
         inputs: List[bytes],
         outputs: List[bytes],
         values: List[Value],
