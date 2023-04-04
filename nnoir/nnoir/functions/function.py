@@ -47,7 +47,3 @@ class Function(object):
             b"outputs": self.outputs,
             b"params": binary_params,
         }
-
-    def run(self, *inputs: NDArray[Any]) -> Union[NDArray[Any], List[NDArray[Any]], Tuple[NDArray[Any], ...]]:
-        AssertionError("should override by subclass")
-        return ()

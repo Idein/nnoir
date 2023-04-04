@@ -1,15 +1,17 @@
+from typing import Any, List
+
 import numpy as np
 
 from .function import Function
 
 
 class Bilinear2D(Function):
-    def __init__(self, inputs, outputs, **params):
+    def __init__(self, inputs: List[bytes], outputs: List[bytes], **params: Any):
         required_params = {"size"}
         optional_params = {"mode"}
         super(Bilinear2D, self).__init__(inputs, outputs, params, required_params, optional_params)
 
-    def run(self, x):
+    def run(self, x):  # type: ignore
         out_h = self.params["size"][0]
         out_w = self.params["size"][1]
         batch, ch, in_h, in_w = x.shape

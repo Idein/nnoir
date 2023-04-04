@@ -1,15 +1,17 @@
+from typing import Any, List, Set
+
 import numpy as np
 
 from .function import Function
 
 
 class ConstantPadding(Function):
-    def __init__(self, inputs, outputs, **params):
+    def __init__(self, inputs: List[bytes], outputs: List[bytes], **params: Any):
         required_params = {"pads", "value"}
-        optional_params = set()
+        optional_params: Set[str] = set()
         super(ConstantPadding, self).__init__(inputs, outputs, params, required_params, optional_params)
 
-    def run(self, x):
+    def run(self, x):  # type: ignore
         return np.pad(
             x,
             self.params["pads"],

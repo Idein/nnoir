@@ -1,27 +1,29 @@
+from typing import Any, List, Set
+
 import numpy as np
 
 from .function import Function
 
 
 class Resize2D(Function):
-    def __init__(self, inputs, outputs, **params):
+    def __init__(self, inputs: List[bytes], outputs: List[bytes], **params: Any):
         required_params = {"size", "interpolation_mode", "coordinate_transformation_mode"}
-        optional_params = set()
+        optional_params: Set[str] = set()
         super(Resize2D, self).__init__(inputs, outputs, params, required_params, optional_params)
 
-    def run(self, x):
+    def run(self, x):  # type: ignore
         out_h = self.params["size"][0]
         out_w = self.params["size"][1]
         modes = self.params["interpolation_mode"].decode("utf-8").split("-")
         if modes[0] == "linear":
-            return _run_linear(x, out_h, out_w, self.params["coordinate_transformation_mode"])
-        elif modes[0] == "nearest":
-            return _run_nearest(x, out_h, out_w, self.params["coordinate_transformation_mode"], modes[1])
+            return _run_linear(x, out_h, out_w, self.params["coordinate_transformation_mode"])  #type: ignore
+        elif modes[0] == "nearest": 
+            return _run_nearest(x, out_h, out_w, self.params["coordinate_transformation_mode"], modes[1])  #type: ignore
         else:
             raise Exception("unknow Resize mode")
 
 
-def _run_linear(x, out_h, out_w, coordinate_transformation_mode):
+def _run_linear(x, out_h, out_w, coordinate_transformation_mode):  # type: ignore
     batch, ch, in_h, in_w = x.shape
     if coordinate_transformation_mode == b"align_none":
         # Mode: TF1(default), onnxruntime
@@ -71,30 +73,30 @@ def _run_linear(x, out_h, out_w, coordinate_transformation_mode):
     return result
 
 
-def _round_index(i, nearest_mode):
+def _round_index(i, nearest_mode):  # type: ignore
     if nearest_mode == "floor":
         return int(np.floor(i))
     else:
         raise Exception("unsupported nearest_mode")
 
 
-def _get_original_index(i, l0, l1, coordinate_transformation_mode, nearest_mode):
+def _get_original_index(i, l0, l1, coordinate_transformation_mode, nearest_mode):  # type: ignore
     scale = float(l0) / float(l1)
     if coordinate_transformation_mode == b"asymmetric":
         i_ori = i * scale
     else:
         raise Exception("unsupported coordinate_transformation_mode")
-    return _round_index(i_ori, nearest_mode)
+    return _round_index(i_ori, nearest_mode)  #type: ignore
 
 
-def _run_nearest(x, out_h, out_w, coordinate_transformation_mode, nearest_mode):
+def _run_nearest(x, out_h, out_w, coordinate_transformation_mode, nearest_mode):  # type: ignore
     batch, ch, in_h, in_w = x.shape
     y = np.empty((batch, ch, out_h, out_w), dtype=x.dtype)
     for b in np.arange(batch):
         for c in np.arange(ch):
             for i1 in np.arange(out_h):
-                i0 = _get_original_index(i1, in_h, out_h, coordinate_transformation_mode, nearest_mode)
+                i0 = _get_original_index(i1, in_h, out_h, coordinate_transformation_mode, nearest_mode)  #type: ignore
                 for j1 in np.arange(out_w):
-                    j0 = _get_original_index(j1, in_w, out_w, coordinate_transformation_mode, nearest_mode)
+                    j0 = _get_original_index(j1, in_w, out_w, coordinate_transformation_mode, nearest_mode)  #type: ignore
                     y[b, c, i1, j1] = x[b, c, i0, j0]
     return y

@@ -129,7 +129,7 @@ class NNOIR:
                     if n not in f.outputs:
                         continue
                     inputs = [eval(i) for i in f.inputs]
-                    outputs = f.run(*inputs)
+                    outputs = f.run(*inputs)  # type: ignore
                     if type(outputs) == list:
                         pass
                     elif type(outputs) == tuple:
