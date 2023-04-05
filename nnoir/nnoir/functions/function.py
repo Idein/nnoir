@@ -1,11 +1,20 @@
 import io
+from typing import Any, Dict, List, Set, Tuple, Union
 
 import nnoir
 import numpy
+from numpy.typing import NDArray
 
 
 class Function(object):
-    def __init__(self, inputs, outputs, params, required_params, optional_params):
+    def __init__(
+        self,
+        inputs: List[bytes],
+        outputs: List[bytes],
+        params: Dict[str, Any],
+        required_params: Set[str],
+        optional_params: Set[str],
+    ):
         if required_params - set(params.keys()) != set():
             lacks = ", ".join(required_params - set(params.keys()))
             raise Exception("lack of required parameter: {}".format(lacks))
@@ -16,11 +25,11 @@ class Function(object):
         self.outputs = outputs
         self.params = params
 
-    def dump(self):
-        def encode_ndarray(obj):
+    def dump(self) -> Dict[bytes, Any]:
+        def encode_ndarray(obj: NDArray[Any]) -> Dict[bytes, Any]:
             x = None
             with io.BytesIO() as out:
-                numpy.save(out, obj.copy())
+                numpy.save(out, obj.copy())  # type: ignore
                 x = out.getvalue()
             return {b"ndarray": x}
 

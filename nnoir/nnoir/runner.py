@@ -1,24 +1,26 @@
 import argparse
 import sys
+from typing import List
 
 import numpy as np
-from nnoir import NNTC, TestValue, load
+from nnoir import NNTC, TestValue, Value, load
+from numpy.typing import NDArray
 
 
-def pack_values(ns, vs):
+def pack_values(ns: List[bytes], vs: List[NDArray[np.float32]]) -> List[TestValue]:
     return [TestValue(n, v) for (n, v) in zip(ns, vs)]
 
 
-def generate_inputs(vs, seed, base, scale):
+def generate_inputs(vs: List[Value], seed: int, base: float, scale: float) -> List[NDArray[np.float32]]:
     inputs = []
     np.random.seed(seed)
     for v in vs:
-        x = base + scale * np.random.randn(*v.shape).astype(np.float32)
+        x = base + scale * np.random.randn(*v.shape).astype(np.float32)  # type: ignore
         inputs.append(x)
     return inputs
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="NNTC generator")
     parser.add_argument(dest="nnoir", type=str, metavar="NNOIR", help="input nnoir file")
     parser.add_argument("-o", "--output", dest="output", type=str, required=True, metavar="PATH", help="output file path")
@@ -30,7 +32,7 @@ def main():
 
     nnoir_model = load(args.nnoir)
     if nnoir_model.name == b"main":
-        sys.exit(f"Error: invalid model name ({nnoir_model.name})")
+        sys.exit(f"Error: invalid model name ({nnoir_model.name.decode()})")
 
     input_values = [[v for v in nnoir_model.values if v.name == n][0] for n in nnoir_model.inputs]
 

@@ -1,16 +1,18 @@
 import argparse
 import io
 import sys
+from typing import Any, Dict, Iterator, List
 
 import msgpack
 import numpy
+from numpy.typing import NDArray
 
 
-def function_label(function):
+def function_label(function: Dict[bytes, Any]) -> str:
     ret = "{{" + (
         "|".join(
             [function[b"name"].decode()]
-            + list(map(lambda v: "<a" + str(v[0]) + v[1].decode() + ">", enumerate(function[b"inputs"])))
+            + list(map(lambda v: "<a" + str(v[0]) + v[1].decode() + ">", enumerate(function[b"inputs"])))  # type: ignore
         )
     )
     if b"W" in function[b"params"]:
@@ -19,10 +21,10 @@ def function_label(function):
         ret += "|b"
     ret += "}"
 
-    def find_params(params):
+    def find_params(params: Dict[bytes, Any]) -> Iterator[str]:
         for k, v in params.items():
             if type(v) is dict and b"ndarray" in v:
-                array = numpy.load(io.BytesIO(v[b"ndarray"]))
+                array = numpy.load(io.BytesIO(v[b"ndarray"]))  # type: ignore
                 yield k.decode() + " shape: " + str(array.shape)
             elif type(v) is dict and b"nnoir" in v:
                 yield k.decode() + ": " + v[b"nnoir"][b"model"][b"name"].decode("utf-8")
@@ -32,21 +34,21 @@ def function_label(function):
     params_str = "&#92;l".join(find_params(function[b"params"]))
     if params_str != "":
         ret += "|{%s&#92;l}" % params_str
-    ret += "|{%s}}" % "|".join(map(lambda v: "<" + v.decode() + ">", reversed(function[b"outputs"])))
+    ret += "|{%s}}" % "|".join(map(lambda v: "<" + v.decode() + ">", reversed(function[b"outputs"])))  # type: ignore
     return ret
 
 
-def function_name(function):
-    inputs = "".join(map(lambda v: v.decode(), reversed(function[b"inputs"])))
-    outputs = "".join(map(lambda v: v.decode(), reversed(function[b"outputs"])))
+def function_name(function: Dict[bytes, Any]) -> str:
+    inputs = "".join(map(lambda v: v.decode(), reversed(function[b"inputs"])))  # type: ignore
+    outputs = "".join(map(lambda v: v.decode(), reversed(function[b"outputs"])))  # type: ignore
     return "{}_{}_{}".format(function[b"name"].decode(), inputs, outputs)
 
 
-def value_name(value):
+def value_name(value: Dict[bytes, Any]) -> str:
     return "{} {}".format(value[b"name"].decode(), tuple(value[b"shape"]))
 
 
-def to_dot(nnoir, rankdir="TB"):
+def to_dot(nnoir: Dict[bytes, Any], rankdir: str = "TB") -> str:
     inputs = nnoir[b"nnoir"][b"model"][b"inputs"]
     outputs = nnoir[b"nnoir"][b"model"][b"outputs"]
     values = nnoir[b"nnoir"][b"model"][b"values"]
@@ -107,7 +109,7 @@ def to_dot(nnoir, rankdir="TB"):
     return ret
 
 
-def nnoir2dot():
+def nnoir2dot() -> None:
     parser = argparse.ArgumentParser(description="NNOIR to Graphviz(dot) Converter")
     parser.add_argument(dest="input", type=str, metavar="NNOIR", help="input(NNOIR) file path")
     args = parser.parse_args()

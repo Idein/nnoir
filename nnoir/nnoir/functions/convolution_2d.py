@@ -1,3 +1,5 @@
+from typing import Any, List, Set
+
 import numpy as np
 
 from . import util
@@ -5,12 +7,12 @@ from .function import Function
 
 
 class Convolution2D(Function):
-    def __init__(self, inputs, outputs, **params):
+    def __init__(self, inputs: List[bytes], outputs: List[bytes], **params: Any):
         required_params = {"W", "b", "pad_h", "pad_w", "stride", "dilate", "groups"}
         optional_params = {"y_scale", "y_zero", "w_scale", "w_zero"}
         super(Convolution2D, self).__init__(inputs, outputs, params, required_params, optional_params)
 
-    def grouped_convolution(self, x):
+    def grouped_convolution(self, x):  # type: ignore
         G = self.params["groups"]
         batch, in_ch, in_h, in_w = x.shape
         out_ch, _, kh, kw = self.params["W"].shape
@@ -35,7 +37,7 @@ class Convolution2D(Function):
 
         if self.params["W"].dtype == np.uint8:
             func = lambda x, w: np.matmul(w, x).astype(x.dtype, copy=False)
-            y = util.calc_with_uint8_weight(func, x, W, self.params["w_scale"], self.params["w_zero"])
+            y = util.calc_with_uint8_weight(func, x, W, self.params["w_scale"], self.params["w_zero"])  # type: ignore
         else:
             assert W.dtype == np.float32
             y = np.matmul(W, x).astype(x.dtype, copy=False)
@@ -47,9 +49,9 @@ class Convolution2D(Function):
 
         return (y,)
 
-    def run(self, x):
+    def run(self, x):  # type: ignore
         if self.params["groups"] > 1:
-            return self.grouped_convolution(x)
+            return self.grouped_convolution(x)  # type: ignore
 
         kernel = (self.params["W"].shape[2], self.params["W"].shape[3])
         img, col = util.im2col_cpu(
@@ -62,7 +64,7 @@ class Convolution2D(Function):
         )
         if self.params["W"].dtype == np.uint8:
             func = lambda x, w: np.tensordot(x, w, ((1, 2, 3), (1, 2, 3)))
-            R = util.calc_with_uint8_weight(func, col, self.params["W"], self.params["w_scale"], self.params["w_zero"])
+            R = util.calc_with_uint8_weight(func, col, self.params["W"], self.params["w_scale"], self.params["w_zero"])  # type: ignore
         else:
             assert self.params["W"].dtype == np.float32
             R = np.tensordot(col, self.params["W"], ((1, 2, 3), (1, 2, 3)))
