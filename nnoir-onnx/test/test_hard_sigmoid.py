@@ -35,3 +35,18 @@ def test_hard_sigmoid_00():
     #
     v0 = np.random.uniform(-7.5, 7.5, (1, 3, 4, 5)).astype(np.float32)
     HardSigmoidTester({"v0": v0}, ["v1"], alpha=alpha, beta=beta).run()
+
+
+def test_hard_sigmoid_01():
+    alpha = 1 / 3
+    beta = 3 / 5
+    # y = max(0, min(1, (1/3) * x + (3/5)))
+    #
+    # | condition        | result of `alpha * x + beta` | value of y       |
+    # | ---              | ---                          | ---              |
+    # | x < -1.8         | result < 0                   | 0                |
+    # | x > 1.2          | result > 1                   | 1                |
+    # | -1.8 < x < 1.2   | 0 <= result <= 1             | alpha * x + beta |
+    #
+    v0 = np.random.uniform(-4.8, 4.8, (1, 3, 4, 5)).astype(np.float32)
+    HardSigmoidTester({"v0": v0}, ["v1"], alpha=alpha, beta=beta).run()
