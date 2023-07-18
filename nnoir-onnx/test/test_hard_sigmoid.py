@@ -8,13 +8,12 @@ info = make_tensor_value_info
 
 
 class HardSigmoidTester(Base):
-    def __init__(self, inputs, outputs, alpha: float, beta: float):
+    def __init__(self, inputs, outputs, **kwargs):
         super().__init__(inputs, outputs)
-        self.alpha = alpha
-        self.beta = beta
+        self.params = kwargs
 
     def create_onnx(self) -> onnx.ModelProto:
-        node = make_node("HardSigmoid", inputs=["v0"], outputs=["v1"], alpha=self.alpha, beta=self.beta)
+        node = make_node("HardSigmoid", inputs=["v0"], outputs=["v1"], **self.params)
         inputs = [info("v0", TensorProto.FLOAT, (1, 3, 4, 5))]
         outputs = [info("v1", TensorProto.FLOAT, (1, 3, 4, 5))]
         graph = make_graph([node], "add_graph", inputs, outputs)
@@ -23,8 +22,6 @@ class HardSigmoidTester(Base):
 
 
 def test_hard_sigmoid_00():
-    alpha = 0.2
-    beta = 0.5
     # y = max(0, min(1, 0.2 * x + 0.5))
     #
     # | condition        | result of `alpha * x + beta` | value of y       |
@@ -34,7 +31,7 @@ def test_hard_sigmoid_00():
     # | -2.5 < x < 2.5   | 0 <= result <= 1             | alpha * x + beta |
     #
     v0 = np.random.uniform(-7.5, 7.5, (1, 3, 4, 5)).astype(np.float32)
-    HardSigmoidTester({"v0": v0}, ["v1"], alpha=alpha, beta=beta).run()
+    HardSigmoidTester({"v0": v0}, ["v1"]).run()
 
 
 def test_hard_sigmoid_01():
