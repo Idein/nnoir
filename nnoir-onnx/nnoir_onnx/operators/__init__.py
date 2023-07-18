@@ -12,6 +12,7 @@ from .exp import OpExp
 from .flatten import OpFlatten
 from .gemm import OpGemm
 from .global_average_pool import OpGlobalAveragePool
+from .hard_sigmoid import OpHardSigmoid
 from .hard_swish import OpHardSwish
 from .leaky_relu import OpLeakyRelu
 from .lrn import OpLRN
