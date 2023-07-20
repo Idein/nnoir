@@ -31,5 +31,5 @@ class OpHardSigmoid(Op):
             # t1 = alpha * x + beta
             AddConstant([t0], [t1], value=beta),
             # output = max(0, min(alpha * x + beta, 1))
-            ClippedReLU([t1], list(self.node.output), upper=1),
+            ClippedReLU([t1], list(self.node.output), upper=1.0),
         ]
