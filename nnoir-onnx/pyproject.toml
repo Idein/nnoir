@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nnoir-onnx"
-version = "1.2.0"
+version = "1.2.1"
 description = "ONNX to NNOIR Converter"
 authors = ["Idein Inc."]
 license = "MIT"
