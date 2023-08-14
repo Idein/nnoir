@@ -1,21 +1,23 @@
 import io
+from typing import List
 
 import numpy as np
+from nnoir.functions import Function
 
 
 class InvalidONNXData(Exception):
-    def __init__(self, message):
+    def __init__(self, message: str):
         self.message = message
 
 
 class UnsupportedONNXOperation(Exception):
-    def __init__(self, node, message):
+    def __init__(self, node, message: str):
         self.node = node
         self.message = message
 
 
 class UnknownSizedVariable(Exception):
-    def __init__(self, message):
+    def __init__(self, message: str):
         self.message = message
 
 
@@ -24,7 +26,7 @@ class Op:
         self.node = node
         self.opset_version = opset_version
 
-    def to_function(self, env, constants):
+    def to_function(self, env, constants) -> List[Function]:
         raise UnsupportedONNXOperation(self.node, "not implemented")
 
 
