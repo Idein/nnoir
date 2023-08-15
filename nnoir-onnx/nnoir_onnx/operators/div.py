@@ -1,17 +1,21 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from nnoir.functions import *
+import onnx
+from nnoir.functions import Constant, Div, Function, Mul
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpDiv(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpDiv, self).__init__(node, *args)
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         [a, b] = self.node.input
 
-        def scale(v, w):
+        def scale(v: str, w: NDArray[Any]) -> List[Function]:
             internal_node = gen_unregisterd_node_name(env)
             register_node(env, internal_node, w)
             return [

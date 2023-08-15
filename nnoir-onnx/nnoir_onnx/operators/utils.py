@@ -61,13 +61,13 @@ def auto_pad_to_manual_pad(n: int, k: int, s: int, d: int, auto_pad: bytes) -> T
         raise "invalid"  # type: ignore
 
 
-def gen_unregisterd_node_name(env: Dict[str, NDArray[Any]]) -> Optional[str]:
+def gen_unregisterd_node_name(env: Dict[str, NDArray[Any]]) -> str:
     for i in range(len(env)):
         candidate = f"v{i}"
         if candidate not in env:
             return candidate
 
-    return None
+    return f"v{len(env)}"
 
 
 def register_node(env: Dict[str, NDArray[Any]], name: str, val: NDArray[Any]) -> None:

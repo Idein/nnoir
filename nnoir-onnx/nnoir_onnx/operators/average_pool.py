@@ -1,11 +1,15 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from nnoir.functions import *
+import onnx
+from nnoir.functions import AveragePooling2D, Function
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpAveragePool(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super().__init__(node, *args)
 
         self.kernel_shape = None
@@ -28,7 +32,7 @@ class OpAveragePool(Op):
             if attr.name == "count_include_pad":
                 self.count_include_pad = attr.i
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         [x] = self.node.input
 
         _input = env[x]
@@ -36,8 +40,8 @@ class OpAveragePool(Op):
         channel = _input.shape[1]
         in_h = _input.shape[2]
         in_w = _input.shape[3]
-        kh = self.kernel_shape[0]
-        kw = self.kernel_shape[1]
+        kh = self.kernel_shape[0]  # type: ignore
+        kw = self.kernel_shape[1]  # type: ignore
         sy = self.strides[0]
         sx = self.strides[1]
 

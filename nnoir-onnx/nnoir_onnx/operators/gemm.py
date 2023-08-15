@@ -1,10 +1,14 @@
-from nnoir.functions import *
+from typing import Any, Dict, List, Optional, Tuple
+
+import onnx
+from nnoir.functions import Function, Gemm, Linear, Transpose
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpGemm(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpGemm, self).__init__(node, *args)
 
         self.alpha = 1.0
@@ -21,7 +25,7 @@ class OpGemm(Op):
             if attr.name == "transB":
                 self.transB = attr.i
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         if len(self.node.input) == 3:
             [A, B, C] = self.node.input
         else:

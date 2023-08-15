@@ -1,10 +1,14 @@
-from nnoir.functions import *
+from typing import Any, Dict, List, Optional, Tuple
+
+import onnx
+from nnoir.functions import Function, LocalResponseNormalization
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpLRN(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpLRN, self).__init__(node, *args)
 
         self.alpha = 0.0001
@@ -21,14 +25,14 @@ class OpLRN(Op):
             if attr.name == "size":
                 self.size = attr.i
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         return [
             LocalResponseNormalization(
                 list(self.node.input),
                 list(self.node.output),
                 n=self.size,
                 k=self.bias,
-                alpha=self.alpha / self.size,
+                alpha=self.alpha / self.size,  # type: ignore
                 beta=self.beta,
             )
         ]

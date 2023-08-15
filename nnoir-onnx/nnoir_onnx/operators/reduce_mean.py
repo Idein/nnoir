@@ -1,10 +1,14 @@
-from nnoir.functions import *
+from typing import Any, Dict, List, Optional, Tuple
+
+import onnx
+from nnoir.functions import Function, MulConstant, Sum
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpReduceMean(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpReduceMean, self).__init__(node, *args)
 
         self.axes = None
@@ -15,7 +19,7 @@ class OpReduceMean(Op):
             if attr.name == "keepdims":
                 self.keepdims = attr.i > 0
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         [x] = self.node.input
         [y] = self.node.output
         axes = self.axes

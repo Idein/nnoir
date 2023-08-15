@@ -1,13 +1,17 @@
-from nnoir.functions import *
+from typing import Any, Dict, List, Optional, Tuple
+
+import onnx
+from nnoir.functions import BatchNormalization, Function
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpBatchNormalization(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super().__init__(node, *args)
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         [x, gamma, beta, mean, var] = self.node.input
         if gamma not in constants:
             raise UnsupportedONNXOperation(self.node, "missing gamma")

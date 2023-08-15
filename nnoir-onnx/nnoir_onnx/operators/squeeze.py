@@ -1,11 +1,15 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from nnoir.functions import *
+import onnx
+from nnoir.functions import Function, Reshape
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpSqueeze(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpSqueeze, self).__init__(node, *args)
 
         self.axes = []
@@ -14,7 +18,7 @@ class OpSqueeze(Op):
             if attr.name == "axes":
                 self.axes = attr.ints
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         x = self.node.input[0]
         [y] = self.node.output
         shape0 = env[x].shape

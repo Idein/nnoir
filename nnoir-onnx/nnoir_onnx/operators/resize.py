@@ -1,10 +1,14 @@
-from nnoir.functions import *
+from typing import Any, Dict, List, Optional, Tuple
+
+import onnx
+from nnoir.functions import Function, Resize2D
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpResize(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpResize, self).__init__(node, *args)
 
         if self.opset_version < 11:
@@ -61,7 +65,7 @@ class OpResize(Op):
                     self.node, f"{self.nearest_mode.decode('utf-8')} is not supported for Resize nearest mode."
                 )
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         x, *_ = self.node.input
         [y] = self.node.output
         return [

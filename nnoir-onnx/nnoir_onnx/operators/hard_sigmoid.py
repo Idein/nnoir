@@ -1,16 +1,20 @@
-from nnoir.functions import *
+from typing import Any, Dict, List, Optional, Tuple
+
+import onnx
+from nnoir.functions import AddConstant, ClippedReLU, Function, MulConstant
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 # https://github.com/onnx/onnx/blob/main/docs/Operators.md#hardsigmoid
 class OpHardSigmoid(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpHardSigmoid, self).__init__(node, *args)
         if self.opset_version < 6:
             raise UnsupportedONNXOperation(self.node, "only opset_version >= 6 is supported")
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         [x] = self.node.input
         t0 = gen_unregisterd_node_name(env)
         register_node(env, t0, env[x])

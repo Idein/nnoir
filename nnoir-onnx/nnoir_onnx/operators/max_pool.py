@@ -1,11 +1,15 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from nnoir.functions import *
+import onnx
+from nnoir.functions import Function, MaxPooling2D
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpMaxPool(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpMaxPool, self).__init__(node, *args)
 
         self.kernel_shape = None
@@ -36,7 +40,7 @@ class OpMaxPool(Op):
             else:
                 raise UnsupportedONNXOperation(self.node, f"unknown attribute {attr.name}")
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         [x] = self.node.input
 
         _input = env[x]
@@ -44,8 +48,8 @@ class OpMaxPool(Op):
         channel = _input.shape[1]
         in_h = _input.shape[2]
         in_w = _input.shape[3]
-        kh = self.kernel_shape[0]
-        kw = self.kernel_shape[1]
+        kh = self.kernel_shape[0]  # type: ignore
+        kw = self.kernel_shape[1]  # type: ignore
         sy = self.strides[0]
         sx = self.strides[1]
 
