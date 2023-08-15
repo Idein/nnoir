@@ -272,7 +272,7 @@ Set the values with the `--fix_dimension` option."""
             functions,
         )
 
-    def _eval_nodes(self, nodes):
+    def _eval_nodes(self, nodes: List[str]) -> Dict[str, Any]:
         m = copy.deepcopy(self.model)
         for n in m.graph.output:
             m.graph.output.remove(n)
@@ -290,7 +290,7 @@ Set the values with the `--fix_dimension` option."""
             result = []
         return dict(zip(output_names, result))
 
-    def test(self):
+    def test(self) -> None:
         with tempfile.NamedTemporaryFile() as tmpf:
             m = copy.deepcopy(self.model)
             for n in m.graph.output:

@@ -1,8 +1,10 @@
 import io
-from typing import List
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import onnx
 from nnoir.functions import Function
+from numpy.typing import NDArray
 
 
 class InvalidONNXData(Exception):
@@ -11,7 +13,7 @@ class InvalidONNXData(Exception):
 
 
 class UnsupportedONNXOperation(Exception):
-    def __init__(self, node, message: str):
+    def __init__(self, node: onnx.NodeProto, message: str):
         self.node = node
         self.message = message
 
@@ -22,24 +24,24 @@ class UnknownSizedVariable(Exception):
 
 
 class Op:
-    def __init__(self, node, opset_version):
+    def __init__(self, node: onnx.NodeProto, opset_version: int):
         self.node = node
         self.opset_version = opset_version
 
-    def to_function(self, env, constants) -> List[Function]:
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         raise UnsupportedONNXOperation(self.node, "not implemented")
 
 
-def encode_ndarray(obj):
+def encode_ndarray(obj: Optional[NDArray[Any]]) -> Optional[Dict[bytes, bytes]]:
     if obj is None:
         return None
     else:
         with io.BytesIO() as out:
-            np.save(out, obj.copy())
+            np.save(out, obj.copy())  # type: ignore
             return {b"ndarray": out.getvalue()}
 
 
-def auto_pad_to_manual_pad(n, k, s, d, auto_pad):
+def auto_pad_to_manual_pad(n: int, k: int, s: int, d: int, auto_pad: bytes) -> Tuple[int, int]:
     dk = (k - 1) * d + 1
     if n % s == 0:
         pad = max(dk - s, 0)
@@ -56,15 +58,17 @@ def auto_pad_to_manual_pad(n, k, s, d, auto_pad):
     elif auto_pad == b"VALID":
         return (0, 0)
     else:
-        raise "invalid"
+        raise "invalid"  # type: ignore
 
 
-def gen_unregisterd_node_name(env):
+def gen_unregisterd_node_name(env: Dict[str, NDArray[Any]]) -> Optional[str]:
     for i in range(len(env)):
         candidate = f"v{i}"
         if candidate not in env:
             return candidate
 
+    return None
 
-def register_node(env, name, val):
+
+def register_node(env: Dict[str, NDArray[Any]], name: str, val: NDArray[Any]) -> None:
     env[name] = val
