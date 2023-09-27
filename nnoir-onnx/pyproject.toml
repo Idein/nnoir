@@ -60,3 +60,7 @@ py_version = "py37"
 [[tool.mypy.overrides]]
 module = "onnx.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "onnxruntime.*"
+ignore_missing_imports = true
