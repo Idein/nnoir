@@ -347,18 +347,17 @@ Set the values with the `--fix_dimension` option."""
                     generator = self._find_generator(n)
                     if generator.op_type == "Shape":  # In nnoir, array shape is known information.
                         result.append(n)
-                    else:
-                        next_nodes = []
-                        if hasattr(generator, "input"):
-                            next_nodes = [i for i in generator.input if i not in visited and len(i) > 0]
-                        dfs(visited, next_nodes, result)
-                        if hasattr(generator, "input"):
-                            if all([i in result for i in generator.input]):
-                                for o in generator.output:
-                                    result.append(o)
-                        else:
+                    next_nodes = []
+                    if hasattr(generator, "input"):
+                        next_nodes = [i for i in generator.input if i not in visited and len(i) > 0]
+                    dfs(visited, next_nodes, result)
+                    if hasattr(generator, "input"):
+                        if all([i in result for i in generator.input]):
                             for o in generator.output:
                                 result.append(o)
+                    else:
+                        for o in generator.output:
+                            result.append(o)
                 visited.append(n)
 
         result = []
