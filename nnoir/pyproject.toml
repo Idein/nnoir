@@ -51,3 +51,8 @@ line_length = 128
 py_version = "py37"
 [[tool.pysen.lint.mypy_targets]]
   paths = ["."]
+
+[tool.mypy]
+[[tool.mypy.overrides]]
+module = "msgpack.*"
+ignore_missing_imports = true
