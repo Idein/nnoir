@@ -2,7 +2,7 @@ import numpy as np
 import onnx
 import pytest
 from onnx import TensorProto
-from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor_value_info, make_tensor
+from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
 from util import Base
 
@@ -127,7 +127,9 @@ def test_split_specify_split_13():
             ]
             node_p0 = make_node(
                 "Constant",
-                value=make_tensor(name="p0_constant", data_type=TensorProto.INT64, dims=(3,), vals=np.array([2, 3, 5]).astype(np.int64)),
+                value=make_tensor(
+                    name="p0_constant", data_type=TensorProto.INT64, dims=(3,), vals=np.array([2, 3, 5]).astype(np.int64)
+                ),
                 inputs=[],
                 outputs=["p0"],
             )
