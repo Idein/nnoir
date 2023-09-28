@@ -2,23 +2,7 @@ from typing import Any, Dict, List, Optional, Tuple, no_type_check
 
 import numpy as np
 import onnx
-from nnoir.functions import (
-    LSTM,
-    Add,
-    Concat,
-    Constant,
-    Function,
-    Linear,
-    Mul,
-    ReLU,
-    Reshape,
-    Sigmoid,
-    Slice,
-    Split,
-    Sum,
-    Tanh,
-    Transpose,
-)
+from nnoir.functions import Add, Concat, Constant, Function, Linear, Mul, ReLU, Reshape, Sigmoid, Sum, Tanh, Transpose
 from numpy.typing import NDArray
 
 from .utils import *
