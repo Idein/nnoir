@@ -1,5 +1,8 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,9 +11,9 @@ from util import Base
 info = make_tensor_value_info
 
 
-def run_opset_11_tester(input_shape, output_shape, axes=None):
+def run_opset_11_tester(input_shape: Tuple[int, ...], output_shape: Tuple[int, ...], axes: Optional[List[int]] = None) -> None:
     class SqueezeTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super(SqueezeTester, self).__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -30,33 +33,33 @@ def run_opset_11_tester(input_shape, output_shape, axes=None):
     SqueezeTester({"x": np.ones(input_shape, dtype=np.float32)}, ["y"]).run()
 
 
-def test_opset_11_squeeze_00():
+def test_opset_11_squeeze_00() -> None:
     run_opset_11_tester((1, 3, 1, 5), (3, 5))
 
 
-def test_opset_11_squeeze_01():
+def test_opset_11_squeeze_01() -> None:
     run_opset_11_tester((1, 3, 1, 5), (3, 1, 5), axes=[0])
 
 
-def test_opset_11_squeeze_02():
+def test_opset_11_squeeze_02() -> None:
     run_opset_11_tester((1, 3, 1, 5), (1, 3, 5), axes=[-2])
 
 
-def test_opset_11_squeeze_03():
+def test_opset_11_squeeze_03() -> None:
     run_opset_11_tester((1, 3, 1, 5), (3, 5), axes=[0, 2])
 
 
-def test_opset_11_squeeze_04():
+def test_opset_11_squeeze_04() -> None:
     run_opset_11_tester((1, 3, 1, 5), (3, 5), axes=[0, -2])
 
 
-def test_opset_11_squeeze_05():
+def test_opset_11_squeeze_05() -> None:
     run_opset_11_tester((1, 3, 1, 5), (3, 5), axes=[2, -4])
 
 
-def run_opset_13_tester(input_shape, output_shape, axes=None):
+def run_opset_13_tester(input_shape: Tuple[int, ...], output_shape: Tuple[int, ...], axes: Optional[List[int]] = None) -> None:
     class SqueezeTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super(SqueezeTester, self).__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -79,25 +82,25 @@ def run_opset_13_tester(input_shape, output_shape, axes=None):
     SqueezeTester({"x": np.ones(input_shape, dtype=np.float32)}, ["y"]).run()
 
 
-def test_opset_13_squeeze_00():
+def test_opset_13_squeeze_00() -> None:
     run_opset_13_tester((1, 3, 1, 5), (3, 5))
 
 
-def test_opset_13_squeeze_01():
+def test_opset_13_squeeze_01() -> None:
     run_opset_13_tester((1, 3, 1, 5), (3, 1, 5), axes=[0])
 
 
-def test_opset_13_squeeze_02():
+def test_opset_13_squeeze_02() -> None:
     run_opset_13_tester((1, 3, 1, 5), (1, 3, 5), axes=[-2])
 
 
-def test_opset_13_squeeze_03():
+def test_opset_13_squeeze_03() -> None:
     run_opset_13_tester((1, 3, 1, 5), (3, 5), axes=[0, 2])
 
 
-def test_opset_13_squeeze_04():
+def test_opset_13_squeeze_04() -> None:
     run_opset_13_tester((1, 3, 1, 5), (3, 5), axes=[0, -2])
 
 
-def test_opset_13_squeeze_05():
+def test_opset_13_squeeze_05() -> None:
     run_opset_13_tester((1, 3, 1, 5), (3, 5), axes=[2, -4])

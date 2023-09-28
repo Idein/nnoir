@@ -68,3 +68,7 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "nnoir.*"
 implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = "nnoir_onnx.*"
+implicit_reexport = true

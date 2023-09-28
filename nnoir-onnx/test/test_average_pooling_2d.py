@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_tensor_value_info
 from util import Base
@@ -7,9 +10,9 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_average_pooling_2d_00():
+def test_average_pooling_2d_00() -> None:
     class AveragePoolTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -26,9 +29,9 @@ def test_average_pooling_2d_00():
     AveragePoolTester({"v0": v0}, outputs).run()
 
 
-def test_average_pooling_2d_01():
+def test_average_pooling_2d_01() -> None:
     class AveragePoolTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -51,9 +54,9 @@ def test_average_pooling_2d_01():
     AveragePoolTester({"v0": v0}, outputs).run()
 
 
-def test_average_pooling_2d_02():
+def test_average_pooling_2d_02() -> None:
     class AveragePoolTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:

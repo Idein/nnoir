@@ -1,6 +1,9 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
 import pytest
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -9,7 +12,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_matmul_00():
+def test_matmul_00() -> None:
     """
     opset version >= 9
     """
@@ -36,7 +39,7 @@ def test_matmul_00():
     MatMulTester({"x": x}, outputs).run()
 
 
-def test_matmul_01():
+def test_matmul_01() -> None:
     """
     opset version >= 9
     """
@@ -63,7 +66,7 @@ def test_matmul_01():
     MatMulTester({"x": x}, outputs).run()
 
 
-def test_matmul_02():
+def test_matmul_02() -> None:
     """
     opset version >= 9
     """
@@ -92,7 +95,7 @@ def test_matmul_02():
     MatMulTester({"x": x, "y": y}, outputs).run()
 
 
-def test_matmul_03():
+def test_matmul_03() -> None:
     """
     opset version >= 9
     """
@@ -121,7 +124,7 @@ def test_matmul_03():
     MatMulTester({"x": x, "y": y}, outputs).run()
 
 
-def test_matmul_04():
+def test_matmul_04() -> None:
     """
     opset version >= 9
     """
@@ -150,7 +153,7 @@ def test_matmul_04():
     MatMulTester({"x": x, "y": y}, outputs).run()
 
 
-def test_matmul_05():
+def test_matmul_05() -> None:
     """
     opset version >= 9
     """
@@ -179,7 +182,7 @@ def test_matmul_05():
     MatMulTester({"x": x, "y": y}, outputs).run()
 
 
-def test_matmul_06():
+def test_matmul_06() -> None:
     """
     opset version >= 9
     """

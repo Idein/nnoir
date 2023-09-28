@@ -1,6 +1,9 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
 import pytest
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -9,7 +12,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_concat_00():
+def test_concat_00() -> None:
     class ConcatTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node("Concat", inputs=["v0", "v1"], outputs=["v2"], axis=1)
@@ -29,7 +32,7 @@ def test_concat_00():
     ConcatTester({"v0": v0, "v1": v1}, outputs).run()
 
 
-def test_concat_01():
+def test_concat_01() -> None:
     class ConcatTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node("Concat", inputs=["v0", "v1", "v2"], outputs=["v3"], axis=2)
@@ -53,7 +56,7 @@ def test_concat_01():
 
 
 @pytest.mark.xfail()
-def test_concat_02():
+def test_concat_02() -> None:
     """
     Test to get value from initializers directly.
     Currently unsupported.

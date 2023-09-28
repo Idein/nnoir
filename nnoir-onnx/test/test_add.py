@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,7 +11,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_add_00():
+def test_add_00() -> None:
     """
     opset version >= 7
     without constant, supports multidirectional broadcasting
@@ -38,7 +41,7 @@ def test_add_00():
     AddTester({"A": a, "B": b}, outputs).run()
 
 
-def test_add_01():
+def test_add_01() -> None:
     """
     opset version >= 7
     with one constant, unidirectional broadcasting (from constant to variable)
@@ -67,7 +70,7 @@ def test_add_01():
     AddTester({"A": a}, outputs).run()
 
 
-def test_add_02():
+def test_add_02() -> None:
     """
     opset version >= 7
     with one constant, support multidirectional broadcasting
@@ -96,7 +99,7 @@ def test_add_02():
     AddTester({"A": a}, outputs).run()
 
 
-def test_add_03():
+def test_add_03() -> None:
     """
     opset version >= 7
     with one constant, different shape length

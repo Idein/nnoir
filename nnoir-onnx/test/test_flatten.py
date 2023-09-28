@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,7 +11,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_flatten_00():
+def test_flatten_00() -> None:
     """
     opser version >= 11
     """
@@ -16,7 +19,7 @@ def test_flatten_00():
     shape = (1, 3, 4, 5)
 
     class FlattenTester(Base):
-        def __init__(self, inputs, outputs, axis):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str], axis: int):
             super().__init__(inputs, outputs)
             self.axis = axis
 
