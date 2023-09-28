@@ -88,15 +88,15 @@ class OpSplit(Op):
         linear_down_out = gen_dummy_value(env, linear_down_shape)
 
         up_const = gen_value(env, matrice_up)
-        up_const_node = Constant([], [up_const], value=matrice_up)
+        up_const_node = Constant([], [up_const], value=matrice_up)  # type: ignore
         down_const = gen_value(env, matrice_up)
-        down_const_node = Constant([], [down_const], value=matrice_down)
+        down_const_node = Constant([], [down_const], value=matrice_down)  # type: ignore
 
-        transpose_node = Transpose(list(self.node.input), [trans_out], axes=transpose_perm_0)
-        linear_up_node = MatMul([trans_out, up_const], [linear_up_out])
-        linear_down_node = MatMul([trans_out, down_const], [linear_down_out])
-        transpose_up_node = Transpose([linear_up_out], [self.node.output[0]], axes=transpose_perm_1)
-        transpose_down_node = Transpose([linear_down_out], [self.node.output[1]], axes=transpose_perm_1)
+        transpose_node = Transpose(list(self.node.input), [trans_out], axes=transpose_perm_0)  # type: ignore
+        linear_up_node = MatMul([trans_out, up_const], [linear_up_out])  # type: ignore
+        linear_down_node = MatMul([trans_out, down_const], [linear_down_out])  # type: ignore
+        transpose_up_node = Transpose([linear_up_out], [self.node.output[0]], axes=transpose_perm_1)  # type: ignore
+        transpose_down_node = Transpose([linear_down_out], [self.node.output[1]], axes=transpose_perm_1)  # type: ignore
         nodes = [
             up_const_node,
             down_const_node,

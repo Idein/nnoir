@@ -18,8 +18,8 @@ class OpMul(Op):
             internal_node = gen_unregisterd_node_name(env)
             register_node(env, internal_node, env[w])
             return [
-                Constant([], [internal_node], value=constants[w]),
-                Mul([v, internal_node], list(self.node.output)),
+                Constant([], [internal_node], value=constants[w]),  # type: ignore
+                Mul([v, internal_node], list(self.node.output)),  # type: ignore
             ]
 
         if a in constants and b not in constants:

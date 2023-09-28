@@ -18,7 +18,7 @@ class OpPRelu(Op):
             c = constants[slope].ravel()
             if len(c) != 1:
                 raise UnsupportedONNXOperation(self.node, "# of slope size must be 1")
-            v = [LeakyReLU([x], list(self.node.output), slope=float(c[0]))]
+            v: List[Function] = [LeakyReLU([x], list(self.node.output), slope=float(c[0]))]
             return v
         else:
             raise UnsupportedONNXOperation(self.node, "# of slope must be constant")

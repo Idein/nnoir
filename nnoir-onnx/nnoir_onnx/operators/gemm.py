@@ -55,9 +55,9 @@ class OpGemm(Op):
             internal_node = f"{A}_{id(A)}"
             env[internal_node] = env[A].T
             return [
-                Transpose([A], [internal_node], axes=[1, 0]),
+                Transpose([A], [internal_node], axes=[1, 0]),  # type: ignore
                 Linear(
-                    [internal_node],
+                    [internal_node],  # type: ignore
                     list(self.node.output),
                     W=self.alpha * b,
                     b=self.beta * c.ravel(),

@@ -235,10 +235,11 @@ Set the values with the `--fix_dimension` option."""
         except UnsupportedONNXOperation as e:
             self._dump_dot()
             raise e
-        nodes = [Value(n, self.nodes[n]) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]
 
-        # rename to C ident (some frameworks don't satisfy the onnx spec.)
-        renaming_table = {n.name: f"v{i}".encode("utf-8") for i, n in enumerate(nodes)}
+        # FIXME: name of nnoir.Value should be bytes
+        nodes = [Value(n, self.nodes[n]) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]  # type: ignore
+
+        renaming_table: Dict[str, bytes] = {n.name: f"v{i}".encode("utf-8") for i, n in enumerate(nodes)}  # type: ignore
 
         def rename(x: str) -> bytes:
             try:
@@ -250,14 +251,14 @@ Set the values with the `--fix_dimension` option."""
         outputs: List[bytes] = list(map(rename, outputs))  # type: ignore
 
         def rename_function(e: Function) -> Function:
-            e.inputs = list(map(rename, e.inputs))
-            e.outputs = list(map(rename, e.outputs))
+            e.inputs = list(map(rename, e.inputs))  # type: ignore
+            e.outputs = list(map(rename, e.outputs))  # type: ignore
             return e
 
         functions = list(map(rename_function, functions))
 
         def rename_node(n: Value) -> Value:
-            n.name = rename(n.name)
+            n.name = rename(n.name)  # type: ignore
             return n
 
         nodes = list(map(rename_node, nodes))
@@ -266,8 +267,8 @@ Set the values with the `--fix_dimension` option."""
             self.model.graph.name.encode("utf-8"),
             self.model.producer_name,
             self.model.producer_version,
-            inputs,
-            outputs,
+            inputs,  # type: ignore
+            outputs,  # type: ignore
             nodes,
             functions,
         )
@@ -372,7 +373,6 @@ Set the values with the `--fix_dimension` option."""
         return result
 
     def _dot_box_color(self, node: onnx.NodeProto) -> str:
-        print("node:", type(node))
         if not all([o in self.constant_nodes for o in node.output]):
             try:
                 _ = self.op_for_node(node).to_function(self.nodes, self.constant_nodes)

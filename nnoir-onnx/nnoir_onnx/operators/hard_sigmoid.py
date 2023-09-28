@@ -31,9 +31,9 @@ class OpHardSigmoid(Op):
 
         return [
             # t0 = alpha * x
-            MulConstant([x], [t0], value=alpha),
+            MulConstant([x], [t0], value=alpha),  # type: ignore
             # t1 = alpha * x + beta
-            AddConstant([t0], [t1], value=beta),
+            AddConstant([t0], [t1], value=beta),  # type: ignore
             # output = max(0, min(alpha * x + beta, 1))
-            ClippedReLU([t1], list(self.node.output), upper=1.0),
+            ClippedReLU([t1], list(self.node.output), upper=1.0),  # type: ignore
         ]

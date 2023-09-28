@@ -21,8 +21,8 @@ class OpHardSwish(Op):
         register_node(env, t2, env[x])
 
         return [
-            AddConstant([x], [t0], value=3.0),
-            ClippedReLU([t0], [t1], upper=6.0),
-            Mul([x, t1], [t2]),
-            MulConstant([t2], list(self.node.output), value=1 / 6),
+            AddConstant([x], [t0], value=3.0),  # type: ignore
+            ClippedReLU([t0], [t1], upper=6.0),  # type: ignore
+            Mul([x, t1], [t2]),  # type: ignore
+            MulConstant([t2], list(self.node.output), value=1 / 6),  # type: ignore
         ]

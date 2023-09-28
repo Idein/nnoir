@@ -26,8 +26,8 @@ class OpMatMul(Op):
         elif W in constants:
             const_name = gen_value(env, constants[W])
             nodes = [
-                Constant([], [const_name], value=constants[W]),
-                MatMul([x, const_name], list(self.node.output)),
+                Constant([], [const_name], value=constants[W]),  # type: ignore
+                MatMul([x, const_name], list(self.node.output)),  # type: ignore
             ]
             return nodes
         else:

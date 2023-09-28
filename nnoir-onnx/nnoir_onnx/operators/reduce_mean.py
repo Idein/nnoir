@@ -36,9 +36,9 @@ class OpReduceMean(Op):
         return [
             Sum(
                 list(self.node.input),
-                [internal_node],
+                [internal_node],  # type: ignore
                 axes=list(axes),
                 keepdims=self.keepdims,
             ),
-            MulConstant([internal_node], list(self.node.output), value=float(1.0 / n)),
+            MulConstant([internal_node], list(self.node.output), value=float(1.0 / n)),  # type: ignore
         ]
