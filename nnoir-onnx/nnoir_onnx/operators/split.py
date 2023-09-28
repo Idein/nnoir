@@ -84,7 +84,7 @@ class OpSplit(Op):
         trans_shape = transpose_shape(shape, transpose_perm_0)
         trans_out = gen_dummy_value(env, trans_shape)
 
-        nodes = [Transpose(list(self.node.input), [trans_out], axes=transpose_perm_0)]
+        nodes = [Transpose([self.node.input[0]], [trans_out], axes=transpose_perm_0)]
         for i, mat in enumerate(matrices):
             _linear_shape = linear_shape(trans_shape, mat.shape)
             linear_out = gen_dummy_value(env, _linear_shape)
