@@ -236,7 +236,7 @@ Set the values with the `--fix_dimension` option."""
             self._dump_dot()
             raise e
 
-        # FIXME: name of nnoir.Value should be bytes
+        # FIXME: name of nnoir.Value should be bytes. (Throughout the onnx_nnoir source code, there are many mismatches between byte and str types.)
         nodes = [Value(n, self.nodes[n]) for n in set(chain.from_iterable(map(lambda x: x.inputs + x.outputs, functions)))]  # type: ignore
 
         renaming_table: Dict[str, bytes] = {n.name: f"v{i}".encode("utf-8") for i, n in enumerate(nodes)}  # type: ignore
