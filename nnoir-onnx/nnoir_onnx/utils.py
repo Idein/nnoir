@@ -1,9 +1,11 @@
 from typing import Dict, Set
 
+import onnx
+
 from .operators.utils import UnknownSizedVariable
 
 
-def list_dimension_variables(model) -> Set[str]:
+def list_dimension_variables(model: onnx.ModelProto) -> Set[str]:
     s = set()
     for x in model.graph.input:
         if x.type.HasField("tensor_type"):
@@ -13,7 +15,7 @@ def list_dimension_variables(model) -> Set[str]:
     return s
 
 
-def freeze_dimension_variables(model, fix_dimension):
+def freeze_dimension_variables(model: onnx.ModelProto, fix_dimension: Dict[str, int]) -> onnx.ModelProto:
     s = list_dimension_variables(model)
     diff = s.difference(set(fix_dimension.keys()))
     if len(diff) != 0:

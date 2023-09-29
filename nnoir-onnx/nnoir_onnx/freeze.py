@@ -5,20 +5,20 @@ import onnx
 from nnoir_onnx import utils
 
 
-def command_list(args) -> None:
+def command_list(args: argparse.Namespace) -> None:
     model = onnx.load(args.input)
     s = utils.list_dimension_variables(model)
     if len(s) != 0:
         print(s)
 
 
-def command_freeze(args) -> None:
+def command_freeze(args: argparse.Namespace) -> None:
     model = onnx.load(args.input)
     fixed_model = utils.freeze_dimension_variables(model, args.fix_dimension)
     onnx.save(fixed_model, args.output)
 
 
-def freeze():
+def freeze() -> None:
     print("Warning: freeze_onnx is deprecated. Instead use `onnx2nnoir --fix_dimension`.")
     parser = argparse.ArgumentParser(description="ONNX Freezer")
     subparsers = parser.add_subparsers()

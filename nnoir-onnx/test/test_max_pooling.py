@@ -1,7 +1,10 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
 import pytest
 from nnoir_onnx.operators.utils import UnsupportedONNXOperation
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_tensor_value_info
 from util import Base
@@ -9,7 +12,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_max_pool_00():
+def test_max_pool_00() -> None:
     class MaxPoolTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node(
@@ -32,7 +35,7 @@ def test_max_pool_00():
 
 
 @pytest.mark.xfail()
-def test_max_pool_01():
+def test_max_pool_01() -> None:
     """
     opset version >= 10
 
@@ -62,7 +65,7 @@ def test_max_pool_01():
 
 
 @pytest.mark.xfail(raises=UnsupportedONNXOperation)
-def test_max_pool_02():
+def test_max_pool_02() -> None:
     """
     opset version >= 11
 
@@ -91,7 +94,7 @@ def test_max_pool_02():
     MaxPoolTester({"v0": v0}, outputs).run()
 
 
-def test_max_pool_03():
+def test_max_pool_03() -> None:
     """
     opset version >= 10
 

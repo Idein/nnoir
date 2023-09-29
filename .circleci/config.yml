@@ -85,11 +85,6 @@ jobs:
       - lint:
           dir: nnoir
       - run:
-          name: manual mypy check # workaround https://github.com/pfnet/pysen/issues/32
-          working_directory: nnoir
-          command: |
-            poetry run mypy . --strict --implicit-reexport --ignore-missing-imports
-      - run:
           name: Test nnoir
           working_directory: nnoir
           command: |

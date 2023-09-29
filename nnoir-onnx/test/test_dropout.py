@@ -1,6 +1,9 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
 import pytest
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -11,13 +14,13 @@ info = make_tensor_value_info
 shape = (1, 3, 4, 5)
 
 
-def test_dropout_00():
+def test_dropout_00() -> None:
     class DropoutTester(Base):
         """
         opset version 10
         """
 
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -41,13 +44,13 @@ def test_dropout_00():
 
 
 @pytest.mark.xfail()
-def test_dropout_01():
+def test_dropout_01() -> None:
     class DropoutTester(Base):
         """
         Consideration: Optional output 'mask'
         """
 
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:

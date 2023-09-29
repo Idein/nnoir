@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,11 +11,11 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_div_00():
+def test_div_00() -> None:
     shape = (3, 4, 5)
 
     class DivTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -33,14 +36,14 @@ def test_div_00():
     DivTester({"v0": v0, "v1": v1}, outputs).run()
 
 
-def test_div_01():
+def test_div_01() -> None:
     """
     Test for multidirectional broadcasting
     https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md
     """
 
     class DivTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -61,14 +64,14 @@ def test_div_01():
     DivTester({"v0": v0, "v1": v1}, outputs).run()
 
 
-def test_div_02():
+def test_div_02() -> None:
     """
     Test for multidirectional broadcasting
     https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md
     """
 
     class DivTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -89,13 +92,13 @@ def test_div_02():
     DivTester({"v0": v0, "v1": v1}, outputs).run()
 
 
-def test_div_const_00():
+def test_div_const_00() -> None:
     """
     Test for constants
     """
 
     class DivTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -117,13 +120,13 @@ def test_div_const_00():
     DivTester({"v0": v0}, outputs).run()
 
 
-def test_div_const_01():
+def test_div_const_01() -> None:
     """
     Test for constants
     """
 
     class DivTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:

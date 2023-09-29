@@ -12,7 +12,7 @@ def function_label(function: Dict[bytes, Any]) -> str:
     ret = "{{" + (
         "|".join(
             [function[b"name"].decode()]
-            + list(map(lambda v: "<a" + str(v[0]) + v[1].decode() + ">", enumerate(function[b"inputs"])))  # type: ignore
+            + list(map(lambda v: "<a" + str(v[0]) + v[1].decode() + ">", enumerate(function[b"inputs"])))
         )
     )
     if b"W" in function[b"params"]:
@@ -34,13 +34,13 @@ def function_label(function: Dict[bytes, Any]) -> str:
     params_str = "&#92;l".join(find_params(function[b"params"]))
     if params_str != "":
         ret += "|{%s&#92;l}" % params_str
-    ret += "|{%s}}" % "|".join(map(lambda v: "<" + v.decode() + ">", reversed(function[b"outputs"])))  # type: ignore
+    ret += "|{%s}}" % "|".join(map(lambda v: "<" + v.decode() + ">", reversed(function[b"outputs"])))
     return ret
 
 
 def function_name(function: Dict[bytes, Any]) -> str:
-    inputs = "".join(map(lambda v: v.decode(), reversed(function[b"inputs"])))  # type: ignore
-    outputs = "".join(map(lambda v: v.decode(), reversed(function[b"outputs"])))  # type: ignore
+    inputs = "".join(map(lambda v: v.decode(), reversed(function[b"inputs"])))
+    outputs = "".join(map(lambda v: v.decode(), reversed(function[b"outputs"])))
     return "{}_{}_{}".format(function[b"name"].decode(), inputs, outputs)
 
 

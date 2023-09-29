@@ -5,7 +5,7 @@ import onnx
 from nnoir_onnx import ONNX, utils
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="ONNX to NNOIR Converter")
     parser.add_argument(
         "-o", "--output", dest="output", type=str, required=True, metavar="NNOIR", help="output(NNOIR) file path"

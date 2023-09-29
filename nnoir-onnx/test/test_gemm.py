@@ -1,6 +1,9 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
 import pytest
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -9,7 +12,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_gemm_00():
+def test_gemm_00() -> None:
     a_shape = (4, 3)
     b_shape = (5, 4)
     c_shape = (1, 5)
@@ -49,7 +52,7 @@ def test_gemm_00():
 
 
 @pytest.mark.xfail()
-def test_gemm_01():
+def test_gemm_01() -> None:
     """
     unidirectional broadcasting is not supported
     """
@@ -91,7 +94,7 @@ def test_gemm_01():
     GemmTester(inputs, outputs).run()
 
 
-def test_gemm_02():
+def test_gemm_02() -> None:
     a_shape = (4, 3)
     b_shape = (5, 4)
     c_shape = (3, 5)
@@ -131,7 +134,7 @@ def test_gemm_02():
     GemmTester(inputs, outputs).run()
 
 
-def test_gemm_03():
+def test_gemm_03() -> None:
     a_shape = (3, 4)
     b_shape = (4, 5)
     c_shape = (3, 5)
@@ -171,7 +174,7 @@ def test_gemm_03():
     GemmTester(inputs, outputs).run()
 
 
-def test_gemm_04():
+def test_gemm_04() -> None:
     a_shape = (4, 3)
     b_shape = (4, 5)
 

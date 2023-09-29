@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,7 +11,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_resize_00():
+def test_resize_00() -> None:
     """
     opset version >= 11
     """
@@ -43,7 +46,7 @@ def test_resize_00():
     ResizeTester(inputs, outputs).run()
 
 
-def test_resize_01():
+def test_resize_01() -> None:
     """
     opset version >= 11
     """
@@ -77,7 +80,7 @@ def test_resize_01():
     ResizeTester(inputs, outputs).run()
 
 
-def test_resize_02():
+def test_resize_02() -> None:
     """
     opset version >= 11
     """
@@ -112,7 +115,7 @@ def test_resize_02():
     ResizeTester(inputs, outputs).run()
 
 
-def test_resize_03():
+def test_resize_03() -> None:
     """
     opset version >= 11
     """

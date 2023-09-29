@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,7 +11,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_clip_00():
+def test_clip_00() -> None:
     class ClipTester(Base):
         """
         IR version == 11
@@ -29,7 +32,7 @@ def test_clip_00():
     ClipTester(inputs, outputs).run()
 
 
-def test_clip_01():
+def test_clip_01() -> None:
     class ClipTester(Base):
         """
         IR version == 6

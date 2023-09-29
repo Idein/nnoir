@@ -39,15 +39,21 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pysen]
-version = "0.10"
+version = "0.10.5"
 
 [tool.pysen.lint]
 enable_black = true
 enable_flake8 = false  # disabled due to too many errors
 enable_isort = true
-enable_mypy = false    # disabled because currently pysen doesn't support mypy ^1.0
+enable_mypy = true
 mypy_preset = "strict"
 line_length = 128
 py_version = "py37"
+
 [[tool.pysen.lint.mypy_targets]]
   paths = ["."]
+
+[tool.mypy]
+[[tool.mypy.overrides]]
+module = "msgpack.*"
+ignore_missing_imports = true
