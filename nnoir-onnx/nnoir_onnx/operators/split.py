@@ -9,6 +9,7 @@ from .utils import Op, UnsupportedONNXOperation, gen_unregisterd_node_name, regi
 
 ShapeLike = Union[Tuple[int, ...], List[int]]
 
+
 def create_split_matrices(k: int, sizes: List[int]) -> List[NDArray[Any]]:
     split_matrices: List[NDArray[Any]] = []
     acc = 0
@@ -96,5 +97,5 @@ class OpSplit(Op):
             linear_node = MatMul([trans_out, _const], [linear_out])  # type: ignore
             transpose_node = Transpose([linear_out], [self.node.output[i]], axes=transpose_perm_1)  # type: ignore
             nodes.extend([_const_node, linear_node, transpose_node])
-        
+
         return nodes
