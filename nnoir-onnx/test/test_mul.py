@@ -1,6 +1,9 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
 from nnoir_onnx.operators.utils import UnsupportedONNXOperation
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -9,7 +12,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_mul_00():
+def test_mul_00() -> None:
     """
     opset version >= 7
     without constant, supports multidirectional broadcasting
@@ -39,7 +42,7 @@ def test_mul_00():
     MulTester({"A": a, "B": b}, outputs).run()
 
 
-def test_mul_01():
+def test_mul_01() -> None:
     """
     opset version >= 7
     with one constant, unidirectional broadcasting (from constant to variable)
@@ -68,7 +71,7 @@ def test_mul_01():
     MulTester({"A": a}, outputs).run()
 
 
-def test_mul_02():
+def test_mul_02() -> None:
     """
     opset version >= 7
     with one constant, support multidirectional broadcasting
@@ -97,7 +100,7 @@ def test_mul_02():
     MulTester({"A": a}, outputs).run()
 
 
-def test_mul_03():
+def test_mul_03() -> None:
     """
     opset version >= 7
     with one constant, different shape length

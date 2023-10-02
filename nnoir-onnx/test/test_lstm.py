@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,7 +11,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_LSTM_00():
+def test_LSTM_00() -> None:
     class LSTMTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             input_size = 2
@@ -49,7 +52,7 @@ def test_LSTM_00():
     LSTMTester({"x": x}, outputs).run()
 
 
-def test_LSTM_01():
+def test_LSTM_01() -> None:
     class LSTMTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             input_size = 2
@@ -88,7 +91,7 @@ def test_LSTM_01():
             )
             W_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)
             R_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)
-            B = from_array(np.concatenate((W_B, R_B), 1), "B")
+            B = from_array(np.concatenate((W_B, R_B), 1), "B")  # type: ignore
 
             graph = make_graph([node], "lstm_graph", inputs, outputs, initializer=[W, R, B])
             print(onnx.helper.printable_graph(graph))
@@ -100,7 +103,7 @@ def test_LSTM_01():
     LSTMTester({"x": x}, outputs).run()
 
 
-def test_LSTM_02():
+def test_LSTM_02() -> None:
     class LSTMTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             input_size = 2
@@ -140,7 +143,7 @@ def test_LSTM_02():
             )
             W_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)
             R_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)
-            B = from_array(np.concatenate((W_B, R_B), 1), "B")
+            B = from_array(np.concatenate((W_B, R_B), 1), "B")  # type: ignore
 
             seq_lens = from_array(np.repeat(seq_length, batch_size).astype(np.int32), "sequence_lens")
             init_h = from_array(np.ones((1, batch_size, hidden_size)).astype(np.float32), "initial_h")
@@ -162,7 +165,7 @@ def test_LSTM_02():
     LSTMTester({"x": x}, outputs).run()
 
 
-def test_LSTM_03():
+def test_LSTM_03() -> None:
     class LSTMTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             input_size = 2
@@ -211,7 +214,7 @@ def test_LSTM_03():
             )
             W_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)
             R_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)
-            B = from_array(np.concatenate((W_B, R_B), 1), "B")
+            B = from_array(np.concatenate((W_B, R_B), 1), "B")  # type: ignore
 
             seq_lens = from_array(np.repeat(seq_length, batch_size).astype(np.int32), "sequence_lens")
             init_h = from_array(np.ones((1, batch_size, hidden_size)).astype(np.float32), "initial_h")
@@ -237,7 +240,7 @@ def test_LSTM_03():
     LSTMTester({"x": x}, outputs).run()
 
 
-def test_LSTM_04():
+def test_LSTM_04() -> None:
     class LSTMTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             input_size = 2
@@ -284,7 +287,7 @@ def test_LSTM_04():
     LSTMTester({"x": x}, outputs).run()
 
 
-def test_LSTM_05():
+def test_LSTM_05() -> None:
     batch_size = 3
     hidden_size = 3
 
@@ -329,7 +332,7 @@ def test_LSTM_05():
             )
             W_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)
             R_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)
-            B = from_array(np.concatenate((W_B, R_B), 1), "B")
+            B = from_array(np.concatenate((W_B, R_B), 1), "B")  # type: ignore
 
             seq_lens = from_array(np.repeat(seq_length, batch_size).astype(np.int32), "sequence_lens")
 

@@ -1,5 +1,8 @@
+from typing import Any, Dict, List, Tuple
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,7 +11,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def run_opset_11_tester(input_shape, output_shape, axes):
+def run_opset_11_tester(input_shape: Tuple[int, ...], output_shape: Tuple[int, ...], axes: List[int]) -> None:
     class UnsqueezeTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             inputs = [info("x", TensorProto.FLOAT, input_shape)]
@@ -21,15 +24,15 @@ def run_opset_11_tester(input_shape, output_shape, axes):
     UnsqueezeTester({"x": (np.random.rand(*input_shape).astype(np.float32) * 10.0)}, ["y"]).run()
 
 
-def test_opset_1_unsqueeze_00():
+def test_opset_1_unsqueeze_00() -> None:
     run_opset_11_tester((3, 4), (1, 3, 4, 1), [0, 3])
 
 
-def test_opset_11_unsqueeze_01():
+def test_opset_11_unsqueeze_01() -> None:
     run_opset_11_tester((3, 4), (1, 3, 1, 4), [0, -2])
 
 
-def run_opset_13_tester(input_shape, output_shape, axes):
+def run_opset_13_tester(input_shape: Tuple[int, ...], output_shape: Tuple[int, ...], axes: List[int]) -> None:
     class UnsqueezeTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             inputs = [info("x", TensorProto.FLOAT, input_shape)]
@@ -43,9 +46,9 @@ def run_opset_13_tester(input_shape, output_shape, axes):
     UnsqueezeTester({"x": (np.random.rand(*input_shape).astype(np.float32) * 10.0)}, ["y"]).run()
 
 
-def test_opset_13_unsqueeze_00():
+def test_opset_13_unsqueeze_00() -> None:
     run_opset_13_tester((3, 4), (1, 3, 4, 1), [0, 3])
 
 
-def test_opset_13_unsqueeze_01():
+def test_opset_13_unsqueeze_01() -> None:
     run_opset_13_tester((3, 4), (1, 3, 1, 4), [0, -2])

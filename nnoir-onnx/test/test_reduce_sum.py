@@ -1,5 +1,8 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,7 +11,9 @@ from util import Base
 info = make_tensor_value_info
 
 
-def run_opset_11_tester(input_shape, output_shape, axes=None, keepdims=1):
+def run_opset_11_tester(
+    input_shape: Tuple[int, ...], output_shape: Tuple[int, ...], axes: Optional[List[int]] = None, keepdims: int = 1
+) -> None:
     class ReduceSumTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             kwargs = {
@@ -28,23 +33,25 @@ def run_opset_11_tester(input_shape, output_shape, axes=None, keepdims=1):
     ReduceSumTester({"v0": np.random.rand(*input_shape).astype(np.float32)}, ["v1"]).run()
 
 
-def test_opset_11_reduce_sum_00():
+def test_opset_11_reduce_sum_00() -> None:
     run_opset_11_tester((1, 3, 4, 5), (1, 1, 1, 1))
 
 
-def test_opset_11_reduce_sum_01():
+def test_opset_11_reduce_sum_01() -> None:
     run_opset_11_tester((1, 3, 4, 5), (), keepdims=0)
 
 
-def test_opset_11_reduce_sum_02():
+def test_opset_11_reduce_sum_02() -> None:
     run_opset_11_tester((1, 3, 4, 5), (1, 1, 1, 5), axes=[1, 2])
 
 
-def test_opset_11_reduce_sum_03():
+def test_opset_11_reduce_sum_03() -> None:
     run_opset_11_tester((1, 3, 4, 5), (1, 5), axes=[1, 2], keepdims=0)
 
 
-def run_opset_13_tester(input_shape, output_shape, axes=None, keepdims=1):
+def run_opset_13_tester(
+    input_shape: Tuple[int, ...], output_shape: Tuple[int, ...], axes: Optional[List[int]] = None, keepdims: int = 1
+) -> None:
     class ReduceSumTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             kwargs = {
@@ -67,17 +74,17 @@ def run_opset_13_tester(input_shape, output_shape, axes=None, keepdims=1):
     ReduceSumTester({"v0": np.random.rand(*input_shape).astype(np.float32)}, ["v1"]).run()
 
 
-def test_opset_13_reduce_sum_00():
+def test_opset_13_reduce_sum_00() -> None:
     run_opset_13_tester((1, 3, 4, 5), (1, 1, 1, 1))
 
 
-def test_opset_13_reduce_sum_01():
+def test_opset_13_reduce_sum_01() -> None:
     run_opset_13_tester((1, 3, 4, 5), (), keepdims=0)
 
 
-def test_opset_13_reduce_sum_02():
+def test_opset_13_reduce_sum_02() -> None:
     run_opset_13_tester((1, 3, 4, 5), (1, 1, 1, 5), axes=[1, 2])
 
 
-def test_opset_13_reduce_sum_03():
+def test_opset_13_reduce_sum_03() -> None:
     run_opset_13_tester((1, 3, 4, 5), (1, 5), axes=[1, 2], keepdims=0)

@@ -1,16 +1,20 @@
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
-from nnoir.functions import *
+import onnx
+from nnoir.functions import ClippedReLU, Function
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpClip(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpClip, self).__init__(node, *args)
 
-    def to_function(self, env, constants):
-        _min = -3.4028234663852886e38
-        _max = 3.4028234663852886e38
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
+        _min: Union[float, NDArray[Any]] = -3.4028234663852886e38
+        _max: Union[float, NDArray[Any]] = 3.4028234663852886e38
 
         if self.opset_version < 6:
             raise UnsupportedONNXOperation(self.node, "only opset_version >= 6 is supported")

@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor_value_info
 from util import Base
@@ -8,7 +11,7 @@ info = make_tensor_value_info
 
 
 class HardSigmoidTester(Base):
-    def __init__(self, inputs, outputs, **kwargs):
+    def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str], **kwargs: Any):
         super().__init__(inputs, outputs)
         self.params = kwargs
 
@@ -21,7 +24,7 @@ class HardSigmoidTester(Base):
         return model
 
 
-def test_hard_sigmoid_00():
+def test_hard_sigmoid_00() -> None:
     # y = max(0, min(1, 0.2 * x + 0.5))
     #
     # | condition        | result of `alpha * x + beta` | value of y       |
@@ -34,7 +37,7 @@ def test_hard_sigmoid_00():
     HardSigmoidTester({"v0": v0}, ["v1"]).run()
 
 
-def test_hard_sigmoid_01():
+def test_hard_sigmoid_01() -> None:
     alpha = 1 / 3
     beta = 3 / 5
     # y = max(0, min(1, (1/3) * x + (3/5)))

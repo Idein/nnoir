@@ -1,13 +1,17 @@
-from nnoir.functions import *
+from typing import Any, Dict, List, Optional, Tuple
+
+import onnx
+from nnoir.functions import Bias, Function, Sub
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpSub(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpSub, self).__init__(node, *args)
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         [a, b] = self.node.input
         if a in constants and b not in constants:
             raise UnsupportedONNXOperation(self.node, "unimplemented yet")

@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_tensor_value_info
 from util import Base
@@ -7,11 +10,11 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_sum_00():
+def test_sum_00() -> None:
     shape = (3, 4, 5)
 
     class SumTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -32,14 +35,14 @@ def test_sum_00():
     SumTester({"v0": v0, "v1": v1}, outputs).run()
 
 
-def test_sum_01():
+def test_sum_01() -> None:
     """
     Test for multidirectional broadcasting
     https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md
     """
 
     class SumTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:
@@ -60,14 +63,14 @@ def test_sum_01():
     SumTester({"v0": v0, "v1": v1}, outputs).run()
 
 
-def test_sum_02():
+def test_sum_02() -> None:
     """
     Test for multidirectional broadcasting
     https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md
     """
 
     class SumTester(Base):
-        def __init__(self, inputs, outputs):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
 
         def create_onnx(self) -> onnx.ModelProto:

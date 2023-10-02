@@ -1,23 +1,27 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from nnoir.functions import *
+import onnx
+from nnoir.functions import ConstantPadding, Function
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpPad(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpPad, self).__init__(node, *args)
 
         self.mode = b"constant"
         self.pads = None
         self.value = 0.0
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         if self.opset_version >= 11:
             # pads
             if not self.node.input[1] in constants:
                 raise UnsupportedONNXOperation(self.node, 'pads must be "constant"')
-            self.pads = constants[self.node.input[1]]
+            self.pads = constants[self.node.input[1]]  # type: ignore
 
             # optional: constant_value
             if len(self.node.input) >= 3:
@@ -40,7 +44,7 @@ class OpPad(Op):
                     raise UnsupportedONNXOperation(self.node, f"unknown attribute {attr.s}")
 
             input_ = [self.node.input[0]]
-            pads = list(map(int, self.pads))  # In ONNX specification, the type of `pads` is int64
+            pads = list(map(int, self.pads))  # type: ignore # In ONNX specification, the type of `pads` is int64
         else:
             # opset version >= 2
             for attr in self.node.attribute:
@@ -52,11 +56,11 @@ class OpPad(Op):
                     self.value = attr.f
 
             input_ = list(self.node.input)
-            pads = self.pads
+            pads = self.pads  # type: ignore
         if self.mode != b"constant":
             raise UnsupportedONNXOperation(self.node, 'mode must be "constant"')
 
-        n = len(self.pads) // 2
+        n = len(self.pads) // 2  # type: ignore
         return [
             ConstantPadding(
                 input_,

@@ -1,11 +1,15 @@
+from typing import Any, Dict, List, Optional, Tuple, no_type_check
+
 import numpy as np
-from nnoir.functions import *
+import onnx
+from nnoir.functions import Add, Concat, Constant, Function, Linear, Mul, ReLU, Reshape, Sigmoid, Sum, Tanh, Transpose
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpLSTM(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpLSTM, self).__init__(node, *args)
 
         self.activation_alpha = []
@@ -32,7 +36,8 @@ class OpLSTM(Op):
             if attr.name == "input_forget":
                 self.input_forget = attr.i
 
-    def to_function(self, env, constants):
+    @no_type_check
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         num_of_gates = 4
         num_of_peepholes = 3
         num_directions = (env[self.node.input[1]].shape)[0]
@@ -48,7 +53,7 @@ class OpLSTM(Op):
                 activation_f, activation_g, activation_h = [Sigmoid, Tanh, Tanh]
             elif l == 3:
 
-                def to_op(s):
+                def to_op(s: bytes) -> Function:
                     if s == b"Sigmoid":
                         return Sigmoid
                     elif s == b"Tanh":
@@ -56,13 +61,13 @@ class OpLSTM(Op):
                     elif s == b"Relu":
                         return ReLU
                     else:
-                        raise UnsupportedONNXOperation(self.node, f"{s} is not supported")
+                        raise UnsupportedONNXOperation(self.node, f"{s!r} is not supported")
 
                 activation_f, activation_g, activation_h = [to_op(f) for f in self.activations]
             else:
                 raise UnsupportedONNXOperation(self.node, "the number of activations must be 0 or 3")
 
-            graph = []
+            graph: List[Function] = []
             init_h = np.zeros((batch_size, hidden_size)).astype(np.float32)
             init_c = np.zeros((batch_size, hidden_size)).astype(np.float32)
             ps = np.zeros((num_of_peepholes, hidden_size)).astype(np.float32)
@@ -208,12 +213,12 @@ class OpLSTM(Op):
 
             dummy_res = np.zeros((batch_size, hidden_size)).astype(np.float32)
 
-            def gate(env, res, x, h, W, R, WB, RB, f, c=None, P=None):
+            def gate(env, res, x, h, W, R, WB, RB, f, c=None, P=None) -> List[Function]:
                 t0 = gen_new_node(env, dummy_res)
                 t1 = gen_new_node(env, dummy_res)
                 t2 = gen_new_node(env, dummy_res)
 
-                graph = []
+                graph: List[Function] = []
                 graph += [Linear([x], [t0], W=W, b=WB)]
                 graph += [Linear([h], [t1], W=R, b=RB)]
                 graph += [Add([t0, t1], [t2])]
@@ -270,7 +275,7 @@ class OpLSTM(Op):
             raise UnsupportedONNXOperation(self.node, "direction is not forward")
 
 
-def gen_new_node(env, value):
+def gen_new_node(env: Dict[str, NDArray[Any]], value: NDArray[Any]) -> str:
     n = gen_unregisterd_node_name(env)
     register_node(env, n, value)
     return n

@@ -1,5 +1,8 @@
+from typing import Any, Dict, List
+
 import numpy as np
 import onnx
+from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
@@ -8,7 +11,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_Conv_00():
+def test_Conv_00() -> None:
     class ConvTester(Base):
         def create_onnx(self) -> onnx.ModelProto:
             node = make_node(
@@ -34,7 +37,7 @@ def test_Conv_00():
     ConvTester({"x": x}, outputs).run()
 
 
-def test_Conv_01():
+def test_Conv_01() -> None:
     x_shape = (1, 4, 4, 5)
 
     class GroupedConvTester(Base):

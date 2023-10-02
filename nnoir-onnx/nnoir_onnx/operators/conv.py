@@ -1,11 +1,15 @@
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from nnoir.functions import *
+import onnx
+from nnoir.functions import Convolution2D, DepthwiseConvolution2D, Function
+from numpy.typing import NDArray
 
 from .utils import *
 
 
 class OpConv(Op):
-    def __init__(self, node, *args):
+    def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpConv, self).__init__(node, *args)
 
         self.kernel_shape = None
@@ -28,14 +32,14 @@ class OpConv(Op):
             if attr.name == "pads":
                 self.pads = attr.ints
 
-    def to_function(self, env, constants):
+    def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         b = None
         if len(self.node.input) == 2:
             [x, W] = self.node.input
         elif len(self.node.input) == 3:
             [x, W, b] = self.node.input
         else:
-            raise "invalid"
+            raise "invalid"  # type: ignore
         if W not in constants:
             raise UnsupportedONNXOperation(self.node, "W must be constant")
         W = constants[W]
@@ -49,8 +53,8 @@ class OpConv(Op):
         in_ch = _input.shape[1]
         in_h = _input.shape[2]
         in_w = _input.shape[3]
-        kh = self.kernel_shape[0]
-        kw = self.kernel_shape[1]
+        kh = self.kernel_shape[0]  # type: ignore
+        kw = self.kernel_shape[1]  # type: ignore
         sy = self.strides[0]
         sx = self.strides[1]
         dy = self.dilations[0]
