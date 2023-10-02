@@ -91,8 +91,6 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20230720 onnx
 * [Sin](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sin)
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
 * [Split](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Split)
-    * must be from opset version >= 13
-    * Second optional parameter `split` is not supported
 * [Squeeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Squeeze)
 * [Sub](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sub)
     * 1st input must not be `"constant"`
