@@ -265,8 +265,8 @@ Set the values with the `--fix_dimension` option."""
 
         return NNOIR(
             self.model.graph.name.encode("utf-8"),
-            self.model.producer_name,
-            self.model.producer_version,
+            self.model.producer_name.encode("utf-8"),
+            self.model.producer_version.encode("utf-8"),
             inputs,  # type: ignore
             outputs,  # type: ignore
             nodes,
