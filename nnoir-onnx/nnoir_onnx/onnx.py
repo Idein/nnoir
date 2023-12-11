@@ -11,6 +11,7 @@ from nnoir import NNOIR, Value
 from nnoir.functions import Function
 from nnoir_onnx.operators import *
 from numpy.typing import NDArray
+from onnx.numpy_helper import to_array
 
 from .operators.utils import InvalidONNXData, Op, UnknownSizedVariable, UnsupportedONNXOperation
 from .utils import freeze_dimension_variables, list_dimension_variables
@@ -155,7 +156,7 @@ Set the values with the `--fix_dimension` option."""
 
         result: Dict[str, NDArray[Any]] = copy.deepcopy(dummy_inputs)
         for t in model.graph.initializer:
-            result[t.name] = onnx.numpy_helper.to_array(t)
+            result[t.name] = to_array(t)
         with tempfile.NamedTemporaryFile() as f:
 
             while len(model.graph.node) > 0:
