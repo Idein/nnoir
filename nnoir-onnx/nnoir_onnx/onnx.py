@@ -16,27 +16,14 @@ from .operators.utils import InvalidONNXData, Op, UnknownSizedVariable, Unsuppor
 from .utils import freeze_dimension_variables, list_dimension_variables
 
 
-def tensor_to_narray(tensor: onnx.TensorProto) -> NDArray[Any]:
-    arr = []
-    storage = onnx.mapping.TENSOR_TYPE_TO_STORAGE_TENSOR_TYPE[tensor.data_type]
-    storage = onnx.mapping.STORAGE_TENSOR_TYPE_TO_FIELD[storage]
-    arr = getattr(tensor, storage)
-    if arr == []:
-        result: NDArray[Any] = np.frombuffer(tensor.raw_data, dtype=onnx.mapping.TENSOR_TYPE_TO_NP_TYPE[tensor.data_type])  # type: ignore
-    else:
-        result = np.array(arr, dtype=onnx.mapping.TENSOR_TYPE_TO_NP_TYPE[tensor.data_type])
-    shape = tensor.dims if tensor.dims != [] else [1]
-    return result.reshape(*shape)
-
-
 def narray_to_value_info(name: str, arr: NDArray[Any]) -> onnx.ValueInfoProto:
-    return onnx.helper.make_tensor_value_info(name, onnx.mapping.NP_TYPE_TO_TENSOR_TYPE[arr.dtype], arr.shape)
+    return onnx.helper.make_tensor_value_info(name, onnx.helper.np_dtype_to_tensor_dtype(arr.dtype), arr.shape)
 
 
 def value_info_to_zero_narray(vi: onnx.ValueInfoProto) -> NDArray[Any]:
     return np.zeros(
         list(map(lambda x: x.dim_value, vi.type.tensor_type.shape.dim)),
-        dtype=onnx.mapping.TENSOR_TYPE_TO_NP_TYPE[vi.type.tensor_type.elem_type],
+        dtype=onnx.helper.tensor_dtype_to_np_dtype(vi.type.tensor_type.elem_type),
     )
 
 
@@ -168,7 +155,7 @@ Set the values with the `--fix_dimension` option."""
 
         result: Dict[str, NDArray[Any]] = copy.deepcopy(dummy_inputs)
         for t in model.graph.initializer:
-            result[t.name] = tensor_to_narray(t)
+            result[t.name] = onnx.numpy_helper.to_array(t)
         with tempfile.NamedTemporaryFile() as f:
 
             while len(model.graph.node) > 0:
