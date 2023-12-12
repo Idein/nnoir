@@ -111,6 +111,11 @@ Set the values with the `--fix_dimension` option."""
         self.constant_nodes = {n: self.nodes[n] for n in constant_nodes}
         self.opset_version = self.model.opset_import[0].version
 
+        if self.opset_version >= 17:
+            print(
+                f"Warning: The opset version of this model is {self.opset_version}. Inaccurate conversion may occur for opset versions >= 17. Please proceed with caution."
+            )
+
     def _internal_values_info(self, model: onnx.ModelProto) -> List[onnx.ValueInfoProto]:
         values: List[str] = list(set([v for n in model.graph.node for v in n.output]))
         return [onnx.helper.make_empty_tensor_value_info(v) for v in values]
