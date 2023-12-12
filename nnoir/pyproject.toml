@@ -15,7 +15,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.9"
 numpy = "^1"
 msgpack = "^1"
 importlib-metadata = "^4"
@@ -48,7 +48,7 @@ enable_isort = true
 enable_mypy = true
 mypy_preset = "strict"
 line_length = 128
-py_version = "py37"
+py_version = "py39"
 
 [[tool.pysen.lint.mypy_targets]]
   paths = ["."]
