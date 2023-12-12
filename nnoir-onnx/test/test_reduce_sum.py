@@ -23,7 +23,7 @@ def run_opset_11_tester(
             }
             if axes is not None:
                 kwargs["axes"] = axes
-            node = make_node("ReduceSum", **kwargs)
+            node = make_node("ReduceSum", **kwargs)  # type: ignore
             inputs = [info("v0", TensorProto.FLOAT, input_shape)]
             outputs = [info("v1", TensorProto.FLOAT, output_shape)]
 
@@ -60,7 +60,7 @@ def run_opset_13_tester(
                 "keepdims": keepdims,
             }
 
-            node = make_node("ReduceSum", **kwargs)
+            node = make_node("ReduceSum", **kwargs)  # type: ignore
             inputs = [info("v0", TensorProto.FLOAT, input_shape)]
             outputs = [info("v1", TensorProto.FLOAT, output_shape)]
 

@@ -55,7 +55,7 @@ def test_reduce_mean_01() -> None:
 
 def test_reduce_mean_02() -> None:
     """
-    opset version >= 1
+    opset version >= 1 && < 18
     """
 
     class ReduceMeanTester(Base):
@@ -65,7 +65,7 @@ def test_reduce_mean_02() -> None:
             outputs = [info("v1", TensorProto.FLOAT, [1, 1, 1, 5])]
 
             graph = make_graph([node], "add_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 13)])
             return model
 
     v0 = np.random.rand(1, 3, 4, 5).astype(np.float32)

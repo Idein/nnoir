@@ -26,7 +26,7 @@ def test_split_trans_axis2() -> None:
             ]
 
             graph = make_graph([node], "add_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 13)])
             return model
 
     v0 = np.random.rand(1, 3, 4, 10).astype(np.float32)
@@ -49,7 +49,7 @@ def test_split_trans_axis3() -> None:
             ]
 
             graph = make_graph([node], "add_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 13)])
             return model
 
     v0 = np.random.rand(1, 3, 4, 10).astype(np.float32)
@@ -77,7 +77,7 @@ def test_split_default_axis() -> None:
             ]
 
             graph = make_graph([node], "add_graph", inputs, outputs)
-            model = make_model(graph)
+            model = make_model(graph, opset_imports=[make_opsetid("", 13)])
             return model
 
     v0 = np.random.rand(2, 3, 4).astype(np.float32)

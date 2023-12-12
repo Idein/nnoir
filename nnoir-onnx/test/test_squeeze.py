@@ -21,7 +21,7 @@ def run_opset_11_tester(input_shape: Tuple[int, ...], output_shape: Tuple[int, .
                 "Squeeze",
                 inputs=["x"],
                 outputs=["y"],
-                **{"axes": axes for _ in [None] if axes is not None},
+                **{"axes": axes for _ in [None] if axes is not None},  # type: ignore
             )
 
             inputs = [info("x", TensorProto.FLOAT, input_shape)]
