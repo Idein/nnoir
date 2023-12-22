@@ -75,6 +75,8 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20230720 onnx
 * [Mul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Mul)
 * [Pad](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pad)
     * `mode` must be `"constant"`
+* [Pow](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pow)
+    * 2nd input must not be `"constant"`
 * [PRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#PRelu)
     * `slope` must be `"constant"` and a single value tensor
 * [ReduceMean](https://github.com/onnx/onnx/blob/master/docs/Operators.md#reducemean)

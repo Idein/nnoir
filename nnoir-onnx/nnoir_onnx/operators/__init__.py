@@ -27,6 +27,7 @@ from .mat_mul import OpMatMul
 from .max_pool import OpMaxPool
 from .mul import OpMul
 from .pad import OpPad
+from .pow import OpPow
 from .prelu import OpPRelu
 from .reduce_mean import OpReduceMean
 from .reduce_sum import OpReduceSum
