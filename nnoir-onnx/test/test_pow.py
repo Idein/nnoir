@@ -96,4 +96,3 @@ def test_pow_02() -> None:
 
     outputs = ["z"]
     PowTester({"x": v0, "y": v1}, outputs).run()
-
