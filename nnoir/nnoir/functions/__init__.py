@@ -31,6 +31,7 @@ from .resize_2d import Resize2D
 from .scale import Scale
 from .sigmoid import Sigmoid
 from .sin import Sin
+from .slice import Slice
 from .softmax import Softmax
 from .softmax_cross_entropy import SoftmaxCrossEntropy
 from .sub import Sub
