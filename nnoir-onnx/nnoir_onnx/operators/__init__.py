@@ -36,6 +36,7 @@ from .reshape import OpReshape
 from .resize import OpResize
 from .sigmoid import OpSigmoid
 from .sin import OpSin
+from .slice import OpSlice
 from .softmax import OpSoftmax
 from .split import OpSplit
 from .squeeze import OpSqueeze
