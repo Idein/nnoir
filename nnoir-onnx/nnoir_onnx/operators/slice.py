@@ -35,7 +35,6 @@ class OpSlice(Op):
             raise UnsupportedONNXOperation(self.node, "axes must be constant")
         else:
             axes_v = constants[axes]
-        
                 
         if steps is not None and not np.all(np.array(steps) == 1):
             UnsupportedONNXOperation(self.node, "# of steps must be None or array of 1")
