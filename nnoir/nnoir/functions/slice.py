@@ -19,6 +19,6 @@ class Slice(Function):
 
         indices = [np.s_[:]] * x.ndim
         for i in range(len(axes)):
-            indices[axes[i]] = np.s_[starts[i]:ends[i]]
+            indices[axes[i]] = np.s_[starts[i] : ends[i]]
         R = x[tuple(indices)].copy()
         return R
