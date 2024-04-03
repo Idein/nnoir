@@ -39,7 +39,7 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20240208 onnx
     * must be opset version 6 or 11
     * if opset version is 11
       * `max` must be `"constant"`
-    * `min` must be 0
+    * `min` must be `0`
 * [Concat](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Concat)
 * [Conv](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Conv)
     * `W` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
@@ -76,7 +76,7 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20240208 onnx
 * [Pad](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pad)
     * `mode` must be `"constant"`
 * [Pow](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pow)
-    * 2nd input must not be `"constant"`
+    * 2nd input must be `2.0`
 * [PRelu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#PRelu)
     * `slope` must be `"constant"` and a single value tensor
 * [ReduceMean](https://github.com/onnx/onnx/blob/master/docs/Operators.md#reducemean)
