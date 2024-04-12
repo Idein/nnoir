@@ -1,5 +1,5 @@
-from typing import Any, Dict, List, Optional, Tuple
 from functools import reduce
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import onnx
@@ -14,7 +14,7 @@ class OpSlice(Op):
         super(OpSlice, self).__init__(node, *args)
 
     def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
-        axes  = None
+        axes = None
         steps = None
 
         if len(self.node.input) == 3:
@@ -35,10 +35,8 @@ class OpSlice(Op):
             raise UnsupportedONNXOperation(self.node, "axes must be constant")
         else:
             axes_v = constants[axes]
-                
+
         if steps is not None and not np.all(np.array(steps) == 1):
             UnsupportedONNXOperation(self.node, "# of steps must be None or array of 1")
-        
+
         return [Slice([x], list(self.node.output), starts=constants[starts], ends=constants[ends], axes=axes_v)]
-
-
