@@ -26,16 +26,9 @@ def test_sin_00() -> None:
             init_ends = from_array(np.array([2, 3]).astype(np.int32), "ends")
             init_axes = from_array(np.array([0, 1]).astype(np.int32), "axes")
 
-            graph = make_graph(
-                [node], 
-                "slice_graph", 
-                inputs, 
-                outputs, 
-                initializer=[init_starts, init_ends, init_axes]
-            )
+            graph = make_graph([node], "slice_graph", inputs, outputs, initializer=[init_starts, init_ends, init_axes])
             return make_model(graph)
 
     v0 = np.random.rand(2, 4).astype(np.float32)
     outputs = ["v1"]
     SliceTester({"v0": v0}, outputs).run()
-
