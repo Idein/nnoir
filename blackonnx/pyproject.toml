@@ -30,6 +30,7 @@ mypy = "^1.0"
 pytest = "^6.2.5"
 tflite2onnx = "^0.4.0"
 nnoir-onnx = {path = "../nnoir-onnx/", develop = true }
+nnoir = {path = "../nnoir/", develop = true }
 
 [tool.poetry.scripts]
 blackonnx = "blackonnx.main:main"
