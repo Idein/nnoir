@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
 import onnx
-from nnoir.functions import Bias, Constant, Function, Sub
+from nnoir.functions import Bias, Function, Sub, Constant
 from numpy.typing import NDArray
 
 from .utils import *
