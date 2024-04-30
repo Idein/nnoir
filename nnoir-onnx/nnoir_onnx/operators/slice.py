@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import onnx
-from nnoir.functions import Function, Slice
+from nnoir.functions import Slice, Function
 from numpy.typing import NDArray
 
 from .utils import *
@@ -43,7 +43,7 @@ class OpSlice(Op):
         # Convert parameter values ​​to values ​​suitable for nnoir.
         x_shape = np.array(env[x].shape)
         axes = np.zeros(x_ndim).astype(np.int32)
-        axes[: (max(axes_value) + 1)] = np.bincount(axes_value)
+        axes[:(max(axes_value)+1)] = np.bincount(axes_value)
         starts = np.zeros(x_ndim).astype(np.int32)
         starts[axes > 0] = constants[starts_key]
         starts[starts < 0] = x_shape[starts < 0] + x_shape[starts < 0]

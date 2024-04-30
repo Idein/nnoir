@@ -16,6 +16,6 @@ class Slice(Function):
         starts = np.array(self.params["starts"])
         ends = np.array(self.params["ends"])
 
-        indices = [np.s_[starts[i] : ends[i]] for i in range(np.ndim(x))]
+        indices = [np.s_[starts[i]:ends[i]] for i in range(np.ndim(x))]
         R = x[tuple(indices)].copy()
         return R
