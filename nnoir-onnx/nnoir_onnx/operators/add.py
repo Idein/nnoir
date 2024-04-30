@@ -23,7 +23,6 @@ class OpAdd(Op):
             ]
 
         if a in constants and b not in constants:
-            print(b)
             return constant_add(b, a)
         elif a not in constants and b in constants:
             return constant_add(a, b)

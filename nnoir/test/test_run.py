@@ -423,7 +423,6 @@ def test_Slice() -> None:
         sys._getframe().f_code.co_name[5:],
         [(b"v0", (2, 4))],
         [(b"v2", (1, 3))],
-        axes=[0, 1],
         starts=[1, 0],
         ends=[2, 3],
     )
