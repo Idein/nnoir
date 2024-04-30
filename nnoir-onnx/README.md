@@ -94,6 +94,7 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20240208 onnx
 * [Slice](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Slice)
     * `starts` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `ends` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
+    * `axes` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `steps` is not supported
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
 * [Split](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Split)
