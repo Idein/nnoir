@@ -12,7 +12,7 @@ from util import Base
 info = make_tensor_value_info
 
 
-def test_sin_00() -> None:
+def test_slice_00() -> None:
     class SliceTester(Base):
         def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
@@ -33,7 +33,7 @@ def test_sin_00() -> None:
     SliceTester({"v0": v0}, outputs).run()
 
 
-def test_sin_01() -> None:
+def test_slice_01() -> None:
     class SliceTester(Base):
         def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
@@ -56,7 +56,7 @@ def test_sin_01() -> None:
 
 
 @pytest.mark.xfail()
-def test_sin_02() -> None:
+def test_slice_02() -> None:
     class SliceTester(Base):
         def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
             super().__init__(inputs, outputs)
@@ -71,7 +71,9 @@ def test_sin_02() -> None:
             init_axes = from_array(np.array([0, 2]).astype(np.int32), "axes")
             init_steps = from_array(np.array([1, 2]).astype(np.int32), "steps")
 
-            graph = make_graph([node], "slice_graph", inputs, outputs, initializer=[init_starts, init_ends, init_axes, init_steps])
+            graph = make_graph(
+                [node], "slice_graph", inputs, outputs, initializer=[init_starts, init_ends, init_axes, init_steps]
+            )
             return make_model(graph)
 
     v0 = np.random.rand(3, 5, 6).astype(np.float32)
