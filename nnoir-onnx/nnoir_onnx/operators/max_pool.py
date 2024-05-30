@@ -36,8 +36,7 @@ class OpMaxPool(Op):
 
             # opset version >= 11
             elif attr.name == "dilations":
-                if any(i != 1 for i in attr.ints):
-                    raise UnsupportedONNXOperation(self.node, "only array of 1 is supported for attribute `dilations`")
+                raise UnsupportedONNXOperation(self.node, "attribute `dilations` is not supported")
             else:
                 raise UnsupportedONNXOperation(self.node, f"unknown attribute {attr.name}")
 
