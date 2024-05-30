@@ -5,6 +5,7 @@ import onnx
 from numpy.typing import NDArray
 from onnx import TensorProto
 from onnx.helper import make_graph, make_model, make_node, make_tensor_value_info
+from onnx.numpy_helper import from_array
 from util import Base
 
 info = make_tensor_value_info
@@ -37,6 +38,34 @@ def test_sub_00() -> None:
 
 def test_sub_01() -> None:
     """
+    with one constant
+    """
+    shape = (3, 4, 5)
+
+    class SubTester(Base):
+        def __init__(self, inputs: Dict[str, NDArray[Any]], outputs: List[str]):
+            super().__init__(inputs, outputs)
+
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node("Sub", inputs=["v0", "v1"], outputs=["v2"])
+            inputs = [info("v1", TensorProto.FLOAT, shape)]
+            outputs = [info("v2", TensorProto.FLOAT, shape)]
+
+            v0 = np.random.rand(*shape).astype(np.float32)
+
+            v0_init = from_array(v0, "v0")
+            graph = make_graph([node], "add_graph", inputs, outputs, initializer=[v0_init])
+            model = make_model(graph)
+            return model
+
+    v1 = np.random.rand(*shape).astype(np.float32)
+
+    outputs = ["v2"]
+    SubTester({"v1": v1}, outputs).run()
+
+
+def test_sub_02() -> None:
+    """
     Test for multidirectional broadcasting
     https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md
     """
@@ -63,7 +92,7 @@ def test_sub_01() -> None:
     SubTester({"v0": v0, "v1": v1}, outputs).run()
 
 
-def test_sub_02() -> None:
+def test_sub_03() -> None:
     """
     Test for multidirectional broadcasting
     https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md
