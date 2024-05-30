@@ -100,7 +100,6 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20240208 onnx
 * [Split](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Split)
 * [Squeeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Squeeze)
 * [Sub](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sub)
-    * 1st input must not be `"constant"`
 * [Sum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sum)
     * 2 inputs
 * [Tan](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tan)
