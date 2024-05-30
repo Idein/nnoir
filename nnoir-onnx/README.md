@@ -71,7 +71,7 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20240208 onnx
 * [MatMul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MatMul)
 * [MaxPool](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MaxPool)
     * `ceil_mode = 1` is not supported
-    * `dilations` is not supported
+    * `dilations` must be array of 1.
 * [Mul](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Mul)
 * [Pad](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Pad)
     * `mode` must be `"constant"`
