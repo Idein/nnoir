@@ -64,12 +64,41 @@ def test_max_pool_01() -> None:
     MaxPoolTester({"v0": v0}, outputs).run()
 
 
-@pytest.mark.xfail(raises=UnsupportedONNXOperation)
 def test_max_pool_02() -> None:
     """
     opset version >= 11
 
-    `dilations` is not supported
+    `dilations` must be 1.
+    """
+
+    class MaxPoolTester(Base):
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node(
+                "MaxPool",
+                inputs=["v0"],
+                outputs=["v1"],
+                kernel_shape=[2, 2],
+                strides=[2, 2],
+                dilations=[1, 1],
+            )
+            inputs = [info("v0", TensorProto.FLOAT, (1, 2, 5, 5))]
+            outputs = [info("v1", TensorProto.FLOAT, (1, 2, 2, 2))]
+            graph = make_graph([node], "add_graph", inputs, outputs)
+            model = make_model(graph)
+            return model
+
+    v0 = np.random.rand(1, 2, 5, 5).astype(np.float32)
+
+    outputs = ["v1"]
+    MaxPoolTester({"v0": v0}, outputs).run()
+
+
+@pytest.mark.xfail(raises=UnsupportedONNXOperation)
+def test_max_pool_03() -> None:
+    """
+    opset version >= 11
+
+    `dilations` must be 1.
     """
 
     class MaxPoolTester(Base):
@@ -94,7 +123,7 @@ def test_max_pool_02() -> None:
     MaxPoolTester({"v0": v0}, outputs).run()
 
 
-def test_max_pool_03() -> None:
+def test_max_pool_04() -> None:
     """
     opset version >= 10
 
