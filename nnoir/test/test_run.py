@@ -418,6 +418,16 @@ def test_Sin() -> None:
     )
 
 
+def test_Slice() -> None:
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b"v0", (2, 4))],
+        [(b"v2", (1, 3))],
+        starts=[1, 0],
+        ends=[2, 3],
+    )
+
+
 def test_Softmax() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
