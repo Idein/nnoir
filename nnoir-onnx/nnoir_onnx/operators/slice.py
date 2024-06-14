@@ -12,6 +12,9 @@ class OpSlice(Op):
     def __init__(self, node: onnx.NodeProto, *args: Any):
         super(OpSlice, self).__init__(node, *args)
 
+        if self.opset_version < 10:
+            raise UnsupportedONNXOperation(self.node, "only opset_version >= 10 is supported")
+
     def to_function(self, env: Dict[str, NDArray[Any]], constants: Dict[str, NDArray[Any]]) -> List[Function]:
         axes_key = None
         steps_key = None
