@@ -92,6 +92,7 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20240208 onnx
 * [Sigmoid](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sigmoid)
 * [Sin](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sin)
 * [Slice](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Slice)
+    * must be from opset version >= 10
     * `starts` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `ends` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
     * `axes` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value or have initializer value
