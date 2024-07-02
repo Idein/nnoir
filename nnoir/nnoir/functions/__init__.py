@@ -33,6 +33,7 @@ from .sigmoid import Sigmoid
 from .sin import Sin
 from .slice import Slice
 from .softmax import Softmax
+from .sqrt import Sqrt
 from .softmax_cross_entropy import SoftmaxCrossEntropy
 from .sub import Sub
 from .sum import Sum
