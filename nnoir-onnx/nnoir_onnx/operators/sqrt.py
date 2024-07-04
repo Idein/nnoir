@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional, Tuple
 
 import onnx
-from nnoir.functions import Sqrt, Function
+from nnoir.functions import Function, Sqrt
 from numpy.typing import NDArray
 
 from .utils import *
