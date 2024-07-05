@@ -107,3 +107,7 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20240208 onnx
 * [Tanh](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tanh)
 * [Transpose](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Transpose)
 * [Unsqueeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Unsqueeze)
+* [Where](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Where)
+  * `condition` must be [Constant](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) value
+  * `condition` must all true or all false
+  * the input value not selected must be constant
