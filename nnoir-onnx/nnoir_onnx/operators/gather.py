@@ -30,6 +30,8 @@ class OpGather(Op):
                 inode_v = np.zeros(inode_shape).astype(np.float32)
                 inode_name = gen_unregisterd_node_name(env)
                 register_node(env, inode_name, inode_v)
+
+                indices_v = v0_shape[self.axis] + indices_v if indices_v < 0 else indices_v
                 starts = [0] * len(v0_shape)
                 starts[self.axis] = indices_v.item()
                 ends = list(v0_shape)
