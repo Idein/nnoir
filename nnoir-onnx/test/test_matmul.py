@@ -71,6 +71,33 @@ def test_matmul_02() -> None:
     opset version >= 9
     """
 
+    x_shape = (3, 4)
+    y_shape = (4, 5)
+    out_shape = (3, 5)
+
+    class MatMulTester(Base):
+        def create_onnx(self) -> onnx.ModelProto:
+            node = make_node("MatMul", inputs=["x", "y"], outputs=["z"])
+            inputs = [info("y", TensorProto.FLOAT, y_shape)]
+            outputs = [info("z", TensorProto.FLOAT, out_shape)]
+
+            init_x = from_array(np.random.rand(*x_shape).astype(np.float32), "x")
+
+            graph = make_graph([node], "add_graph", inputs, outputs, initializer=[init_x])
+            model = make_model(graph)
+            return model
+
+    y = np.random.rand(*y_shape).astype(np.float32)
+
+    outputs = ["z"]
+    MatMulTester({"y": y}, outputs).run()
+
+
+def test_matmul_03() -> None:
+    """
+    opset version >= 9
+    """
+
     in_shape0 = (3, 4)
     in_shape1 = (4, 5)
     out_shape = (3, 5)
@@ -95,7 +122,7 @@ def test_matmul_02() -> None:
     MatMulTester({"x": x, "y": y}, outputs).run()
 
 
-def test_matmul_03() -> None:
+def test_matmul_04() -> None:
     """
     opset version >= 9
     """
@@ -124,7 +151,7 @@ def test_matmul_03() -> None:
     MatMulTester({"x": x, "y": y}, outputs).run()
 
 
-def test_matmul_04() -> None:
+def test_matmul_05() -> None:
     """
     opset version >= 9
     """
@@ -153,7 +180,7 @@ def test_matmul_04() -> None:
     MatMulTester({"x": x, "y": y}, outputs).run()
 
 
-def test_matmul_05() -> None:
+def test_matmul_06() -> None:
     """
     opset version >= 9
     """
@@ -182,7 +209,7 @@ def test_matmul_05() -> None:
     MatMulTester({"x": x, "y": y}, outputs).run()
 
 
-def test_matmul_06() -> None:
+def test_matmul_07() -> None:
     """
     opset version >= 9
     """
