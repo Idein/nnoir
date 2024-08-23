@@ -1,7 +1,6 @@
 version: 2.1
 
 references:
-
   defaults: &defaults
     docker:
       - image: python:3.9-buster
@@ -12,7 +11,6 @@ references:
       TZ: "/usr/share/zoneinfo/Asia/Tokyo"
 
 commands:
-
   install-python-dev-tools:
     steps:
       - run:
@@ -73,7 +71,6 @@ commands:
       - run:
           name: Login to docker registry
           command: docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-
 
 jobs:
   check-nnoir:
@@ -219,7 +216,6 @@ jobs:
           command: |
             poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR" --no-interaction
 
-
   release-nnoir-onnx:
     <<: *defaults
     parameters:
@@ -239,7 +235,6 @@ jobs:
           working_directory: << parameters.dir >>
           command: |
             poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR_ONNX" --no-interaction
-
 
   release-nnoir-chainer:
     <<: *defaults
@@ -261,7 +256,6 @@ jobs:
           command: |
             poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_NNOIR_CHAINER" --no-interaction
 
-
   release-blackonnx:
     <<: *defaults
     parameters:
@@ -281,8 +275,6 @@ jobs:
           working_directory: << parameters.dir >>
           command: |
             poetry publish --build --username "__token__" --password "$PYPI_API_TOKEN_BLACKONNX" --no-interaction
-
-
 
 workflows:
   version: 2
