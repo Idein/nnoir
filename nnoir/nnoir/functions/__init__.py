@@ -34,6 +34,7 @@ from .sin import Sin
 from .slice import Slice
 from .softmax import Softmax
 from .softmax_cross_entropy import SoftmaxCrossEntropy
+from .sqrt import Sqrt
 from .sub import Sub
 from .sum import Sum
 from .swish import Swish
