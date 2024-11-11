@@ -40,6 +40,7 @@ from .sin import OpSin
 from .slice import OpSlice
 from .softmax import OpSoftmax
 from .split import OpSplit
+from .sqrt import OpSqrt
 from .squeeze import OpSqueeze
 from .sub import OpSub
 from .sum import OpSum

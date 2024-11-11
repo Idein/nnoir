@@ -4,6 +4,7 @@ from typing import Any, Iterable, Tuple
 
 import nnoir
 import numpy as np
+import pytest
 
 
 def single_function_model(
@@ -34,8 +35,11 @@ def single_function_model(
     expecteds = expected.run(*xs)
     assert len(expecteds) == len(actuals)
     for a, e in zip(actuals, expecteds):
-        print(a - e)
-        assert (a == e).all()
+        if np.isnan(e).any():
+            assert (np.isnan(a) == np.isnan(e)).all() and (np.nan_to_num(a) == np.nan_to_num(e)).all()
+        else:
+            print(a - e)
+            assert (a == e).all()
 
 
 def test_Add() -> None:
@@ -434,6 +438,15 @@ def test_Softmax() -> None:
         [(b"v0", (10, 10))],
         [(b"v2", (10, 10))],
         axis=1,
+    )
+
+
+@pytest.mark.filterwarnings("ignore: invalid value encountered in sqrt")
+def test_Sqrt() -> None:
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b"v0", (3, 3))],
+        [(b"v2", (3, 3))],
     )
 
 
