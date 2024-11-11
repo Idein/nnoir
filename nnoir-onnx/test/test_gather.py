@@ -5,7 +5,7 @@ import onnx
 import pytest
 from numpy.typing import NDArray
 from onnx import TensorProto
-from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor_value_info, make_tensor
+from onnx.helper import make_graph, make_model, make_node, make_opsetid, make_tensor, make_tensor_value_info
 from onnx.numpy_helper import from_array
 from util import Base
 
@@ -50,4 +50,3 @@ def test_gather_01() -> None:
     v0 = np.random.rand(1, 3, 5, 5).astype(np.float32)
     outputs = ["v1"]
     GatherTester({"v0": v0}, outputs).run()
-
