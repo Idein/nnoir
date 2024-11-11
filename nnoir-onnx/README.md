@@ -99,6 +99,7 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20240208 onnx
     * `steps` is not supported
 * [Softmax](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Softmax)
 * [Split](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Split)
+* [Sqrt](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sqrt)
 * [Squeeze](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Squeeze)
 * [Sub](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sub)
 * [Sum](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sum)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nnoir-onnx"
-version = "1.3.0"
+version = "1.4.0"
 description = "ONNX to NNOIR Converter"
 authors = ["Idein Inc."]
 license = "MIT"
@@ -22,7 +22,7 @@ onnx = "<1.14.0"
 onnxruntime = "^1.2.0"
 protobuf = "^3.8"
 importlib-metadata = "^4"
-nnoir = "^1.0.9"
+nnoir = "^1.2.0"
 
 [tool.poetry.dev-dependencies]
 pysen = {version = "^0.10.1"}
