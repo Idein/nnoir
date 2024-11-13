@@ -48,3 +48,4 @@ from .tan import OpTan
 from .tanh import OpTanh
 from .transpose import OpTranspose
 from .unsqueeze import OpUnsqueeze
+from .where import OpWhere
