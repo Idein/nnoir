@@ -16,6 +16,7 @@ from .dropout import OpDropout
 from .elu import OpElu
 from .exp import OpExp
 from .flatten import OpFlatten
+from .gather import OpGather
 from .gemm import OpGemm
 from .global_average_pool import OpGlobalAveragePool
 from .hard_sigmoid import OpHardSigmoid
