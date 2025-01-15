@@ -264,6 +264,7 @@ def test_ELU() -> None:
         alpha=0.5,
     )
 
+
 def test_Erf() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],
