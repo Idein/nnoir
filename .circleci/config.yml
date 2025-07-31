@@ -3,7 +3,7 @@ version: 2.1
 references:
   defaults: &defaults
     docker:
-      - image: python:3.9-buster
+      - image: python:3.9-bullseye
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
