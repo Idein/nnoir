@@ -265,6 +265,14 @@ def test_ELU() -> None:
     )
 
 
+def test_Erf() -> None:
+    single_function_model(
+        sys._getframe().f_code.co_name[5:],
+        [(b"v1", (1, 3, 4, 5))],
+        [(b"v0", (1, 3, 4, 5))],
+    )
+
+
 def test_Exp() -> None:
     single_function_model(
         sys._getframe().f_code.co_name[5:],

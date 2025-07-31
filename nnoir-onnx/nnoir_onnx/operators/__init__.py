@@ -14,6 +14,7 @@ from .cos import OpCos
 from .div import OpDiv
 from .dropout import OpDropout
 from .elu import OpElu
+from .erf import OpErf
 from .exp import OpExp
 from .flatten import OpFlatten
 from .gather import OpGather
