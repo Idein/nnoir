@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nnoir"
-version = "1.3.0"
+version = "1.4.0"
 description = "API for NNOIR"
 authors = ["Idein Inc."]
 license = "MIT"
