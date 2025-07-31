@@ -50,7 +50,7 @@ docker run --rm -it -u $UID:$GID -v $(pwd):/work idein/nnoir-tools:20240208 onnx
 * [Dropout](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Dropout)
     * equivalent identity function
 * [Elu](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Elu)
-* [Exp](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Erf)
+* [Erf](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Erf)
 * [Exp](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Exp)
 * [Flatten](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Flatten)
 * [Gemm](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Gemm)

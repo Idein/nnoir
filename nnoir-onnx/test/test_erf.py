@@ -13,7 +13,7 @@ info = make_tensor_value_info
 
 def test_erf_base() -> None:
     """
-    opset version >= 6
+    opset version >= 13
     """
 
     class ErfTester(Base):
