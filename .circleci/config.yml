@@ -61,7 +61,7 @@ commands:
           working_directory: << parameters.dir >>
           command: |
             TAG=$(echo ${CIRCLE_TAG} |sed -e 's/<< parameters.package-name >>-//')
-            VERSION=$(poetry run python -c 'import pkg_resources; print(pkg_resources.get_distribution("<< parameters.package-name >>").version)')
+            VERSION=$(poetry run python -c 'import importlib.metadata; print(importlib.metadata.version("<< parameters.package-name >>"))')
             echo "Git tag: $TAG"
             echo "Package version: $VERSION"
             test "$VERSION" = "$TAG"
