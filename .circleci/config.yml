@@ -3,7 +3,7 @@ version: 2.1
 references:
   defaults: &defaults
     docker:
-      - image: python:3.9-bullseye
+      - image: python:3.11-bookworm
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -36,7 +36,7 @@ commands:
           name: poetry install in << parameters.dir >>
           working_directory: << parameters.dir >>
           command: |
-            poetry install --no-ansi
+            poetry install --no-ansi --all-groups
 
   lint:
     parameters:
@@ -65,6 +65,14 @@ commands:
             echo "Git tag: $TAG"
             echo "Package version: $VERSION"
             test "$VERSION" = "$TAG"
+
+  install-docker-cli:
+    steps:
+      - run:
+          name: Install Docker CLI
+          command: |
+            apt-get update
+            apt-get install -y --no-install-recommends docker.io
 
   docker-login:
     steps:
@@ -126,29 +134,27 @@ jobs:
     parameters:
       release:
         type: boolean
-    docker:
-      - image: nixos/nix:2.8.1
-        auth: &docker-hub-auth
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-    environment:
-      TZ: "JST-9"
+    <<: *defaults
     steps:
       - checkout
-      - run:
-          name: Build docker image
-          command: |
-            nix --experimental-features 'nix-command flakes' build '.#dockerimage' -o image -L
+      - poetry-install
+      - install-docker-cli
       - setup_remote_docker
-      - run:
-          name: Install docker client
-          command: |
-            nix-env -iA nixpkgs.docker-client
       - docker-login
       - run:
-          name: Load image
+          name: Build nnoir wheel
+          working_directory: nnoir
+          command:
+            poetry build
+      - run:
+          name: Build nnoir-onnx wheel
+          working_directory: nnoir-onnx
+          command:
+            poetry build
+      - run:
+          name: Build image
           command: |
-            docker load < ./image
+            docker build --build-arg NNOIR_VERSION=$(cd nnoir; poetry version -s) --build-arg NNOIR_ONNX_VERSION=$(cd nnoir-onnx; poetry version -s) -t idein/nnoir-tools:latest .
       - when:
           condition: << parameters.release >>
           steps:
