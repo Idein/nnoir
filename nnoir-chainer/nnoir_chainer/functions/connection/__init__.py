@@ -1,2 +1,0 @@
-import nnoir_chainer.functions.connection.convolution_2d
-import nnoir_chainer.functions.connection.linear

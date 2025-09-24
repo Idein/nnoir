@@ -1,2 +1,0 @@
-import nnoir_chainer.functions.normalization.batch_normalization
-import nnoir_chainer.functions.normalization.local_response_normalization
