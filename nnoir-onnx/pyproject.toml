@@ -24,7 +24,7 @@ protobuf = "^3.8"
 importlib-metadata = "^4"
 nnoir = "^1.4.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pysen = {version = "^0.10.1"}
 black = "22.3.0"
 flake8 = "4.0.1"
